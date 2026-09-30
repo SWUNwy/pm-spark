@@ -1,0 +1,12 @@
+{
+  "protocol_version": "review-efficiency/1.0",
+  "conditions": ["numbered_directory", "on_demand_relationship"],
+  "tasks": [
+    {"id":"task-understanding","description":"Identify the intended product behavior"},
+    {"id":"task-location","description":"Locate the relevant annotation"}
+  ],
+  "order_policy": "counterbalanced",
+  "metrics": ["first_understanding_ms", "annotation_location_ms", "click_count"],
+  "guardrails": ["misunderstanding_count", "omission_count", "conflict_count", "locatability"],
+  "minimum_complete_participants": 2
+}

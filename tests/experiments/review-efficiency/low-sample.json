@@ -1,0 +1,6 @@
+{
+  "observations": [
+    {"participant_id":"p01","condition":"numbered_directory","task_id":"task-understanding","order":1,"metrics":{"first_understanding_ms":1200,"annotation_location_ms":1800,"click_count":5},"quality":{"misunderstanding_count":0,"omission_count":0,"conflict_count":0,"locatability":1}},
+    {"participant_id":"p01","condition":"on_demand_relationship","task_id":"task-understanding","order":2,"metrics":{"first_understanding_ms":1000,"annotation_location_ms":1400,"click_count":3},"quality":{"misunderstanding_count":0,"omission_count":0,"conflict_count":0,"locatability":1}}
+  ]
+}

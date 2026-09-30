@@ -1,0 +1,9 @@
+{
+  "manifest_version": "token-baseline-manifest/1.0",
+  "template_version": "delivery-contract/1.0",
+  "samples": [
+    {"id":"product-small-r1","delivery_layer":"product","complexity":"small","round":1,"input":"Product goal and one scenario.","output":"Visible behavior and states."},
+    {"id":"implementation-medium-r2","delivery_layer":"implementation","complexity":"medium","round":2,"input":"Product scenario with API context.","output":"Implementation steps and constraints."},
+    {"id":"acceptance-large-r3","delivery_layer":"acceptance","complexity":"large","round":3,"input":"Full delivery contract.","output":"Acceptance criteria and verification commands."}
+  ]
+}

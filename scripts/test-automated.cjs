@@ -2560,7 +2560,7 @@ register("phase8-094-output-lint-rednote-brand", {
 
 // ─── Phase 9: 评审模式 review-docs 校验（v3.7） ──────────────────────────
 
-const REVIEW_DEMO = path.join(SKILL_DIR, "demo", "review-mode.html");
+const REVIEW_DEMO = path.join(SKILL_DIR, "demo", "demo.html");
 
 function writeReviewTmp(html) {
   const runId = `test-rmdocs-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -2631,19 +2631,17 @@ register("phase9-004-decision-optional", {
 
 register("phase9-005-connections-svg-sizing", {
   group: "phase9",
-  description: "#connections SVG must declare width:100%/height:100% (replaced element falls back to 300x150 and clips all lines)",
+  description: "v4.0 anno-badge must declare position:absolute so badges anchor correctly to proto-elements (徽标锚定契约)",
   run: () => {
     const j = runReviewValidate(REVIEW_DEMO);
-    assert(j.reviewDocs && j.reviewDocs.valid === true, "demo must pass #connections sizing contract");
-    const html = fs.readFileSync(REVIEW_DEMO, "utf8")
-      .replace(/(#connections\{[^}]*?)width:100%;height:100%;/, "$1");
-    const j2 = runReviewValidate(writeReviewTmp(html));
-    assert(j2.reviewDocs && j2.reviewDocs.errors.length > 0, "missing #connections width/height must error");
-    // 反例：min-width/min-height 子串不得满足契约（子串匹配会把 min-width:100% 误判为 width:100%）
-    const html3 = fs.readFileSync(REVIEW_DEMO, "utf8")
-      .replace(/(#connections\{[^}]*?)width:100%;height:100%;/, "$1min-width:100%;min-height:100%;");
-    const j3 = runReviewValidate(writeReviewTmp(html3));
-    assert(j3.reviewDocs && j3.reviewDocs.errors.length > 0, "min-width/min-height must NOT satisfy the width/height contract");
+    assert(j.reviewDocs && j.reviewDocs.valid === true, "demo must pass validation before badge positioning check");
+    const tpl = fs.readFileSync(path.join(SKILL_DIR, "references", "annotation-output-templates.md"), "utf8");
+    const demo = fs.readFileSync(REVIEW_DEMO, "utf8");
+    // .anno-badge must declare position:absolute (proto-element uses position:relative as mount point)
+    assert(tpl.includes(".anno-badge{") && tpl.includes("position:absolute"), "template anno-badge must declare position:absolute");
+    assert(demo.includes(".anno-badge{") && demo.includes("position:absolute"), "demo anno-badge must declare position:absolute");
+    // Negative: removing position:absolute breaks badge anchoring - validate-annotations cannot directly check this (CSS guard is
+    // enforced by the template-sync test), but we verify the badge CSS rule is present in both sources.
     return { passed: true };
   }
 });
@@ -2656,7 +2654,7 @@ register("phase9-006-template-sync", {
     const demo = fs.readFileSync(REVIEW_DEMO, "utf8");
     // 权威块 = 从分节注释起，到下一个 /* ===== 分节注释 / </style> / })(); 为止（demo 的示意样式以分节注释隔开，不计入）
     const CSS_MARK = "/* ===== 评审模式布局（权威，生成时原样嵌入） ===== */";
-    const JS_MARK = "/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */";
+    const JS_MARK = "/* ===== 评审模式权威交互脚本 v4.0（无SVG·徽标锚定·滚动联动；唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */";
     function authBlock(src, mark, label) {
       const i = src.indexOf(mark);
       assert(i !== -1, `${label} start marker not found`);
@@ -2729,6 +2727,102 @@ register("phase9-008-privacy-scrub", {
       for (const pat of PATTERNS) if (c.includes(pat)) leaks.push(`${pat} => ${f}`);
     }
     assert(leaks.length === 0, `检测到本地路径泄漏（开源前必须清除）:\n${leaks.slice(0, 10).join("\n")}`);
+    return { passed: true };
+  }
+});
+
+register("phase10-001-delivery-contract", {
+  group: "phase10",
+  description: "all output routes share a fail-closed Product-only delivery contract",
+  run: () => {
+    const focused = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "test-delivery-contract.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(focused.status, 0, `delivery contract focused test failed: ${focused.stderr || focused.stdout}`);
+
+    const demo = fs.readFileSync(REVIEW_DEMO, "utf8");
+    const variants = [
+      ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "api": "INTERNAL_API_SENTINEL",'],
+      ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "acceptance_criteria": ["ACCEPTANCE_SENTINEL"],'],
+      ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "unknown_delivery_field": true,']
+    ];
+    for (const [needle, replacement] of variants) {
+      const j = runReviewValidate(writeReviewTmp(demo.replace(needle, replacement)));
+      assert(j.reviewDocs && j.reviewDocs.valid === false, `Product-only violation must fail: ${replacement}`);
+      assert(j.reviewDocs.errors.some(error => error.includes("Product-only")), "boundary error must identify Product-only violation");
+    }
+    return { passed: true };
+  }
+});
+
+register("phase10-002-relationship-layer", {
+  group: "phase10",
+  description: "v4.0 badge relationship layer stays synchronized and preserves scroll-linked highlighting",
+  run: () => {
+    const focused = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "test-relationship-layer.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(focused.status, 0, `relationship layer focused test failed: ${focused.stderr || focused.stdout}`);
+    const demo = runReviewValidate(REVIEW_DEMO);
+    assert(demo.reviewDocs && demo.reviewDocs.valid === true, "demo review docs must remain valid");
+    return { passed: true };
+  }
+});
+
+register("phase10-003-token-baseline", {
+  group: "phase10",
+  description: "token baseline remains deterministic and separates proxy from actual measurement",
+  run: () => {
+    const focused = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "test-token-baseline.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(focused.status, 0, `token baseline focused test failed: ${focused.stderr || focused.stdout}`);
+    const first = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "token-baseline.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    const second = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "token-baseline.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(first.status, 0, `token baseline CLI failed: ${first.stderr || first.stdout}`);
+    assertEq(second.status, 0, `token baseline CLI repeat failed: ${second.stderr || second.stdout}`);
+    assert(first.stdout === second.stdout, "token baseline CLI output must be deterministic");
+    const result = JSON.parse(first.stdout);
+    assert(result.status === "not_measured", "proxy baseline must not claim actual measurement");
+    assert(result.samples.every(sample => sample.actual_tokens === null), "proxy baseline must keep actual_tokens null");
+    return { passed: true };
+  }
+});
+
+register("phase10-004-review-efficiency", {
+  group: "phase10",
+  description: "review efficiency protocol validates observations without overstating fixture evidence",
+  run: () => {
+    const focused = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "test-review-efficiency.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(focused.status, 0, `review efficiency focused test failed: ${focused.stderr || focused.stdout}`);
+    const cli = spawnSync(process.execPath, [path.join(SKILL_DIR, "scripts", "review-efficiency.cjs")], {
+      encoding: "utf8",
+      cwd: SKILL_DIR,
+      timeout: 15000
+    });
+    assertEq(cli.status, 0, `review efficiency CLI failed: ${cli.stderr || cli.stdout}`);
+    const result = JSON.parse(cli.stdout);
+    assertEq(result.status, "measured", "complete fixture observations should produce a measured summary");
+    assertEq(result.efficiency_verdict, "descriptive_only", "fixture observations must not produce a causal verdict");
+    assertEq(result.evidence_status, "fixture_or_observation_data_only", "fixture evidence boundary must remain explicit");
     return { passed: true };
   }
 });

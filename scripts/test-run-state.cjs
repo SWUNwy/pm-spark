@@ -79,6 +79,7 @@ test("executes the happy-path closed loop", () => {
   run(["evidence", "--state", state, "--kind", "user_fact", "--source", "user-request", "--claim", "User needs a recoverable loop", "--confidence", "high", "--status", "supports"]);
   run(["transition", "--state", state, "--to", "synthesizing", "--reason", "evidence sufficient"]);
   run(["gate", "--state", state, "--id", "G2", "--status", "pass", "--evidence", "evidence.jsonl#1"]);
+  run(["gate", "--state", state, "--id", "G-Adversarial", "--status", "pass", "--evidence", "review-log.md#clear"]);
   run(["transition", "--state", state, "--to", "verifying", "--reason", "draft ready"]);
   run(["check", "--state", state, "--id", "semantic-rubric", "--status", "pass", "--evidence", "scorecard.json"]);
   run(["check", "--state", state, "--id", "self-review", "--status", "pass", "--evidence", "scorecard.json#self-review"]);
@@ -96,6 +97,7 @@ test("enforces the repair budget", () => {
   run(["transition", "--state", state, "--to", "scoped", "--reason", "scoped"]);
   run(["transition", "--state", state, "--to", "synthesizing", "--reason", "local facts sufficient"]);
   run(["gate", "--state", state, "--id", "G2", "--status", "pass", "--evidence", "evidence.jsonl"]);
+  run(["gate", "--state", state, "--id", "G-Adversarial", "--status", "pass", "--evidence", "review-log.md#clear"]);
   run(["transition", "--state", state, "--to", "verifying", "--reason", "draft"]);
   run(["transition", "--state", state, "--to", "repairing", "--reason", "failed coverage"]);
   run(["transition", "--state", state, "--to", "verifying", "--reason", "coverage repaired"]);
@@ -226,6 +228,51 @@ test("rejects completion without a self-review check", () => {
   run(["gate", "--state", state, "--id", "G3", "--status", "pass", "--evidence", "scorecard.json"]);
   const result = run(["transition", "--state", state, "--to", "completed", "--reason", "attempt without self-review"], 1);
   if (result.error !== "Self-review check not satisfied") throw new Error("missing self-review did not block completion");
+});
+
+function signTestState(state) {
+  const copy = { ...state };
+  delete copy._state_signature;
+  const key = require("crypto").createHash("sha256").update(`analyze-state-key:${state.run_id}`).digest("hex");
+  const payload = JSON.stringify(copy, Object.keys(copy).sort().filter((key) => key !== "_state_signature"));
+  state._state_signature = require("crypto").createHmac("sha256", key).update(payload).digest("hex");
+}
+
+test("initializes with the built-in adversarial gate", () => {
+  run(["init", "--root", tempRoot, "--goal", "Adversarial gate", "--run-id", "adversarial-init"]);
+  const state = JSON.parse(fs.readFileSync(statePath("adversarial-init"), "utf8"));
+  if (!state.gates["G-Adversarial"] || state.gates["G-Adversarial"].status !== "pending") throw new Error("G-Adversarial was not initialized");
+  const result = run(["validate", "--state", statePath("adversarial-init")]);
+  if (!result.ok) throw new Error("new state with G-Adversarial did not validate");
+});
+
+test("migrates an old state without overwriting existing gates", () => {
+  run(["init", "--root", tempRoot, "--goal", "Migrate old state", "--run-id", "migrate-old"]);
+  const stateFile = statePath("migrate-old");
+  const state = JSON.parse(fs.readFileSync(stateFile, "utf8"));
+  state.gates["G1"] = { id: "G1", status: "pass", evidence: "legacy.md", reason: null, evaluated_at: "2020-01-01T00:00:00.000Z" };
+  delete state.gates["G-Adversarial"];
+  signTestState(state);
+  fs.writeFileSync(stateFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  const migrated = run(["migrate", "--state", stateFile]);
+  if (!migrated.changed || !migrated.added_gates.includes("G-Adversarial")) throw new Error("migration did not add missing gate");
+  const after = JSON.parse(fs.readFileSync(stateFile, "utf8"));
+  if (after.gates.G1.evidence !== "legacy.md" || after.gates.G1.status !== "pass") throw new Error("migration overwrote existing gate");
+  if (!after.gates["G-Adversarial"] || after.history.at(-1).type !== "state_migrated") throw new Error("migration was not auditable");
+  const second = run(["migrate", "--state", stateFile]);
+  if (second.changed) throw new Error("migration was not idempotent");
+  const invalid = run(["gate", "--state", stateFile, "--id", "G-Adversarial", "--status", "fail", "--reason", "B-01..B-04 blocking findings"]);
+  if (invalid.gate.status !== "fail") throw new Error("failed adversarial review was not recorded");
+});
+
+test("migration rejects unsigned state", () => {
+  run(["init", "--root", tempRoot, "--goal", "Unsigned migration", "--run-id", "migrate-unsigned"]);
+  const stateFile = statePath("migrate-unsigned");
+  const state = JSON.parse(fs.readFileSync(stateFile, "utf8"));
+  delete state._state_signature;
+  fs.writeFileSync(stateFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  const result = run(["migrate", "--state", stateFile], 1);
+  if (!String(result.error).includes("signature")) throw new Error("unsigned migration was accepted");
 });
 
 const failed = tests.filter((item) => !item.ok);

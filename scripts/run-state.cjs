@@ -16,7 +16,7 @@ const STATUSES = new Set([
 ]);
 const BUILTIN_GATE_IDS = [
   "G1", "G2", "G3", "G-Decompose", "G-Explore",
-  "G-Architecture", "G-Spec", "G-Section", "G-Human"
+  "G-Architecture", "G-Spec", "G-Section", "G-Human", "G-Adversarial"
 ];
 const GATE_STATUSES = new Set(["pending", "pass", "fail", "skip"]);
 const EVIDENCE_KINDS = new Set([
@@ -314,7 +314,7 @@ function checkActionLevel(state, requestedAction) {
 
 // ─── Load / Save ──────────────────────────────────────────────────────────
 
-function loadState(file) {
+function loadState(file, { warnOnInvalidSignature = true } = {}) {
   const resolved = path.resolve(file);
   if (!fs.existsSync(resolved)) abort("State file does not exist", { state: resolved });
   let state;
@@ -323,7 +323,7 @@ function loadState(file) {
   } catch (error) {
     abort("State file is invalid JSON", { state: resolved, detail: error.message });
   }
-  if (!verifyStateSignature(state)) {
+  if (warnOnInvalidSignature && !verifyStateSignature(state)) {
     process.stderr.write(JSON.stringify({
       ok: false, warning: "State signature mismatch or missing — file may have been modified outside the harness",
       state: resolved
@@ -361,6 +361,7 @@ function requiredGateIds(state) {
   if (state.decomposition_required) ids.push("G-Decompose");
   if (state.track === "explore") ids.push("G-Explore");
   if (state.track === "analyze" && ["solution", "mixed"].includes(state.analysis_type)) ids.push("G-Architecture");
+  if (state.track === "analyze" && String(state.depth || "standard").toLowerCase() === "deep") ids.push("G-Adversarial");
   if (state.track === "specify") {
     ids.push("G-Spec");
     if (state.section_review_required) ids.push("G-Section");
@@ -597,6 +598,7 @@ function commandTransition(args) {
     const beforeVerify = ["G2", ...requiredConstitutionGates(ctx.state, "verify")];
     if (ctx.state.track === "explore") beforeVerify.push("G-Explore");
     if (ctx.state.track === "analyze" && ["solution", "mixed"].includes(ctx.state.analysis_type)) beforeVerify.push("G-Architecture");
+    if (ctx.state.track === "analyze" && String(ctx.state.depth || "standard").toLowerCase() === "deep") beforeVerify.push("G-Adversarial");
     if (ctx.state.track === "specify") {
       beforeVerify.push("G-Spec");
       if (ctx.state.section_review_required) beforeVerify.push("G-Section");
@@ -917,6 +919,40 @@ function commandCheckpoint(args) {
   const ctx = loadState(requireArg(args, "state"));
   const checkpoint = writeCheckpoint(ctx);
   emit({ ok: true, command: "checkpoint", checkpoint });
+}
+
+function commandMigrate(args) {
+  const ctx = loadState(requireArg(args, "state"), { warnOnInvalidSignature: false });
+  if (!verifyStateSignature(ctx.state)) {
+    abort("Cannot migrate state with missing or invalid signature", { state: ctx.file });
+  }
+  const addedGates = [];
+  for (const id of BUILTIN_GATE_IDS) {
+    if (!ctx.state.gates || !ctx.state.gates[id]) {
+      if (!ctx.state.gates || typeof ctx.state.gates !== "object" || Array.isArray(ctx.state.gates)) {
+        abort("Cannot migrate state with invalid gates object", { state: ctx.file });
+      }
+      ctx.state.gates[id] = defaultGate(id);
+      addedGates.push(id);
+    }
+  }
+  if (addedGates.length === 0) {
+    emit({ ok: true, command: "migrate", changed: false, added_gates: [], state: ctx.file });
+    return;
+  }
+  appendHistory(ctx.state, {
+    type: "state_migrated",
+    migration: "builtin-gates-compatibility",
+    added_gates: addedGates
+  });
+  saveState(ctx);
+  updateIndex(ctx);
+  appendAuditEvent(ctx, {
+    type: "state_migration",
+    migration: "builtin-gates-compatibility",
+    added_gates: addedGates
+  });
+  emit({ ok: true, command: "migrate", changed: true, added_gates: addedGates, state: ctx.file });
 }
 
 function commandValidate(args) {
@@ -5491,6 +5527,7 @@ Commands:
   check --state <file> --id <id> --status pass|fail|waived [--evidence ref] [--reason text]
   checkpoint --state <file>
   validate --state <file>
+  migrate --state <file>
   status --state <file>
 
   index --state <file>|--root <dir> [--query] [--filter key=val] [--limit N] [--aggregate] [--similar <text>]
@@ -5556,6 +5593,7 @@ const commands = {
   check: commandCheck,
   checkpoint: commandCheckpoint,
   validate: commandValidate,
+  migrate: commandMigrate,
   status: commandStatus,
   index: commandIndex,
   metrics: commandMetrics,

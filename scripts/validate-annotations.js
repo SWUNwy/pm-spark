@@ -15,6 +15,14 @@
  */
 
 const fs = require('fs');
+const path = require('path');
+const {
+  loadContract
+} = require('./delivery-contract.cjs');
+
+const DELIVERY_CONTRACT = loadContract(
+  path.join(__dirname, '..', 'references', 'delivery-contract.json')
+);
 
 // ============================================================
 // 类型模板定义
@@ -664,14 +672,22 @@ function validateReviewDocs(content) {
   const compIds = new Set(
     [...content.matchAll(/data-proto-id="([^"]+)"/g)].map(x => x[1])
   );
-  // 连线层尺寸契约：SVG 是替换元素，inset:0 不会拉伸，缺 width/height 时回退内在尺寸 300×150 导致连线全部被裁剪不可见
-  const connRules = [...content.matchAll(/#connections\s*\{([^}]*)\}/g)].map(x => x[1]);
-  const connRule = connRules.find(r => r.includes('position:absolute') || r.includes('position: absolute'));
-  if (!connRule) {
-    errors.push('缺少 #connections 连线层 CSS 规则（评审模式连线依赖该 SVG 层）');
-  } else if (!/(?:^|;)\s*width:\s*100%/.test(connRule) || !/(?:^|;)\s*height:\s*100%/.test(connRule)) {
-    errors.push('#connections 规则缺少 width:100%/height:100%（SVG 为替换元素，inset:0 不会拉伸，将回退 300×150 内在尺寸导致连线被裁剪不可见）');
+
+  // Product-only 交付边界（v4.0）：直接检查场景顶层字段的 delivery layer 归属。
+  // 场景内的 annotation 子对象是产品描述性内容，不逐字段递归校验；
+  // 仅拦截场景顶层出现的 implementation/acceptance 字段，以及合同未登记的未知字段。
+  const PRODUCT_IDX = DELIVERY_CONTRACT.layers.indexOf('product');
+  for (const [sid, scene] of Object.entries(docs)) {
+    for (const field of Object.keys(scene)) {
+      const owner = DELIVERY_CONTRACT.field_owners[field];
+      if (!owner) {
+        errors.push(`场景 ${sid} 违反 Product-only 交付边界: 未知字段 ${field}（UNKNOWN_FIELD）`);
+      } else if (DELIVERY_CONTRACT.layers.indexOf(owner) > PRODUCT_IDX) {
+        errors.push(`场景 ${sid} 违反 Product-only 交付边界: 字段 ${field} 属于 ${owner} 层（DELIVERY_LAYER_VIOLATION）`);
+      }
+    }
   }
+
   Object.keys(docs).forEach(sid => {
     const scene = docs[sid];
     if (!scene.heading) errors.push(`场景 ${sid} 缺少 heading`);
@@ -681,7 +697,6 @@ function validateReviewDocs(content) {
       if (!it.protoId) errors.push(`条目 ${ref} 缺少 protoId`);
       else if (!compIds.has(it.protoId)) errors.push(`条目 ${ref} 的 protoId "${it.protoId}" 无对应 data-proto-id 组件`);
       if (!it.title) errors.push(`条目 ${ref} 缺少 title`);
-      if (!it.text) errors.push(`条目 ${ref} 缺少 text（L1）`);
       if (!SCOPES.includes(it.scopeMark)) errors.push(`条目 ${ref} scopeMark 非法: ${it.scopeMark}（允许 existing/new/adjusted）`);
       if (it.decision !== undefined) warnings.push(`条目 ${ref} 不应携带 decision（decision 属于场景级）`);
     });

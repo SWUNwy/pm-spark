@@ -352,6 +352,14 @@ description: "产品经理工作伴侣。按 PM 实际处境提供帮助：理�
 
 ---
 
+## 交付契约（Product-only）
+
+所有输出入口共享 `references/delivery-contract.json` 定义的 Product-only 交付边界。在写入 HTML、Markdown 或其他序列化输出前，必须调用 `filterDelivery(sourceDocument, "product", contract)`；不得直接序列化含 Implementation 或 Acceptance 字段的源文档。
+
+入口 `full`、`standard`、`lightweight`、`direct_annotation`、`html_review_docs` 默认映射到 `product` 层。实施或验收内容只能通过显式提升 delivery layer 输出。
+
+---
+
 ## 版本规范
 
 当前版本：`5.0.0`。完整变更历史见 `CHANGELOG.md`。
