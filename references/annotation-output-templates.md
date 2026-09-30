@@ -2,7 +2,12 @@
 
 三种输出格式对应三条路由路径。Full 路径使用 spec-analyze 独有的标注框架与三文档输出。
 
-## 输出路径
+## Product-only 交付边界
+
+所有入口共享 `references/delivery-contract.json`。在写入 HTML、Markdown 或其他序列化输出前，必须调用 `filterDelivery(sourceDocument, "product", contract)`；不得直接序列化含 Implementation 或 Acceptance 字段的源文档。
+
+入口 `full`、`standard`、`lightweight`、`direct_annotation`、`html_review_docs` 默认映射到 `product` 层。实施或验收内容只能通过显式提升 delivery layer 输出。
+
 
 | 路径 | 输出 | 默认位置 |
 |---|---|---|
@@ -420,9 +425,9 @@ i18n         国际化      是否需要翻译
 
 ---
 
-## 评审模式输出模板（v3.7）
+## 评审模式输出模板（v4.0）
 
-> 评审模式是与 inline/侧栏并列的第三种呈现模式（布局契约与绘制算法见 `html-annotation-system.md §2.8`），用于产品方案评审会交付（内审/业务/研发评审），经 Step 8F 模式路由确认后启用。
+> 评审模式是与 inline/侧栏并列的第三种呈现模式（布局契约与徽标系统见 `html-annotation-system.md §2.8`），用于产品方案评审会交付（内审/业务/研发评审），经 Step 8F 模式路由确认后启用。
 
 ### 生成说明（数据同源，强制）
 
@@ -430,10 +435,9 @@ i18n         国际化      是否需要翻译
 2. **再分别渲染**：同一份数据 → HTML 右栏条目 + 三文档（proposal/design/tasks）的注释内容。禁止两处独立手写，避免评审视图与研发文档不一致。
 3. **交互脚本同源**：下方权威 JS 代码块是唯一实现，生成的 HTML **原样嵌入，禁止每次交付重新手写**——数据同源原则同样适用于代码。
 
-### 呈现密度规则（三层注释体系）
+### 呈现密度规则（PM 注释路径）
 
-- 条目 `text` 默认呈现 **L1**（trigger-behavior-dismiss）。
-- **L2**（placement-style-state-timing）与 **L3**（accessibility-responsive-i18n）以 `<details>` 折叠区挂在条目内，点击展开——评审模式不绕过三层注释体系，只改变呈现密度。
+条目默认展示 `summary`（摘要行）+ `annotation` 对象的 5 个 PM 字段（feature/logic/states/boundary/copy）。`copy` 字段无内容时不渲染。不渲染 L2/L3 研发注释——这些属于 implementation 层，在 PM 评审路径中不生成。
 
 ### scope-mark 徽标
 
@@ -458,23 +462,16 @@ i18n         国际化      是否需要翻译
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f6fc;color:#1e293b}
 .layout{display:flex;height:100vh;overflow:hidden}
 .product-panel{width:82%;position:relative;overflow:auto}
-#connections{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
-.doc-panel{width:18%;max-width:30%;background:#eff6ff;border-left:2px dashed #93c5fd;overflow-y:auto;position:relative;flex-shrink:0}
+.doc-panel{width:18%;max-width:30%;background:#eff6ff;border-left:3px solid #3b82f6;overflow-y:auto;position:relative;flex-shrink:0}
 .resize-handle{position:absolute;left:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:30}
 .resize-handle:hover{background:rgba(147,197,253,.45)}
 .scene-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid #93c5fd;flex-wrap:wrap}
 .scene-tab{padding:4px 10px;border:1px solid #cbd5e1;border-radius:14px;font-size:12px;cursor:pointer;background:#fff}
 .scene-tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
-.scene{display:none;padding:12px}
-.scene.active{display:block}
 .scene-heading{font-size:14px;font-weight:700;margin-bottom:2px}
 .crumb{font-size:11px;color:#64748b;margin-bottom:8px}
 .proto-desc{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;line-height:1.6}
 .proto-desc.active-highlight,.proto-element.active-highlight{outline:2px solid #3b82f6;outline-offset:1px}
-.connection-line{fill:none;stroke:#3b82f6;stroke-width:2;opacity:.55;transition:opacity .18s,stroke-width .18s}
-.connection-line.active{stroke:#2563eb;stroke-width:3;opacity:1}
-.connection-label-bg{fill:#3b82f6}
-.connection-label{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .scope-mark{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px;vertical-align:1px;white-space:nowrap}
 .scope-mark.existing{background:#e2e8f0;color:#475569}
 .scope-mark.new{background:#dcfce7;color:#15803d}
@@ -483,16 +480,30 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .desc-top .desc-title{flex:1}
 .num{flex-shrink:0;min-width:18px;height:18px;border-radius:50%;background:#3b82f6;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .desc-title{font-weight:600}
-.desc-text{color:#334155;margin-top:2px}
-.desc-details{margin-top:4px}
-.desc-details summary{font-size:11px;color:#64748b;cursor:pointer}
-.desc-details div{font-size:11px;color:#475569;padding:2px 0 2px 10px;border-left:2px solid #e2e8f0;margin-top:2px}
 .decision-box{background:#dbeafe;border:1px solid #93c5fd;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6;margin-top:10px}
 .empty-state{padding:24px 12px;text-align:center;color:#94a3b8;font-size:12px}
+/* ===== 徽标层 ===== */
+.anno-badge{
+  position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  background:#3b82f6;color:#fff;font-size:11px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;
+  z-index:10;cursor:pointer;box-shadow:0 1px 4px rgba(59,130,246,.4);
+  transition:background .15s,transform .15s;user-select:none;
+}
+.anno-badge:hover,.anno-badge.active{background:#1d4ed8;transform:scale(1.15);}
+/* ===== 注释内容 ===== */
+.desc-summary{font-size:11px;color:#64748b;margin-top:4px;margin-bottom:6px;line-height:1.5;}
+.desc-annotation{margin-top:6px;}
+.ann-block{margin-bottom:8px;}
+.ann-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6366f1;margin-bottom:3px;}
+.ann-text{font-size:12px;color:#334155;line-height:1.65;}
+/* ===== panel-header ===== */
+.panel-header{padding:10px 12px 6px;background:#dbeafe;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #bfdbfe;}
+.panel-header-title{font-size:13px;font-weight:700;color:#1e40af;letter-spacing:.3px;}
+.panel-header-count{font-size:11px;color:#64748b;}
 @media (max-width:760px){
   .layout{flex-direction:column;height:auto;overflow:visible}
-  #connections{display:none}
-  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:2px dashed #93c5fd}
+  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:3px solid #3b82f6}
   .resize-handle{display:none}
 }
 </style>
@@ -502,9 +513,12 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
   <div class="product-panel" id="canvas">
     <!-- 被注释组件：每个带 data-proto-id -->
     <div class="proto-element" data-proto-id="{sceneId}-{n}">…组件…</div>
-    <svg id="connections"></svg><!-- 必须是 product-panel 最后一个子元素（inset:0 覆盖） -->
   </div>
   <div class="doc-panel">
+    <div class="panel-header">
+      <div class="panel-header-title">PRD 注释</div>
+      <div id="panelSceneCount" class="panel-header-count"></div>
+    </div>
     <div class="resize-handle" id="resizeHandle"></div>
     <div class="scene-tabs" id="sceneTabs"></div>
     <div id="docBody"></div>
@@ -525,19 +539,24 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 ```json
 {
   "scene1": {
-    "heading": "场景/需求组标题",
-    "crumb": "面包屑（如 营销系统 / 优惠券）",
+    "heading": "场景标题",
+    "crumb": "面包屑路径",
     "items": [
       {
-        "protoId": "scene1-1",
-        "title": "条目标题",
-        "text": "L1 注释正文（trigger-behavior-dismiss）",
-        "scopeMark": "existing",
-        "L2": "可选：placement-style-state-timing（折叠区）",
-        "L3": "可选：accessibility-responsive-i18n（折叠区）"
+        "protoId": "component-id",
+        "title": "组件标题",
+        "scopeMark": "new|existing|adjusted",
+        "summary": "1-2句核心摘要（在场景列表中快速扫读用）",
+        "annotation": {
+          "feature": "功能定位：这个组件是做什么的",
+          "logic": "交互逻辑：用户操作 → 界面响应（步骤式描述）",
+          "states": "状态说明：用户可见状态 + 视觉设计状态（hover/disabled/loading/error等）",
+          "boundary": "边界条件：什么情况下不可用、隐藏、异常分支",
+          "copy": "UI文案：关键按钮、Toast、空态文案（无则省略此字段）"
+        }
       }
     ],
-    "decision": "可选：口径建议文本；缺省不渲染 decision-box"
+    "decision": "口径建议文字（可选，无则省略）"
   }
 }
 ```
@@ -546,17 +565,17 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 
 ```html
 <script>
-/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
+/* ===== 评审模式权威交互脚本 v4.0（无SVG·徽标锚定·滚动联动；唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
 (function(){
   var docs = JSON.parse(document.getElementById('review-docs').textContent);
-  var svg = document.getElementById('connections');
   var docPanel = document.querySelector('.doc-panel');
   var docBody = document.getElementById('docBody');
   var tabs = document.getElementById('sceneTabs');
+  var canvas = document.getElementById('canvas');
   var W_KEY = 'reviewPanelWidth', MIN_W = 18, MAX_W = 30;
-  var connections = [], currentScene = null;
-
+  var currentScene = null;
   var MARK = {existing:'已有', new:'新增', adjusted:'调整'};
+  var LABEL = {feature:'功能定位', logic:'交互逻辑', states:'状态说明', boundary:'边界条件', copy:'UI 文案'};
 
   function applyWidth(){
     if (window.innerWidth <= 760) return;
@@ -565,135 +584,140 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
     docPanel.style.width = Math.min(MAX_W, Math.max(MIN_W, w)) + '%';
   }
 
+  function renderAnnotation(ann){
+    if (!ann || typeof ann !== 'object') return '';
+    return Object.keys(LABEL).filter(function(k){ return ann[k]; }).map(function(k){
+      return '<div class="ann-block"><div class="ann-label">' + LABEL[k] + '</div>'
+        + '<div class="ann-text">' + String(ann[k]).replace(/\n/g,'<br>') + '</div></div>';
+    }).join('');
+  }
+
   function renderDocs(sceneId){
     currentScene = sceneId;
     var d = docs[sceneId];
-    var html = '<div class="scene active">'
-      + '<div class="scene-heading">' + d.heading + '</div>'
-      + '<div class="crumb">' + (d.crumb || '') + '</div>';
-    if (!d.items || !d.items.length) {
+    var html = '<div class="scene-heading">' + d.heading + '</div>'
+      + '<div class="crumb">' + (d.crumb||'') + '</div>';
+    if (!d.items || !d.items.length){
       html += '<div class="empty-state">本场景暂无注释条目</div>';
     } else {
-      d.items.forEach(function(it, i){
+      d.items.forEach(function(it,i){
         html += '<div class="proto-desc" data-proto-id="' + it.protoId + '">'
-          + '<div class="desc-top"><span class="num">' + (i + 1) + '</span>'
+          + '<div class="desc-top"><span class="num">' + (i+1) + '</span>'
           + '<div class="desc-title">' + it.title
-          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark] || '') + '</span></div></div>'
-          + '<div class="desc-text">' + it.text + '</div>';
-        if (it.L2 || it.L3) {
-          html += '<details class="desc-details"><summary>展开 L2/L3 研发注释</summary>';
-          if (it.L2) html += '<div><b>L2</b> ' + it.L2 + '</div>';
-          if (it.L3) html += '<div><b>L3</b> ' + it.L3 + '</div>';
-          html += '</details>';
-        }
-        html += '</div>';
+          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark]||'') + '</span>'
+          + '</div></div>'
+          + (it.summary ? '<div class="desc-summary">' + it.summary + '</div>' : '')
+          + '<div class="desc-annotation">' + renderAnnotation(it.annotation) + '</div>'
+          + '</div>';
       });
-      if (d.decision) {
-        html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
-      }
+      if (d.decision) html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
     }
-    html += '</div>';
     docBody.innerHTML = html;
+    injectBadges(sceneId);
     bindHover();
-    requestAnimationFrame(drawConnections);
   }
 
-  function drawConnections(){
-    svg.innerHTML = ''; connections = [];
-    if (window.innerWidth <= 760) return;
-    var sr = svg.getBoundingClientRect();
-    var seen = {};
-    docs[currentScene].items.forEach(function(it, i){
-      var l = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
-      if (!l) { console.warn('item ' + it.protoId + ' 锚定的组件未找到'); return; }
-      if (l.offsetParent === null) return;
-      var k = seen[it.protoId] || 0; seen[it.protoId] = k + 1;
-      var r = document.querySelectorAll('.proto-desc[data-proto-id="' + it.protoId + '"]')[k];
-      if (!r) return;
-      var a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
-      var x1 = a.right - sr.left, y1 = a.top + a.height/2 - sr.top;
-      var x2 = b.left - sr.left,  y2 = b.top + b.height/2 - sr.top;
-      var m = x1 + (x2 - x1) * 0.52;
-      var p = document.createElementNS('http://www.w3.org/2000/svg','path');
-      p.setAttribute('d','M ' + x1 + ' ' + y1 + ' C ' + m + ' ' + y1 + ', ' + m + ' ' + y2 + ', ' + x2 + ' ' + y2);
-      p.setAttribute('class','connection-line');
-      svg.appendChild(p);
-      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      c.setAttribute('cx',mx); c.setAttribute('cy',my); c.setAttribute('r',10);
-      c.setAttribute('class','connection-label-bg');
-      svg.appendChild(c);
-      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',mx); t.setAttribute('y',my);
-      t.setAttribute('class','connection-label');
-      t.textContent = String(i + 1);
-      svg.appendChild(t);
-      connections.push({id: it.protoId, path: p, left: l, right: r});
+  function injectBadges(sceneId){
+    document.querySelectorAll('.anno-badge').forEach(function(b){ b.remove(); });
+    var d = docs[sceneId];
+    if (!d||!d.items) return;
+    d.items.forEach(function(it,i){
+      var el = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
+      if (!el) return;
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      var badge = document.createElement('span');
+      badge.className = 'anno-badge';
+      badge.textContent = String(i+1);
+      badge.dataset.protoId = it.protoId;
+      badge.title = it.title;
+      badge.addEventListener('click', function(e){
+        e.stopPropagation();
+        var desc = docBody.querySelector('.proto-desc[data-proto-id="' + it.protoId + '"]');
+        if (desc) desc.scrollIntoView({behavior:'smooth', block:'nearest'});
+      });
+      el.appendChild(badge);
     });
   }
 
-  function highlight(id, on){
-    connections.forEach(function(c){
-      if (c.id !== id) return;
-      c.path.classList.toggle('active', on);
-      c.left.classList.toggle('active-highlight', on);
-      c.right.classList.toggle('active-highlight', on);
-    });
+  function highlight(protoId, on){
+    document.querySelectorAll('.proto-element[data-proto-id="' + protoId + '"]')
+      .forEach(function(el){ el.classList.toggle('active-highlight', on); });
+    document.querySelectorAll('.proto-desc[data-proto-id="' + protoId + '"]')
+      .forEach(function(el){ el.classList.toggle('active-highlight', on); });
+    document.querySelectorAll('.anno-badge[data-proto-id="' + protoId + '"]')
+      .forEach(function(b){ b.classList.toggle('active', on); });
   }
 
   function bindHover(){
-    document.querySelectorAll('.proto-element[data-proto-id], .proto-desc[data-proto-id]').forEach(function(el){
-      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+    document.querySelectorAll('.product-panel .proto-element[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){
+        var pid = el.dataset.protoId;
+        highlight(pid, true);
+        var desc = docBody.querySelector('.proto-desc[data-proto-id="' + pid + '"]');
+        if (desc) desc.scrollIntoView({behavior:'smooth', block:'nearest'});
+      };
       el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
     });
+    docBody.querySelectorAll('.proto-desc[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+      el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
+      el.onclick = function(){
+        var pid = el.dataset.protoId;
+        var proto = document.querySelector('.product-panel .proto-element[data-proto-id="' + pid + '"]');
+        if (proto){
+          var top = canvas.scrollTop + proto.getBoundingClientRect().top - canvas.getBoundingClientRect().top - 40;
+          canvas.scrollTo({top: Math.max(0,top), behavior:'smooth'});
+        }
+      };
+    });
   }
-
-  function refreshLines(){ requestAnimationFrame(drawConnections); }
 
   window.setScene = function(sceneId){
     tabs.querySelectorAll('.scene-tab').forEach(function(b){
       b.classList.toggle('active', b.dataset.scene === sceneId);
     });
     renderDocs(sceneId);
+    var d = docs[sceneId];
+    if (d && d.items && d.items[0]){
+      var el = document.querySelector('.product-panel .proto-element[data-proto-id="' + d.items[0].protoId + '"]');
+      if (el){
+        var top = canvas.scrollTop + el.getBoundingClientRect().top - canvas.getBoundingClientRect().top - 40;
+        canvas.scrollTo({top: Math.max(0,top), behavior:'smooth'});
+      }
+    }
   };
 
-  /* 场景标签 */
-  Object.keys(docs).forEach(function(sid){
+  var sceneKeys = Object.keys(docs);
+  document.getElementById('panelSceneCount').textContent = '共 ' + sceneKeys.length + ' 个场景';
+  sceneKeys.forEach(function(sid,idx){
     var b = document.createElement('button');
     b.className = 'scene-tab'; b.dataset.scene = sid;
-    b.textContent = docs[sid].heading;
+    b.textContent = (idx+1) + '. ' + docs[sid].heading;
     b.onclick = function(){ window.setScene(sid); };
     tabs.appendChild(b);
   });
 
-  /* 拖宽：18% → 30%，localStorage 记忆 */
-  var handle = document.getElementById('resizeHandle');
-  handle.addEventListener('pointerdown', function(e){
+  document.getElementById('resizeHandle').addEventListener('pointerdown', function(e){
     e.preventDefault();
     function move(ev){
-      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth - ev.clientX) / window.innerWidth * 100));
+      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth-ev.clientX)/window.innerWidth*100));
       docPanel.style.width = w + '%';
     }
-    function up(ev){
+    function up(){
       localStorage.setItem(W_KEY, parseFloat(docPanel.style.width));
       document.removeEventListener('pointermove', move);
       document.removeEventListener('pointerup', up);
-      refreshLines();
     }
     document.addEventListener('pointermove', move);
     document.addEventListener('pointerup', up);
   });
 
-  window.addEventListener('resize', function(){ applyWidth(); refreshLines(); });
-  document.getElementById('canvas').addEventListener('scroll', refreshLines, { passive: true });
-
+  window.addEventListener('resize', applyWidth);
   applyWidth();
-  window.setScene(Object.keys(docs)[0]);
+  window.setScene(sceneKeys[0]);
 })();
 </script>
 ```
-
-> 连线以**条目**为迭代单位（多锚点：一个组件被多个条目锚定时每个条目各画一条线，徽标=条目场景内序号，与右栏 `.num` 一致）；条目锚定的组件不存在时 `console.warn` 并跳过；隐藏组件（`offsetParent===null`）跳过、重绘恢复。
 
 ## 全链路工作流
 
@@ -721,10 +745,9 @@ Product requirements (natural language)
    ├── 2b. HTML Annotation Build-in (conditional — user agrees in Step 8F)
    │       ├── Step 8F: 呈现模式路由（三分支：inline / 侧栏 / 评审模式；评审场景默认评审模式，见 §评审模式输出模板）
    │       ├── If yes: generate HTML FROM SCRATCH with annotation system built in (not retrofitted)
-   │       ├──   ├── ANNOTATIONS JS data object (含 type 字段) from design.md Annotation Blocks
-   │       │   ├── CSS: 内联注释样式 + 侧边面板样式 (.annot-trigger, .annot-inline, .annot-panel, .annot-overlay, .annot-nav, .annot-body)
-   │       │   ├── HTML: 内联容器 + 侧边面板结构 (overlay + panel + nav tabs + trigger buttons + inline containers)
-   │       │   └── JS: toggleInline + togglePanel + renderInline + editAnnot + closeAnnot + escapeHtml
+   │       ├──   ├── review-docs JSON（PM schema：summary/annotation{feature/logic/states/boundary/copy}）
+   │       │   ├── CSS: 权威评审模式样式（含 .anno-badge、.panel-header）
+   │       │   └── JS: v4.0 权威脚本（徽标锚定、滚动联动、双向高亮）
    │       ├── 如果选择内联或双模式: 生成带内联注释容器的 HTML
    │       ├── 如果选择纯侧边面板: 使用现有方案（不变）
    │       ├── Then Step 9F: verify annotations are correctly embedded (not re-generate)
@@ -736,7 +759,7 @@ Product requirements (natural language)
    │       ├── State coverage: per type minimums (see annotation-templates.md §4)
    │       ├── Permission & validation: declared for all relevant components
    │       ├── Cross-component consistency: same type, same depth
-   │       ├── Trigger placement: every component has trigger ≤ 8px
+   │       ├── Badge injection: every annotated proto-element has .anno-badge
    │       └── Error scenarios: coverage against annotation-templates.md error table
    │
    ├── 4. Requirements review

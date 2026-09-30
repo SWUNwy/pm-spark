@@ -1,5 +1,46 @@
 # Changelog
 
+## 5.0.0 (2026-09-30)
+
+### Changed — 架构重构（Breaking Change）
+- **架构重构：复杂度三路径 → PM 处境五模式** — 废弃 Lightweight/Standard/Full 路径分级，改用贴合 PM 实际工作处境的五模式架构；入口从"判断复杂度"改为"识别处境"
+- **路由机制升级：关键词匹配 → 意图识别** — 识别规则改为按 PM 处境（意图）描述，示例词为非完整列表；AI 按意图路由而不是词语匹配；新增常见歧义询问表
+- **intake-audit 定位调整** — 六维度从强制前置门禁改为模式一（理解问题）中按需调用的工具；不再要求"先审计再分析"
+
+### Added
+- **模式二：挑战需求** — 新增最重要的 PM 判断力场景：识别需求假设、找出漏洞、准备推回去的论据；输出假设地图 + 挑战问题清单 + 三选一裁定（推进/先验证X/推回去）
+- **模式五：做决策** — 新增决策支持模式：按场景推荐 RICE/ICE/Kano/MoSCoW/Decision Matrix，引导 PM 评分，给出推荐 + 最影响结论的变量 + 推翻条件
+- **模式衔接规则** — 每个模式结束时主动提示自然下一步，形成工作流链（理解→挑战→设计→规格化→决策）
+- **常见歧义询问表** — 「分析这个需求」「看看这个方案」等歧义输入有明确的询问规则
+
+### Changed
+- **模式一（理解问题）** — 原 Intake 六维度全问改为只问最关键的 1-2 个；输出清晰版问题陈述 + 关键未知项 + 建议下一步
+- **模式三（设计方案）** — 原 Full 路径的发散/收敛提炼为精简版：按意图选框架 → 2-3 方向对比 → 推荐 + 推翻条件
+- **模式四（规格化与交付）** — 拆分为三子模式：4A 原型注释 / 4B PRD 撰写 / 4C Spec 三文档；4C 新增 Spec Freeze 确认门禁
+- **角色激活方式** — 从"路径决定数量（Full=全5个）"改为"模式意图驱动选择"；每个模式明确指定激活哪些角色
+- SKILL.md 版本 4.0.0 → 5.0.0
+
+---
+
+## 4.0.0 (2026-09-30)
+
+### Changed — 注释系统重构（Breaking Change）
+- **移除 SVG 连线，改用编号徽标锚定 + 滚动联动** — 删除 `#connections` SVG 元素和 `drawConnections()` 函数；每个被注释组件右上角注入蓝色圆形徽标（`.anno-badge`），徽标数字 = 条目序号；悬停左侧组件 → 右侧对应注释滚动进视口并高亮；点击右侧注释 → 左侧原型滚动到对应组件
+- **注释 schema 重构：L1/L2/L3 → PM 6 字段** — `items[]` 旧字段（`text` + `L2` + `L3`）替换为产品层专用 schema：`summary`（目录扫读摘要）/ `feature`（功能定位）/ `logic`（交互逻辑）/ `states`（状态说明）/ `boundary`（边界条件）/ `copy`（UI 文案，可选）
+- **doc-panel 文档感增强** — 左边框从 `2px dashed #93c5fd` 改为 `3px solid #3b82f6`；新增固定标题栏「PRD 注释」
+- **delivery-contract.json 字段层级修正** — `L2`/`L3` 从 `product` 层移入 `implementation` 层；新增 PM 6 字段归 `product` 层
+
+### Added
+- **PM 注释内容硬约束** — 禁止出现 API 路径、HTTP 状态码、CSS 像素值、timing 参数、aria 属性、i18n key；注释只包含产品层内容
+- **annotation-templates.md PM 路径约束章节** — T1-T11 类型模板前新增 PM 输出路径禁用字段清单
+
+### Changed
+- **SKILL.md 从 1375 行压缩至 ~250 行** — 删除内联的完整分析流程；PM 注释快速路径提升为顶部自包含章节；完整分析路径改为参考文件指针 + 懒加载规则
+- `references/annotation-example.md` 完整替换为 PM-only 示例（feature/logic/states/boundary/copy 六字段格式，含禁止内容清单）
+- `references/html-annotation-system.md` §2.8 更新为两层架构（Product + Annotation，删除 SVG Relationship 层）
+- SKILL.md 版本 3.8.1 → 4.0.0
+
+
 ## 3.8.1 (2026-09-21)
 
 ### Changed

@@ -10,23 +10,16 @@
 body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:#f0f6fc;color:#1e293b}
 .layout{display:flex;height:100vh;overflow:hidden}
 .product-panel{width:82%;position:relative;overflow:auto}
-#connections{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:20}
-.doc-panel{width:18%;max-width:30%;background:#eff6ff;border-left:2px dashed #93c5fd;overflow-y:auto;position:relative;flex-shrink:0}
+.doc-panel{width:18%;max-width:30%;background:#eff6ff;border-left:3px solid #3b82f6;overflow-y:auto;position:relative;flex-shrink:0}
 .resize-handle{position:absolute;left:-3px;top:0;width:6px;height:100%;cursor:col-resize;z-index:30}
 .resize-handle:hover{background:rgba(147,197,253,.45)}
 .scene-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid #93c5fd;flex-wrap:wrap}
 .scene-tab{padding:4px 10px;border:1px solid #cbd5e1;border-radius:14px;font-size:12px;cursor:pointer;background:#fff}
 .scene-tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6}
-.scene{display:none;padding:12px}
-.scene.active{display:block}
 .scene-heading{font-size:14px;font-weight:700;margin-bottom:2px}
 .crumb{font-size:11px;color:#64748b;margin-bottom:8px}
 .proto-desc{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:12px;line-height:1.6}
 .proto-desc.active-highlight,.proto-element.active-highlight{outline:2px solid #3b82f6;outline-offset:1px}
-.connection-line{fill:none;stroke:#3b82f6;stroke-width:2;opacity:.55;transition:opacity .18s,stroke-width .18s}
-.connection-line.active{stroke:#2563eb;stroke-width:3;opacity:1}
-.connection-label-bg{fill:#3b82f6}
-.connection-label{fill:#fff;font-size:11px;font-weight:700;text-anchor:middle;dominant-baseline:central}
 .scope-mark{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px;vertical-align:1px;white-space:nowrap}
 .scope-mark.existing{background:#e2e8f0;color:#475569}
 .scope-mark.new{background:#dcfce7;color:#15803d}
@@ -35,16 +28,30 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 .desc-top .desc-title{flex:1}
 .num{flex-shrink:0;min-width:18px;height:18px;border-radius:50%;background:#3b82f6;color:#fff;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .desc-title{font-weight:600}
-.desc-text{color:#334155;margin-top:2px}
-.desc-details{margin-top:4px}
-.desc-details summary{font-size:11px;color:#64748b;cursor:pointer}
-.desc-details div{font-size:11px;color:#475569;padding:2px 0 2px 10px;border-left:2px solid #e2e8f0;margin-top:2px}
 .decision-box{background:#dbeafe;border:1px solid #93c5fd;border-radius:6px;padding:8px 10px;font-size:12px;line-height:1.6;margin-top:10px}
 .empty-state{padding:24px 12px;text-align:center;color:#94a3b8;font-size:12px}
+/* ===== 徽标层 ===== */
+.anno-badge{
+  position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;
+  background:#3b82f6;color:#fff;font-size:11px;font-weight:700;
+  display:inline-flex;align-items:center;justify-content:center;
+  z-index:10;cursor:pointer;box-shadow:0 1px 4px rgba(59,130,246,.4);
+  transition:background .15s,transform .15s;user-select:none;
+}
+.anno-badge:hover,.anno-badge.active{background:#1d4ed8;transform:scale(1.15);}
+/* ===== 注释内容 ===== */
+.desc-summary{font-size:11px;color:#64748b;margin-top:4px;margin-bottom:6px;line-height:1.5;}
+.desc-annotation{margin-top:6px;}
+.ann-block{margin-bottom:8px;}
+.ann-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6366f1;margin-bottom:3px;}
+.ann-text{font-size:12px;color:#334155;line-height:1.65;}
+/* ===== panel-header ===== */
+.panel-header{padding:10px 12px 6px;background:#dbeafe;display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #bfdbfe;}
+.panel-header-title{font-size:13px;font-weight:700;color:#1e40af;letter-spacing:.3px;}
+.panel-header-count{font-size:11px;color:#64748b;}
 @media (max-width:760px){
   .layout{flex-direction:column;height:auto;overflow:visible}
-  #connections{display:none}
-  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:2px dashed #93c5fd}
+  .doc-panel{width:100%!important;max-width:100%;border-left:none;border-top:3px solid #3b82f6}
   .resize-handle{display:none}
 }
 /* ===== 以下为 demo 示意组件样式（非模板部分） ===== */
@@ -104,9 +111,12 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
         <p>过期、冻结等不可用券的统一展示与规则说明入口。</p>
       </div>
     </div>
-    <svg id="connections"></svg><!-- 必须是 product-panel 最后一个子元素（inset:0 覆盖） -->
   </div>
   <div class="doc-panel">
+    <div class="panel-header">
+      <div class="panel-header-title">PRD 注释</div>
+      <div id="panelSceneCount" class="panel-header-count"></div>
+    </div>
     <div class="resize-handle" id="resizeHandle"></div>
     <div class="scene-tabs" id="sceneTabs"></div>
     <div id="docBody"></div>
@@ -121,22 +131,39 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-create-1",
         "title": "券面信息表单",
-        "text": "点击「创建优惠券」进入表单页；必填字段校验失败时行内提示；点击「取消」返回列表且不保存草稿。",
         "scopeMark": "existing",
-        "L2": "表单两栏布局，错误提示出现在字段下方 4px；提交按钮 loading 态 800ms 内防重复点击。",
-        "L3": "错误提示同时读屏播报（aria-live=polite）；窄屏下单栏堆叠。"
+        "summary": "填写券名称、类型和适用范围，必填项校验失败时行内提示，点击取消不保存草稿。",
+        "annotation": {
+          "feature": "让运营人员配置优惠券的基本信息，是创建流程的第一步。",
+          "logic": "· 点击「创建优惠券」→ 进入表单页\n· 输入框失焦 → 校验该字段，错误时行内提示\n· 点击「保存」→ 全字段校验 → 通过后进入下一步\n· 点击「取消」→ 返回列表，不保存草稿",
+          "states": "· 空表单（初始态）\n· 字段错误（红框 + 错误文案）\n· 提交中（保存按钮 loading + disabled）\n· 成功（进入下一步）\n· hover：按钮加深",
+          "boundary": "· 券名称：必填，限 20 字\n· 券类型：必填，满减或折扣二选一\n· 适用范围：必填，全场或指定商品\n· 「取消」不触发校验，直接返回"
+        }
       },
       {
         "protoId": "coupon-create-2",
         "title": "有效期限选择器",
-        "text": "支持固定时间段与领取后 N 天两种模式；切换模式时清空另一种的已填值；关闭弹层保留已选模式。",
-        "scopeMark": "new"
+        "scopeMark": "new",
+        "summary": "支持固定时间段与领取后 N 天两种模式，切换模式时清空另一种已填值。",
+        "annotation": {
+          "feature": "让运营人员设置券的有效期策略，支持两种互斥模式。",
+          "logic": "· 默认选中「固定时间段」\n· 切换至「领取后 N 天」→ 清空固定时间段的已填值\n· 切换至「固定时间段」→ 清空 N 天的已填值\n· 关闭弹层 → 保留当前已选模式和值",
+          "states": "· 固定时间段模式：起止日期选择器激活\n· 领取后 N 天模式：数字输入框激活\n· 未填（初始态）\n· 已填（展示已选值）",
+          "boundary": "· 两种模式互斥，同时只能选一种\n· N 天：正整数，≥1，≤365\n· 固定时段：结束时间必须晚于开始时间"
+        }
       },
       {
         "protoId": "coupon-create-3",
         "title": "库存上限设置",
-        "text": "输入库存数量超出系统上限 10 万时截断并提示；清空输入视为不限量；失焦后格式化千分位。",
-        "scopeMark": "adjusted"
+        "scopeMark": "adjusted",
+        "summary": "设置发放总量和每人限领数，超出系统上限时截断并提示，清空视为不限量。",
+        "annotation": {
+          "feature": "让运营人员控制优惠券的发放数量和每人领取上限。",
+          "logic": "· 输入发放总量 → 失焦后格式化为千分位（如「10,000」）\n· 输入超出上限 100,000 → 自动截断为 100,000 + 提示「已达最大发放量」\n· 清空「发放总量」→ 视为不限量，显示「不限」\n· 每人限领默认 1 张，支持修改",
+          "states": "· 默认态（发放总量空，每人限领 = 1）\n· 填写中\n· 超限提示（截断 + toast 警告）\n· 不限量（发放总量显示「不限」）",
+          "boundary": "· 发放总量：正整数或留空（不限），最大 100,000\n· 每人限领：正整数，≥1，≤发放总量（如有）",
+          "copy": "· 超限提示：「已达最大发放量 100,000 张」\n· 不限量说明：「留空表示不限发放数量」"
+        }
       }
     ],
     "decision": "同一批次创建多张券时，库存按批次总量计算而非单券累加——待业务确认口径后落文档。"
@@ -148,38 +175,55 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-verify-1",
         "title": "核销二维码扫描",
-        "text": "扫码成功后 1.5s 内展示核销结果；扫码失败连续 3 次后建议手动输入券码；点击「重试」重新拉起相机。",
-        "scopeMark": "existing"
+        "scopeMark": "existing",
+        "summary": "扫码成功后展示核销结果，连续失败 3 次后提示手动输入券码。",
+        "annotation": {
+          "feature": "营业端扫描顾客券面二维码完成核销操作。",
+          "logic": "· 进入扫码页 → 自动拉起相机\n· 扫码成功 → 1.5s 内跳转核销结果页\n· 扫码失败 → 提示重试；连续失败 3 次 → 建议手动输入券码\n· 点击「重试」→ 重新拉起相机",
+          "states": "· 扫码中（相机激活）\n· 识别成功（短暂确认态 → 跳转）\n· 识别失败（提示 + 重试入口）\n· 多次失败（手动输入建议）",
+          "boundary": "· 不可用券（过期/冻结）扫码后跳转异常券处理页\n· 相机权限未授权：提示引导开启权限"
+        }
       },
       {
         "protoId": "coupon-verify-2",
         "title": "核销结果页",
-        "text": "核销成功展示券面与核销时间；失败展示原因码与客服入口；页面停留 10s 后自动返回扫码页。",
         "scopeMark": "new",
-        "L3": "结果文案支持中英文切换；色弱模式下成功态改用图标+文字双通道。"
+        "summary": "展示核销成功或失败结果，10 秒后自动返回扫码页。",
+        "annotation": {
+          "feature": "向营业员展示核销操作的最终结果，包含券面信息和处理时间。",
+          "logic": "· 核销成功 → 展示成功状态 + 券面信息 + 核销时间\n· 核销失败 → 展示失败原因 + 客服入口\n· 停留 10s → 自动返回扫码页\n· 点击「返回扫码」→ 立即返回",
+          "states": "· 成功态（绿色确认图标 + 券面信息）\n· 失败态（错误提示 + 客服入口）\n· 倒计时（10s 进度条）",
+          "boundary": "· 已核销的券再次扫码 → 直接跳转失败态，提示「此券已核销」\n· 无网络时：提示网络异常，不展示结果"
+        }
       },
       {
         "protoId": "coupon-verify-3",
         "title": "异常券处理",
-        "text": "过期、冻结等不可用券统一走不可用态展示；点击「查看规则」弹层展示不可用原因；弹层右上角关闭。",
-        "scopeMark": "adjusted"
+        "scopeMark": "adjusted",
+        "summary": "过期、冻结等不可用券统一走不可用态展示，点击查看规则弹层说明原因。",
+        "annotation": {
+          "feature": "处理和展示各类不可用优惠券的状态与原因。",
+          "logic": "· 扫到不可用券 → 展示不可用态（统一展示）\n· 点击「查看规则」→ 弹层展示不可用原因\n· 点击弹层右上角关闭 → 关闭弹层",
+          "states": "· 不可用态（统一样式，不区分具体原因入口）\n· 弹层展开（规则说明）\n· 弹层关闭",
+          "boundary": "· 不可用原因包括：已过期、已冻结、已用完\n· 不区分具体原因的展示（统一「不可用」）\n· 弹层不提供重试或申诉入口"
+        }
       }
     ]
   }
 }
 </script>
 <script>
-/* ===== 评审模式权威交互脚本（唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
+/* ===== 评审模式权威交互脚本 v4.0（无SVG·徽标锚定·滚动联动；唯一实现；生成 HTML 原样嵌入，禁止手改） ===== */
 (function(){
   var docs = JSON.parse(document.getElementById('review-docs').textContent);
-  var svg = document.getElementById('connections');
   var docPanel = document.querySelector('.doc-panel');
   var docBody = document.getElementById('docBody');
   var tabs = document.getElementById('sceneTabs');
+  var canvas = document.getElementById('canvas');
   var W_KEY = 'reviewPanelWidth', MIN_W = 18, MAX_W = 30;
-  var connections = [], currentScene = null;
-
+  var currentScene = null;
   var MARK = {existing:'已有', new:'新增', adjusted:'调整'};
+  var LABEL = {feature:'功能定位', logic:'交互逻辑', states:'状态说明', boundary:'边界条件', copy:'UI 文案'};
 
   function applyWidth(){
     if (window.innerWidth <= 760) return;
@@ -188,130 +232,137 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
     docPanel.style.width = Math.min(MAX_W, Math.max(MIN_W, w)) + '%';
   }
 
+  function renderAnnotation(ann){
+    if (!ann || typeof ann !== 'object') return '';
+    return Object.keys(LABEL).filter(function(k){ return ann[k]; }).map(function(k){
+      return '<div class="ann-block"><div class="ann-label">' + LABEL[k] + '</div>'
+        + '<div class="ann-text">' + String(ann[k]).replace(/\n/g,'<br>') + '</div></div>';
+    }).join('');
+  }
+
   function renderDocs(sceneId){
     currentScene = sceneId;
     var d = docs[sceneId];
-    var html = '<div class="scene active">'
-      + '<div class="scene-heading">' + d.heading + '</div>'
-      + '<div class="crumb">' + (d.crumb || '') + '</div>';
-    if (!d.items || !d.items.length) {
+    var html = '<div class="scene-heading">' + d.heading + '</div>'
+      + '<div class="crumb">' + (d.crumb||'') + '</div>';
+    if (!d.items || !d.items.length){
       html += '<div class="empty-state">本场景暂无注释条目</div>';
     } else {
-      d.items.forEach(function(it, i){
+      d.items.forEach(function(it,i){
         html += '<div class="proto-desc" data-proto-id="' + it.protoId + '">'
-          + '<div class="desc-top"><span class="num">' + (i + 1) + '</span>'
+          + '<div class="desc-top"><span class="num">' + (i+1) + '</span>'
           + '<div class="desc-title">' + it.title
-          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark] || '') + '</span></div></div>'
-          + '<div class="desc-text">' + it.text + '</div>';
-        if (it.L2 || it.L3) {
-          html += '<details class="desc-details"><summary>展开 L2/L3 研发注释</summary>';
-          if (it.L2) html += '<div><b>L2</b> ' + it.L2 + '</div>';
-          if (it.L3) html += '<div><b>L3</b> ' + it.L3 + '</div>';
-          html += '</details>';
-        }
-        html += '</div>';
+          + '<span class="scope-mark ' + it.scopeMark + '">' + (MARK[it.scopeMark]||'') + '</span>'
+          + '</div></div>'
+          + (it.summary ? '<div class="desc-summary">' + it.summary + '</div>' : '')
+          + '<div class="desc-annotation">' + renderAnnotation(it.annotation) + '</div>'
+          + '</div>';
       });
-      if (d.decision) {
-        html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
-      }
+      if (d.decision) html += '<div class="decision-box"><b>口径建议</b><br>' + d.decision + '</div>';
     }
-    html += '</div>';
     docBody.innerHTML = html;
+    injectBadges(sceneId);
     bindHover();
-    requestAnimationFrame(drawConnections);
   }
 
-  function drawConnections(){
-    svg.innerHTML = ''; connections = [];
-    if (window.innerWidth <= 760) return;
-    var sr = svg.getBoundingClientRect();
-    var seen = {};
-    docs[currentScene].items.forEach(function(it, i){
-      var l = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
-      if (!l) { console.warn('item ' + it.protoId + ' 锚定的组件未找到'); return; }
-      if (l.offsetParent === null) return;
-      var k = seen[it.protoId] || 0; seen[it.protoId] = k + 1;
-      var r = document.querySelectorAll('.proto-desc[data-proto-id="' + it.protoId + '"]')[k];
-      if (!r) return;
-      var a = l.getBoundingClientRect(), b = r.getBoundingClientRect();
-      var x1 = a.right - sr.left, y1 = a.top + a.height/2 - sr.top;
-      var x2 = b.left - sr.left,  y2 = b.top + b.height/2 - sr.top;
-      var m = x1 + (x2 - x1) * 0.52;
-      var p = document.createElementNS('http://www.w3.org/2000/svg','path');
-      p.setAttribute('d','M ' + x1 + ' ' + y1 + ' C ' + m + ' ' + y1 + ', ' + m + ' ' + y2 + ', ' + x2 + ' ' + y2);
-      p.setAttribute('class','connection-line');
-      svg.appendChild(p);
-      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
-      c.setAttribute('cx',mx); c.setAttribute('cy',my); c.setAttribute('r',10);
-      c.setAttribute('class','connection-label-bg');
-      svg.appendChild(c);
-      var t = document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',mx); t.setAttribute('y',my);
-      t.setAttribute('class','connection-label');
-      t.textContent = String(i + 1);
-      svg.appendChild(t);
-      connections.push({id: it.protoId, path: p, left: l, right: r});
+  function injectBadges(sceneId){
+    document.querySelectorAll('.anno-badge').forEach(function(b){ b.remove(); });
+    var d = docs[sceneId];
+    if (!d||!d.items) return;
+    d.items.forEach(function(it,i){
+      var el = document.querySelector('.product-panel .proto-element[data-proto-id="' + it.protoId + '"]');
+      if (!el) return;
+      if (getComputedStyle(el).position === 'static') el.style.position = 'relative';
+      var badge = document.createElement('span');
+      badge.className = 'anno-badge';
+      badge.textContent = String(i+1);
+      badge.dataset.protoId = it.protoId;
+      badge.title = it.title;
+      badge.addEventListener('click', function(e){
+        e.stopPropagation();
+        var desc = docBody.querySelector('.proto-desc[data-proto-id="' + it.protoId + '"]');
+        if (desc) desc.scrollIntoView({behavior:'smooth', block:'nearest'});
+      });
+      el.appendChild(badge);
     });
   }
 
-  function highlight(id, on){
-    connections.forEach(function(c){
-      if (c.id !== id) return;
-      c.path.classList.toggle('active', on);
-      c.left.classList.toggle('active-highlight', on);
-      c.right.classList.toggle('active-highlight', on);
-    });
+  function highlight(protoId, on){
+    document.querySelectorAll('.proto-element[data-proto-id="' + protoId + '"]')
+      .forEach(function(el){ el.classList.toggle('active-highlight', on); });
+    document.querySelectorAll('.proto-desc[data-proto-id="' + protoId + '"]')
+      .forEach(function(el){ el.classList.toggle('active-highlight', on); });
+    document.querySelectorAll('.anno-badge[data-proto-id="' + protoId + '"]')
+      .forEach(function(b){ b.classList.toggle('active', on); });
   }
 
   function bindHover(){
-    document.querySelectorAll('.proto-element[data-proto-id], .proto-desc[data-proto-id]').forEach(function(el){
-      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+    document.querySelectorAll('.product-panel .proto-element[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){
+        var pid = el.dataset.protoId;
+        highlight(pid, true);
+        var desc = docBody.querySelector('.proto-desc[data-proto-id="' + pid + '"]');
+        if (desc) desc.scrollIntoView({behavior:'smooth', block:'nearest'});
+      };
       el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
     });
+    docBody.querySelectorAll('.proto-desc[data-proto-id]').forEach(function(el){
+      el.onmouseenter = function(){ highlight(el.dataset.protoId, true); };
+      el.onmouseleave = function(){ highlight(el.dataset.protoId, false); };
+      el.onclick = function(){
+        var pid = el.dataset.protoId;
+        var proto = document.querySelector('.product-panel .proto-element[data-proto-id="' + pid + '"]');
+        if (proto){
+          var top = canvas.scrollTop + proto.getBoundingClientRect().top - canvas.getBoundingClientRect().top - 40;
+          canvas.scrollTo({top: Math.max(0,top), behavior:'smooth'});
+        }
+      };
+    });
   }
-
-  function refreshLines(){ requestAnimationFrame(drawConnections); }
 
   window.setScene = function(sceneId){
     tabs.querySelectorAll('.scene-tab').forEach(function(b){
       b.classList.toggle('active', b.dataset.scene === sceneId);
     });
     renderDocs(sceneId);
+    var d = docs[sceneId];
+    if (d && d.items && d.items[0]){
+      var el = document.querySelector('.product-panel .proto-element[data-proto-id="' + d.items[0].protoId + '"]');
+      if (el){
+        var top = canvas.scrollTop + el.getBoundingClientRect().top - canvas.getBoundingClientRect().top - 40;
+        canvas.scrollTo({top: Math.max(0,top), behavior:'smooth'});
+      }
+    }
   };
 
-  /* 场景标签 */
-  Object.keys(docs).forEach(function(sid){
+  var sceneKeys = Object.keys(docs);
+  document.getElementById('panelSceneCount').textContent = '共 ' + sceneKeys.length + ' 个场景';
+  sceneKeys.forEach(function(sid,idx){
     var b = document.createElement('button');
     b.className = 'scene-tab'; b.dataset.scene = sid;
-    b.textContent = docs[sid].heading;
+    b.textContent = (idx+1) + '. ' + docs[sid].heading;
     b.onclick = function(){ window.setScene(sid); };
     tabs.appendChild(b);
   });
 
-  /* 拖宽：18% → 30%，localStorage 记忆 */
-  var handle = document.getElementById('resizeHandle');
-  handle.addEventListener('pointerdown', function(e){
+  document.getElementById('resizeHandle').addEventListener('pointerdown', function(e){
     e.preventDefault();
     function move(ev){
-      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth - ev.clientX) / window.innerWidth * 100));
+      var w = Math.min(MAX_W, Math.max(MIN_W, (window.innerWidth-ev.clientX)/window.innerWidth*100));
       docPanel.style.width = w + '%';
     }
-    function up(ev){
+    function up(){
       localStorage.setItem(W_KEY, parseFloat(docPanel.style.width));
       document.removeEventListener('pointermove', move);
       document.removeEventListener('pointerup', up);
-      refreshLines();
     }
     document.addEventListener('pointermove', move);
     document.addEventListener('pointerup', up);
   });
 
-  window.addEventListener('resize', function(){ applyWidth(); refreshLines(); });
-  document.getElementById('canvas').addEventListener('scroll', refreshLines, { passive: true });
-
+  window.addEventListener('resize', applyWidth);
   applyWidth();
-  window.setScene(Object.keys(docs)[0]);
+  window.setScene(sceneKeys[0]);
 })();
 </script>
 </body>

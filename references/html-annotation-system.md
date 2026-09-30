@@ -173,10 +173,10 @@ HTML 注释面板适用于以下场景：
 - 面板提供「评审 / 实施」切换入口；默认评审视图，避免技术细节淹没评审重点。
 - 字段级注释：评审视图以表格呈现；实施视图保留 ℹ️ 弹窗。
 
-### 2.8 评审模式（Review Mode，v3.7）——第三种呈现模式
+### 2.8 评审模式（Review Mode，v4.0）——第三种呈现模式
 
 > 消歧：§2.7 的"评审视图"是注释面板内的显示切换；本节"评审模式"是与 inline/侧栏并列的
-> 第三种**呈现模式**——整页交付物结构（持久右栏 + SVG 编号连线），用于产品方案评审会
+> 第三种**呈现模式**——整页交付物结构（持久右栏 + 徽标锚定 + 滚动联动），用于产品方案评审会
 > （内审/业务/研发评审），经 Step 8F 模式路由确认后启用。
 
 #### 2.8.1 布局契约
@@ -184,18 +184,18 @@ HTML 注释面板适用于以下场景：
 ```
 页面结构:
   .layout { display:flex }
-    .product-panel { width:82%; position:relative }   ← 右栏拖宽时此侧自适应收缩
-      #connections (svg, position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:20)
-      .proto-element[data-proto-id] ...（被注释组件）
-    .doc-panel { width:18%; max-width:30%; background:#eff6ff; border-left:2px dashed #93c5fd }
-      .resize-handle (左缘 6px 拖拽手柄; 拖宽范围 18%→30%; localStorage 记忆)
-      .scene-tabs (多场景交付时的场景切换标签行; 切换后仅保留当前 .scene.active)
-      .scene > .scene-heading + .proto-desc[data-proto-id] + .decision-box
+    .product-panel { width:82%; overflow:auto }
+      .proto-element[data-proto-id] ...（被注释组件，由 JS 动态注入 .anno-badge）
+    .doc-panel { width:18%; max-width:30%; background:#eff6ff; border-left:3px solid #3b82f6 }
+      .panel-header（固定标题栏 "PRD 注释"，视觉区分文档层）
+      .resize-handle（左缘 6px 拖拽手柄; 拖宽范围 18%→30%; localStorage 记忆）
+      .scene-tabs（多场景交付时的场景切换标签行）
+      #docBody（注释条目列表）
 ```
 
-- 右栏**持久分栏非模态**（评审会需要全程可见，不可误关）；`#connections` 必须是 `.product-panel` 的最后一个子元素（`inset:0` 覆盖可视区）。
+- 右栏**持久分栏非模态**（评审会需要全程可见，不可误关）。
 - 拖宽：宽度自 18% 起可调，上限 30%（达到后不可再拖）；宽度经 localStorage（key=`reviewPanelWidth`）记忆，刷新保留。
-- 降级：视口 ≤760px 时隐藏 `#connections`、右栏转堆叠区块（纵向排列）、拖拽手柄禁用。
+- 降级：视口 ≤760px 时右栏转堆叠区块（纵向排列）、拖拽手柄禁用。
 
 #### 2.8.2 docs 两级数据结构
 
@@ -205,39 +205,61 @@ docs = {
     heading: "场景/需求组标题",
     crumb: "面包屑（如 营销系统 / 优惠券）",
     items: [
-      { protoId: "组件锚点id", title: "条目标题", text: "注释正文", scopeMark: "existing|new|adjusted",
-        L2: "可选：placement-style-state-timing（折叠区）", L3: "可选：accessibility-responsive-i18n（折叠区）" }
+      {
+        protoId: "组件锚点id",
+        title: "条目标题",
+        scopeMark: "existing|new|adjusted",
+        summary: "1-2句核心摘要",
+        annotation: {
+          feature: "功能定位",
+          logic: "交互逻辑（步骤式）",
+          states: "用户可见状态 + 视觉设计状态",
+          boundary: "产品边界条件",
+          copy: "关键UI文案（可选）"
+        }
+      }
     ],
     decision: "口径建议文本（可选；缺省不渲染 decision-box）"
   }
 }
 ```
 
-- 交付物内以 `<script id="review-docs" type="application/json">` 承载（严格 JSON，非 JS 对象字面量，保证校验器可提取），结构见 `annotation-output-templates.md §评审模式`。
-- 条目 `text` 默认呈现 L1（trigger-behavior-dismiss）；L2/L3 以折叠区挂在条目内——评审模式不绕过三层注释体系，只改变呈现密度。
+- 交付物内以 `<script id="review-docs" type="application/json">` 承载（严格 JSON），结构见 `annotation-output-templates.md §评审模式`。
+- 条目默认展示 `summary` + 5个 PM 字段（feature/logic/states/boundary/copy）；不渲染 L2/L3 研发注释。
 
-#### 2.8.3 SVG 连线绘制算法
+#### 2.8.3 两层职责
 
-- 连线以**条目**为迭代单位（多锚点语义：一个组件被多个条目锚定时，每个条目各画一条线、共用左锚点）。
-- 每条连线：`x1,y1` = 组件 `rect.right` 垂直中点（相对 svg）；`x2,y2` = 条目 `rect.left` 垂直中点；`m = x1+(x2-x1)*0.52`；`path.d = M x1 y1 C m y1, m y2, x2 y2`（三次贝塞尔）。
-- 徽标：`circle r=10` @ 曲线中点，内嵌条目**场景内序号**（= 条目在场景 items 数组中的索引+1，与右栏 `.num` 编号一致）；编号作用域 = 场景内唯一，跨场景可重复。
-- 重绘时机：scroll / resize / 拖宽 / 场景切换 → rAF 节流全量重绘（先清空 svg）。
-- 隐藏组件（`offsetParent===null`）跳过其连线，组件重新可见时重绘恢复；条目锚定的组件不存在时 `console.warn` 并跳过该条。
+评审模式保持两层分离：
 
-#### 2.8.4 悬停双向高亮
+| 层 | 职责 | 禁止承担 |
+|---|---|---|
+| Product layer | 原型 DOM、用户可见产品结构与交互 | 注释渲染 |
+| Annotation layer | `review-docs` 数据与右栏 `.proto-desc` 注释 + `.anno-badge` 徽标层 | 改写原型 DOM |
 
-- `highlight(id,on)`：连线加 `.active`（强调色加粗），两端元素加 `.active-highlight`；同 id 的全部连线同步（多锚点场景悬停组件高亮其所有连线）。
-- `bindHover` 绑定 `.proto-element[data-proto-id]` 与 `.proto-desc[data-proto-id]` 的 mouseenter/mouseleave，双向对称。
+权威实现仅维护在 `references/annotation-output-templates.md`，Demo 必须同步嵌入，不在本文件复制实现。
 
-#### 2.8.5 拖宽与降级
+#### 2.8.4 徽标锚定系统
 
+- JS 在 `renderDocs()` 后调用 `injectBadges()`，为每个有注释的 `proto-element` 注入 `.anno-badge`
+- 徽标绝对定位于 `proto-element` 右上角（`top:-8px; right:-8px`）
+- 徽标数字 = 条目在当前场景 `items[]` 中的索引+1（场景内序号）
+- `proto-element` 需要 `position:relative`（JS 自动修正 static 情况）
+- 切换场景时先移除全部旧徽标再重新注入
+
+#### 2.8.5 悬停双向高亮（v4.0）
+
+- 左侧 `proto-element` hover → 右侧对应 `proto-desc` 高亮 + `scrollIntoView(nearest)`
+- 右侧 `proto-desc` hover → 左侧对应 `proto-element` 高亮（不强制滚动原型）
+- 右侧 `proto-desc` click → 左侧原型 `canvas.scrollTo` 到该组件
+- 左侧徽标 click → 右侧 `docBody scrollIntoView` 到对应条目
+- `highlight()` 同时切换 `.anno-badge` 的 `.active` 类（徽标变色反馈）
 - 拖宽：pointer 事件（pointerdown/pointermove/pointerup），宽度区间 [18%, 30%]，松手时写 localStorage。
-- 降级：CSS media query（`max-width:760px`）隐藏 `#connections`、`.doc-panel` 转堆叠区块、`.resize-handle` 隐藏；视口恢复后 resize 监听触发重绘。
+- 降级：CSS media query（`max-width:760px`）`.doc-panel` 转堆叠区块、`.resize-handle` 隐藏。
 
 #### 2.8.6 空态与边界
 
-- 无注释条目：右栏显示"本场景暂无注释条目"空态提示，SVG 不绘制（不白屏不报错）。
-- 同一组件被多个条目锚定：多条连线共用左锚点，编号各不相同（一个组件多处变更属正常评审场景）。
+- 无注释条目：右栏显示"本场景暂无注释条目"空态提示（不报错）。
+- 同一组件被多个条目锚定：多个徽标共用同一 `proto-element`（最后注入的徽标可见）。
 - scope-mark 徽标：existing=灰"已有"、new=绿"新增"、adjusted=橙"调整"，悬停显示完整徽标（不截断）。
 
 ## 3. Data Format — 从 design.md Annotation Block 到 JS 对象

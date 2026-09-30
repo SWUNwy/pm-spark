@@ -5,6 +5,35 @@
 
 ---
 
+## PM 输出路径约束（优先级最高）
+
+当前调用为 **PM 注释快速路径**（原型注释 / 已有方案注释）时，以下约束覆盖所有类型模板的字段定义：
+
+### PM 路径禁用字段（不生成、不填充）
+
+| 禁用字段 | 原因 |
+|---------|------|
+| `api` / `endpoint` / `request` / `response` | 属于 Implementation 层 |
+| `fields[].validation` / `fields[].error_code` | 属于 Implementation 层 |
+| `columns[].format` / `columns[].source` | 属于 Implementation 层 |
+| `timing` / `animation` | 属于 Implementation 层 |
+| `accessibility` / `aria` | 属于 Implementation 层 |
+| `i18n` / `locale` | 属于 Implementation 层 |
+| `responsive` | 属于 Implementation 层 |
+| `error_codes` | 属于 Implementation 层 |
+| `style`（CSS 规范，如 px 值、color hex） | 属于 Implementation 层 |
+| L2 字段（placement/timing/style） | 属于 Implementation 层 |
+| L3 字段（accessibility/responsive/i18n） | 属于 Implementation 层 |
+
+### PM 路径使用的 schema
+
+PM 路径不使用 T1-T11 类型模板的字段填充方式。改用统一的 6 字段 PM schema：
+`summary` / `feature` / `logic` / `states` / `boundary` / `copy`
+
+T1-T11 类型模板仍用于**工程交接路径**（Implementation 层，需用户显式选择 delivery_layer=implementation）。
+
+---
+
 ## 1. 概述
 
 ### 1.1 痛点
