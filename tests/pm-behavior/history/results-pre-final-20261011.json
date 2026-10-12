@@ -1,0 +1,1391 @@
+{
+  "schema_version": "1.0.0",
+  "stage": "v6.1-phase-1",
+  "run_id": "controlled-20261011",
+  "run_date": "2026-10-11T05:40:37.218Z",
+  "operator": "kimi-code-subagent controlled Claude CLI replay",
+  "overall_status": "failed",
+  "integrity_rule": "Do not infer passed or failed from static checks, index validation, or generated artifacts.",
+  "evidence_contract": "For each passed scenario retain every catalog user turn and matching assistant turn. Record conversation.branch_id for answer branches and layout=independent_pair for paired independent runs. evidence.transcript_path must locate repository-relative JSON with scenario_id and exactly matching conversation. checks.review.expected_behavior and checks.review.must_not_do must each cover every catalog criterion in order: criterion, verdict (met/not_observed), reason and evidence[{turn_index,quote}] copied from the assistant turn. evidence.initial_artifacts maps required initial artifact names to preserved repository-relative files. A boolean or arbitrary nonempty file cannot establish passage. Fill real run_id, run_date and operator; do not fabricate evidence.",
+  "review_entry_template": {
+    "criterion": null,
+    "verdict": null,
+    "reason": null,
+    "evidence": []
+  },
+  "scenarios": [
+    {
+      "id": "pm-001-ambiguous-request",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "老板说要加 AI，帮我搞清楚到底解决什么。",
+          "客服每天手动归类投诉，目标是减少整理时间。"
+        ],
+        "assistant_turns": [
+          " 已读取本地 SKILL.md 和「理解问题」所需引用；当前目录未发现额外的业务上下文文件。我会按 PM Spark 的「理解问题」模式推进。\n\n**目前能确认的是老板提出了「加 AI」的方向，具体要改善什么还未明确。** 现在直接列 AI 功能，容易把目标猜错。我们先把它还原成一句能讨论的问题：\n\n> 某类用户在完成某项任务时，遇到具体困难，目前的应对方式有不足，希望改善某个结果。\n\n先问一个最关键的问题：**老板是在什么事情之后说「要加 AI」的？**\n\n例如：看到用户某项工作很费时、业务成本或效果出了问题、看到竞品推出 AI，或只是泛泛提出方向。你可以直接贴老板原话；没有更多背景也可以直说。",
+          " **要解决的问题已经清楚：减少客服每天手动归类投诉的整理时间。** 这些信息足够形成问题陈述，无需继续补齐背景问卷。\n\n可以这样向老板表述：\n\n> 客服每天整理投诉时，需要人工逐条判断并归入相应类别。当前依靠手动归类完成这项工作，希望减少其中的重复劳动和整理耗时，同时保持分类质量。\n\n这里，**AI 是候选手段，业务目标是节省时间**。是否值得用 AI，要看它能否降低实际总耗时——包括归类、核对和纠错，而不能只看它生成分类的速度。\n\n后续有三个待验证项，但不影响当前问题判断：\n\n- **耗时基线**：每天投诉量、整理总时长，主要时间花在判断类别还是录入操作。\n- **分类标准**：是否已有稳定的类别和判断规则，模糊投诉目前怎么处理。\n- **效果要求**：希望节省多少时间，以及分类质量需要保持到什么程度。\n\n建议下一步进入方案比较，围绕这个明确目标评估如何减少归类工作量。当前需求可以命名为 **「投诉归类提效」**，并以“整理总耗时下降、分类质量保持”为判断依据。"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-001-ambiguous-request/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-001-ambiguous-request/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-001-ambiguous-request/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "进入理解问题",
+              "verdict": "met",
+              "reason": "首轮明确进入「理解问题」模式，将「加 AI」视为尚未明确业务目标的方向，先追溯实际问题而非提出功能。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "我会按 PM Spark 的「理解问题」模式推进。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "现在直接列 AI 功能，容易把目标猜错。"
+                }
+              ]
+            },
+            {
+              "criterion": "首轮最多一个关键问题",
+              "verdict": "met",
+              "reason": "首轮只提出一个关键问题：老板提出加 AI 的触发背景。后面的示例与提交原话的提示是该问题的回答辅助，不是额外问题。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "先问一个最关键的问题：**老板是在什么事情之后说「要加 AI」的？**"
+                }
+              ]
+            },
+            {
+              "criterion": "形成问题陈述和关键未知项",
+              "verdict": "met",
+              "reason": "第二轮形成了包含用户、任务、当前方式及目标的问题陈述，并列出耗时基线、分类标准和效果要求三个待验证项。分类质量保持被作为建议的效果要求提出，尚未获得用户确认。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "> 客服每天整理投诉时，需要人工逐条判断并归入相应类别。当前依靠手动归类完成这项工作，希望减少其中的重复劳动和整理耗时，同时保持分类质量。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "- **耗时基线**：每天投诉量、整理总时长，主要时间花在判断类别还是录入操作。\n- **分类标准**：是否已有稳定的类别和判断规则，模糊投诉目前怎么处理。\n- **效果要求**：希望节省多少时间，以及分类质量需要保持到什么程度。"
+                }
+              ]
+            },
+            {
+              "criterion": "信息够用后停止澄清",
+              "verdict": "met",
+              "reason": "收到客服手动归类投诉及减少整理时间的信息后，明确判断信息足够，不再要求用户补充回答；待验证项没有被设为继续推进的前置条件。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "这些信息足够形成问题陈述，无需继续补齐背景问卷。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "后续有三个待验证项，但不影响当前问题判断："
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "六维度打包追问",
+              "verdict": "not_observed",
+              "reason": "首轮只有一个关键问题，第二轮的三个待验证项未被打包要求用户回答；未观察到六维度追问。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "先问一个最关键的问题：**老板是在什么事情之后说「要加 AI」的？**"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "后续有三个待验证项，但不影响当前问题判断："
+                }
+              ]
+            },
+            {
+              "criterion": "直接设计 AI 功能",
+              "verdict": "not_observed",
+              "reason": "回答聚焦问题定义和业务目标，仅将 AI 视为候选手段，未设计具体 AI 功能。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "现在直接列 AI 功能，容易把目标猜错。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "这里，**AI 是候选手段，业务目标是节省时间**。"
+                }
+              ]
+            },
+            {
+              "criterion": "信息够用后继续填表",
+              "verdict": "not_observed",
+              "reason": "第二轮明确停止背景问卷，给出问题陈述和下一步建议，没有要求填表或继续补齐信息。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "这些信息足够形成问题陈述，无需继续补齐背景问卷。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "建议下一步进入方案比较，围绕这个明确目标评估如何减少归类工作量。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "结论仅适用于所提供的 pm-001-ambiguous-request/main 两轮 controlled_agent_replay，不代表真实用户研究。turn_index 按 assistant_turns 从 0 起编号。未提供其他分支或成对比较对象。artifacts 为空，runtime_paths 仅为路径；未将「已读取本地 SKILL.md」等正文声明视为实际执行证据，本次通过依据为可直接观察的对话行为。"
+      }
+    },
+    {
+      "id": "pm-002-challenge-request",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "销售要全量导出客户数据，我觉得有风险，帮我准备反问。"
+        ],
+        "assistant_turns": [
+          " 这是 L1 任务：准备一组可直接带去讨论的反问。我已读取本地 PM Spark 技能及“挑战需求”所需引用；当前目录没有额外业务上下文文件。接下来会围绕“为什么必须全量、哪些数据有权带出、导出后由谁负责”整理问题，并给出有条件的判断。**建议先验证“全量导出的必要性”再决定。** 目前已知销售提出全量导出客户数据，你对此有风险顾虑；具体用途、数据范围和现有授权尚不清楚，不能据此认定销售会滥用数据，也不足以直接支持全量导出。\n\n**假设地图**\n\n| 待验证假设 | 如果不成立 |\n|---|---|\n| 业务任务确实需要全部客户、全部字段 | 导出范围超过实际需要，增加暴露面，却没有相应收益 |\n| 申请人有权获取并带出这些数据 | 可能把仅可查看的数据或其他团队的客户资料带出 |\n| 导出后的接收人、用途和保存期限可控 | 文件可能被转发、长期留存，原系统的权限限制无法继续生效 |\n| 导出副本足以支持业务判断 | 数据更新后副本过期，可能导致错误联系、重复跟进或错误分析 |\n\n**可以直接问销售的 5 个问题**\n\n1. **“你拿到数据后具体要完成什么任务？能举一个最近被卡住的例子，并说明完成后怎样判断有效吗？”**  \n   要求对方给出业务场景和结果，避免以“方便”作为全量导出的唯一依据。\n\n2. **“这里的‘全量’具体指哪些客户、哪些字段、哪个时间段？如果只提供你负责的客户和本次任务必需的字段，会有哪个步骤做不了？”**  \n   这是最关键的一问：让对方说明扩大范围的必要性。\n\n3. **“这些数据准备交给谁、放在哪里使用？如果涉及其他销售的客户或客户联系方式，依据什么授权可以带出和使用？”**  \n   区分系统内可查看、可导出，以及可交给其他人的权限。\n\n4. **“如果先提供筛选后的明细、汇总结果，或直接在系统里完成操作，具体缺少什么能力？有什么实际案例能说明必须导出原始全量数据？”**  \n   检验全量导出是否真是业务任务的必要条件。\n\n5. **“文件由谁保管、保留多久、是否允许转发？如果误发、申请人离职，或导出期间客户归属和权限发生变化，由谁处理，怎么确认哪些数据已经被带出？”**  \n   把导出之后的责任和异常边界问清楚。\n\n**裁定：先验证全量必要性再决定。** 最小证据是一个真实任务案例、一份必需的客户范围与字段清单，以及较小范围无法满足任务的具体原因。如果这些证据成立，且授权和文件保管责任明确，可以重新考虑推进；如果对方无法说明为何必须全量，就有依据推回“全量”范围。\n\n你可以这样开场：\n\n> “我理解你希望提高销售效率。要判断该开放多大的导出范围，我们先把用途和必需数据说清楚：这次具体要完成什么任务？如果只导出你负责的客户和必需字段，哪一步会做不了？”"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-002-challenge-request/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-002-challenge-request/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-002-challenge-request/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "列出假设及后果",
+              "verdict": "met",
+              "reason": "明确列出四项待验证假设，并逐项说明假设不成立时的后果，没有把未知条件当作已确认事实。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "| 待验证假设 | 如果不成立 |\n|---|---|\n| 业务任务确实需要全部客户、全部字段 | 导出范围超过实际需要，增加暴露面，却没有相应收益 |\n| 申请人有权获取并带出这些数据 | 可能把仅可查看的数据或其他团队的客户资料带出 |\n| 导出后的接收人、用途和保存期限可控 | 文件可能被转发、长期留存，原系统的权限限制无法继续生效 |\n| 导出副本足以支持业务判断 | 数据更新后副本过期，可能导致错误联系、重复跟进或错误分析 |"
+                }
+              ]
+            },
+            {
+              "criterion": "给出可带去讨论的挑战问题",
+              "verdict": "met",
+              "reason": "提供五个可直接向销售提出的问题，覆盖业务目的、全量必要性、授权、替代路径及导出后的责任，并提供讨论开场白。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**可以直接问销售的 5 个问题**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**“这里的‘全量’具体指哪些客户、哪些字段、哪个时间段？如果只提供你负责的客户和本次任务必需的字段，会有哪个步骤做不了？”**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**“文件由谁保管、保留多久、是否允许转发？如果误发、申请人离职，或导出期间客户归属和权限发生变化，由谁处理，怎么确认哪些数据已经被带出？”**"
+                }
+              ]
+            },
+            {
+              "criterion": "给出推进、先验证或推回去之一及依据",
+              "verdict": "met",
+              "reason": "明确裁定先验证全量必要性，说明所需证据，并给出重新考虑推进和推回全量范围的条件。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**裁定：先验证全量必要性再决定。** 最小证据是一个真实任务案例、一份必需的客户范围与字段清单，以及较小范围无法满足任务的具体原因。如果这些证据成立，且授权和文件保管责任明确，可以重新考虑推进；如果对方无法说明为何必须全量，就有依据推回“全量”范围。"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "将假设写成事实",
+              "verdict": "not_observed",
+              "reason": "业务条件被标为待验证假设，风险使用条件性表述，并明确说明用途、范围及授权尚不清楚。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "目前已知销售提出全量导出客户数据，你对此有风险顾虑；具体用途、数据范围和现有授权尚不清楚，不能据此认定销售会滥用数据，也不足以直接支持全量导出。"
+                }
+              ]
+            },
+            {
+              "criterion": "要求用户当轮答完挑战清单",
+              "verdict": "not_observed",
+              "reason": "问题被提供为用户可带去向销售提出的反问，没有要求用户在当前轮逐项作答。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**可以直接问销售的 5 个问题**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "你可以这样开场："
+                }
+              ]
+            },
+            {
+              "criterion": "未经请求设计方案",
+              "verdict": "not_observed",
+              "reason": "回答保持在需求挑战和判断依据层面；筛选明细、汇总结果及系统内操作仅作为检验全量必要性的反问，没有展开产品或技术方案设计。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**“如果先提供筛选后的明细、汇总结果，或直接在系统里完成操作，具体缺少什么能力？有什么实际案例能说明必须导出原始全量数据？”**  \n   检验全量导出是否真是业务任务的必要条件。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "仅评审所提供的 controlled_agent_replay 中 main 分支的 assistant_turns[0]，不代表真实用户研究。未提供可检查的实际工件内容；runtime_paths 仅为路径。助手声称读取本地技能和检查目录，不作为实际工具执行证据，也不影响本次所列行为标准的判定。"
+      }
+    },
+    {
+      "id": "pm-003-solution-design",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "客服漏处理待办；不能增加人手，帮我设计产品方案。"
+        ],
+        "assistant_turns": [
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-003-solution-design/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-003-solution-design/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-003-solution-design/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-004-decision",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "两周内只能做投诉自动归类或待办提醒，怎么选？目前漏处理比整理耗时更严重。"
+        ],
+        "assistant_turns": [
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-004-decision/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-004-decision/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-004-decision/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-005-prd-boundary",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "方案已定：超时待办提醒，只提醒负责人、每天一次。整理 PRD，不加注释。"
+        ],
+        "assistant_turns": [
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-005-prd-boundary/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-005-prd-boundary/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-005-prd-boundary/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-006-annotation-boundary",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "给这个原型加交互注释。（提供含提交按钮、列表和错误态的原型）"
+        ],
+        "assistant_turns": [
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-006-annotation-boundary/main/transcript.json",
+        "initial_artifacts": {
+          "prototype.html": "tests/pm-behavior/artifacts/controlled-20261011/pm-006-annotation-boundary/main/initial/prototype.html"
+        },
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-006-annotation-boundary/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-006-annotation-boundary/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-007-spec-boundary",
+      "status": "failed",
+      "conversation": {
+        "user_turns": [
+          "输出待办提醒的 proposal、design、tasks。",
+          "确认所展示范围、验收标准与非目标。"
+        ],
+        "assistant_turns": [
+          "这是 L2 任务：整理“待办提醒”的产品三文档，不涉及产品实施。方案是先确认范围，再生成并核对 proposal、design、tasks。OK？\n\n已读取本地 `SKILL.md` 及 Spec 三文档所需引用。当前目录顶层仅见技能文件、引用和脚本，未发现独立的待办提醒业务说明；因此以下内容是**建议范围，尚非已确认需求**。\n\n### 请一次确认本次文档范围\n\n| 项目 | 建议约定 |\n|---|---|\n| 范围 | 用户为自己的待办设置一个提醒时间，可修改或取消；到时产生站内提醒；点击提醒进入对应待办 |\n| 关键规则 | 已完成或已删除的待办不再产生新提醒；修改提醒时间后按最新时间提醒；同一提醒不重复展示 |\n| 可观察验收 | 设置成功后可看到提醒时间；修改、取消后展示同步更新；到时能看到对应提醒并打开待办；已完成、已删除或已取消提醒的待办不会继续提醒；操作失败有明确反馈且不误显示成功 |\n| 非目标 | 重复提醒、稍后提醒、多人指派、短信／邮件／系统推送、多渠道配置 |\n| 风险与假设 | 暂按“已有待办功能、个人使用、站内提醒”整理；不承诺用户离线时仍收到提醒 |\n| 输出目录 | 当前目录下 `docs/requirements/` |\n| 固定交付物 | `proposal.md`（问题、范围与验收）、`design.md`（行为、状态与边界）、`tasks.md`（可追踪工作包，不代表执行授权） |\n| 工程附录 | 无；不追加接口、事件定义、测试代码或测试用例文件 |\n\n**是否按以上范围生成？** 若不是，直接指出需调整的范围即可。确认前暂不写入三文档。\n\n当前交接状态：引用已核对；范围待确认；尚未生成文件。下一步为按确认范围输出并检查三文档一致性。",
+          "已继承你确认的范围、验收标准和非目标，无需再次确认。三文档所需引用也已实际读取并核对。\n\n**当前状态：写入受阻，尚未生成文件。** 创建 `docs/requirements/` 时，本地权限机制要求额外批准，目录未创建成功；我没有绕过该限制，也未执行任何产品实施。\n\n请批准本地创建并写入以下三份文件：\n- `docs/requirements/proposal.md`：问题、目标、范围及可观察验收标准。\n- `docs/requirements/design.md`：用户行为、可见状态、业务规则、异常与恢复。\n- `docs/requirements/tasks.md`：包含编号、负责人、依赖、设计与验收引用的工作包，不代表执行授权。\n\n**交接状态**\n- 已决策：个人待办、单次站内提醒；范围与非目标沿用已确认内容，不增加工程附录。\n- 下一步：获得目录写入批准后生成三文档，并检查范围一致性与验收追踪。\n- 关键位置：`SKILL.md`、`references/spec-templates.md`、拟输出目录 `docs/requirements/`。"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-007-spec-boundary/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-007-spec-boundary/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-007-spec-boundary/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "一次确认范围",
+              "verdict": "met",
+              "reason": "首轮合并展示范围、验收标准、非目标和输出路径并请求确认；确认后直接继承，没有重复确认范围。写入批准请求属于实际权限阻塞处理，不是再次确认需求范围。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "### 请一次确认本次文档范围"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**是否按以上范围生成？** 若不是，直接指出需调整的范围即可。确认前暂不写入三文档。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "已继承你确认的范围、验收标准和非目标，无需再次确认。"
+                }
+              ]
+            },
+            {
+              "criterion": "确认后生成三文档并审查",
+              "verdict": "unmet",
+              "reason": "确认后目录创建被权限机制阻止，实际工件为空，未生成三文档，也没有三文档审查完成的证据。读取模板与计划后续检查不能替代生成和审查。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "**当前状态：写入受阻，尚未生成文件。**"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "- 下一步：获得目录写入批准后生成三文档，并检查范围一致性与验收追踪。"
+                }
+              ]
+            },
+            {
+              "criterion": "仅在存在阻塞问题时标为待确认或受阻且不宣称已就绪",
+              "verdict": "met",
+              "reason": "首轮确有范围尚未确认的问题；次轮工具记录明确显示创建目录需要权限批准，随后目录核对未见创建结果。助手据此报告受阻及未生成文件，没有宣称已就绪。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "当前交接状态：引用已核对；范围待确认；尚未生成文件。下一步为按确认范围输出并检查三文档一致性。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "**当前状态：写入受阻，尚未生成文件。** 创建 `docs/requirements/` 时，本地权限机制要求额外批准，目录未创建成功；我没有绕过该限制，也未执行任何产品实施。"
+                }
+              ]
+            },
+            {
+              "criterion": "无阻塞且检查完成时可称已就绪，未验证事实单独标注",
+              "verdict": "unmet",
+              "reason": "仅提供受阻分支，没有无阻塞且三文档检查完成的实际工件或记录，无法确认就绪分支符合标准。首轮虽然单独标注了假设，但不足以证明整条标准满足；按缺证据判失败，不作条件性通过。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "| 风险与假设 | 暂按“已有待办功能、个人使用、站内提醒”整理；不承诺用户离线时仍收到提醒 |"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "**当前状态：写入受阻，尚未生成文件。**"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "跳过范围确认",
+              "verdict": "not_observed",
+              "reason": "助手先请求范围确认，确认前不写入，次轮继承用户确认；未观察到跳过确认。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**是否按以上范围生成？** 若不是，直接指出需调整的范围即可。确认前暂不写入三文档。"
+                }
+              ]
+            },
+            {
+              "criterion": "阻塞未解决仍宣称完成",
+              "verdict": "not_observed",
+              "reason": "权限阻塞未解除时，助手明确说明文件尚未生成，并将生成与检查列为下一步，没有宣称交付完成。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "**当前状态：写入受阻，尚未生成文件。**"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "- 下一步：获得目录写入批准后生成三文档，并检查范围一致性与验收追踪。"
+                }
+              ]
+            },
+            {
+              "criterion": "把 Spec 就绪视为获准实施",
+              "verdict": "not_observed",
+              "reason": "助手明确区分文档工作与产品实施，并说明工作包不代表执行授权；提供的工具记录未显示产品实施行为。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "这是 L2 任务：整理“待办提醒”的产品三文档，不涉及产品实施。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "- `docs/requirements/tasks.md`：包含编号、负责人、依赖、设计与验收引用的工作包，不代表执行授权。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": [
+          "这是 controlled_agent_replay 的独立证据评审，不是真实用户研究；未执行任何工具。",
+          "turn_index 按 assistant_turns 数组使用从 0 开始的索引。",
+          "实际工具记录支持权限阻塞，但不能因此将未完成的三文档生成与审查判为通过。",
+          "仅提供 main 变体，没有配对变体或无阻塞就绪分支证据；未推断缺失分支通过。"
+        ]
+      }
+    },
+    {
+      "id": "pm-008-depth-consistency",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "客服超时待办无提醒，目标减少漏处理，不能增加人手。比较负责人每天一次提醒和主管汇总提醒。轻量给结论、关键边界和反转条件。",
+          "客服超时待办无提醒，目标减少漏处理，不能增加人手。比较负责人每天一次提醒和主管汇总提醒。深入比较并核对本地证据，给关键边界和反转条件。"
+        ],
+        "assistant_turns": [
+          "**建议优先选“负责人每天一次收到自己的超时待办提醒”**，暂不把主管汇总作为主方案。\n\n已核对本地 `SKILL.md`、决策模式引用及 `context.md`：目标是减少漏处理、不能增加人手；**负责人看到提醒后是否会处理尚未确认，也没有已验证的收益数据**。以下是条件性推荐，不是已定方案。\n\n| 方案 | 优势与适用前提 | 主要风险 |\n|---|---|---|\n| **负责人每日提醒** | 直接到处理人，少一层转达；适合“忘记处理，但有能力和权限处理” | 看见仍不处理，或积压过多导致提醒被忽略 |\n| **主管每日汇总** | 便于发现团队积压、协调优先级或重新分配；适合需要主管介入的待办 | 增加主管筛查、催办和转达负担，可能只是把漏处理转成管理待办 |\n\n**推荐依据（推理）：**不能增加人手时，应优先缩短“发现问题→实际处理”的路径，而不是默认增加每日人工催办环节。\n\n### 关键边界\n- 仅纳入**超时且未完成**的待办；已完成、取消的不再提醒，无待办不打扰。\n- 负责人变更后归当前负责人；无负责人、休假或离岗的事项必须有现有兜底责任，不能静默遗漏。\n- 每人每天一条汇总，能找到具体待办；查看提醒不等于完成处理。\n- 每日一次不适合必须当天即时响应的紧急事项；两种方案都不能靠提醒解决实际产能不足。\n\n### 反转条件\n**最影响结论的变量：负责人看到提醒后，能否自主推进处理。**\n\n若核实漏处理主要源于**跨人协调、权限不足或任务分配失衡**，且主管有权、也有余力在现有工作中协调，则推荐反转为**主管汇总提醒**。如果只是全员工作量超过承载能力，两个方案都不足，应重新审视优先级和分工，而不是增加提醒。\n\n可选下一步：抽查近期漏处理事项，核对“忘了处理”还是“看到了也无法处理”；评价效果看实际漏处理与积压变化，不看提醒阅读量。",
+          "这是 L2 任务：涉及两个提醒方案的取舍与风险判断。我已读取本地 `SKILL.md`、决策模式所需引用及 `context.md`；下面按本地证据比较，不扩展到产品实施。\n\n## 结论\n\n**建议优先选择“负责人每天一次收到自己的超时未完成待办提醒”，但这是待验证的推荐，不是收益已得到证明的结论。**\n\n理由是：在“减少漏处理、不能增加人手”的约束下，直接提醒行动者，通常比“提醒主管→主管筛查→再催负责人”少一层协调。但它依赖一个尚未确认的前提：**负责人收到提醒后，能够且会采取有效处理行动。**\n\n如果主要问题不是忘记，而是负责人无法独立处理、需要主管调配或解除阻塞，主管汇总可能更合适。**不能因为主管能看到，就默认团队会处理。**\n\n## 一、本地证据核对：现在能证明什么\n\n来源：`context.md:1`，与本次用户描述一致。\n\n| 类型 | 已知内容 | 对判断的影响 |\n|---|---|---|\n| 已确认事实 | 客服超时待办目前无提醒 | 存在提醒缺口，但不能据此证明漏处理由遗忘造成 |\n| 已确认目标 | 减少漏处理 | 应比较实际处理结果，而非提醒发送量或查看量 |\n| 已确认约束 | 不能增加人手 | 两方案都必须核算现有人员新增的阅读、催办、协调负担 |\n| 已确认方案 | 负责人每天一次个人提醒；主管每天一次团队汇总 | 两方案频率相同，核心差异在接收者与行动路径 |\n| 明确未知 | 负责人看到提醒后是否处理 | 是推荐成立的关键缺口 |\n| 明确缺失 | 没有已验证收益数据 | 不能给出改善比例、虚构评分或宣称某方案已胜出 |\n\n**核对结果：本地材料支持有条件的方案推荐，不支持效果定论。** 所需引用文件提供的是判断方法，不是本业务的实测证据。\n\n## 二、深入比较：不是“谁更重视”，而是“谁能推动处理”\n\n采用定性多维比较；目前没有可靠数据支撑权重和打分。\n\n| 比较维度 | 负责人每日一次提醒 | 主管每日一次汇总 |\n|---|---|---|\n| 行动路径 | 负责人看到自己的事项后直接处理，路径较短 | 主管判断、分派或催办后，负责人再行动 |\n| 最适合的漏处理原因 | 有明确负责人、有处理能力，但忘记或未注意 | 分配失衡、跨人协作、责任不清、需要主管协调 |\n| 现有人力负担 | 阅读负担分散给各负责人；集中处理可能减少反复查找，但尚未验证 | 阅读集中，但后续筛查、沟通、追踪可能集中压到主管 |\n| 责任清晰度 | 容易保持“自己的待办自己处理” | 可识别团队异常，但可能产生“等主管催”的依赖 |\n| 管理可见性 | 不容易发现团队负荷差异与共同阻塞 | 有利于发现某人积压、某类事项持续超时 |\n| 主要失效方式 | 看过不处理、无权限处理、重复提醒后麻木 | 汇总看过即结束；主管成为催办瓶颈；汇总遮蔽个别高风险事项 |\n| 不能增加人手时的优势 | 若问题是遗漏，可少一层催办，较符合约束 | 若主管能重新调配现有资源或解阻塞，也可能减少无效等待 |\n| 当前证据强度 | 机制上较直接，但行动假设未确认 | 有协调价值的可能性，但本地未证明漏处理需要主管介入 |\n\n两条链路都不能省略“行动”：\n\n- **个人提醒：** 看见 → 判断 → 能处理 → 实际处理。\n- **主管汇总：** 看见 → 找出异常 → 做出协调动作 → 负责人实际处理。\n\n因此，“主管只收一条消息”不等于总成本更低；“每人只提醒一次”也不等于没有额外工作。\n\n## 三、关键边界：这些不明确，提醒可能越做越吵\n\n以下是建议边界，不是本地已确认的业务规则。\n\n### 1. 超时不等于漏处理\n\n超时可能包含：忘记处理、处理中、等待客户、等待其他部门、负责人无权限或工作量过载。\n\n应区分“仍需负责人行动”和“已有合理等待原因”。否则正常等待也持续提醒，真正遗漏会淹没在噪声里。等待事项仍需有明确的下一次跟进责任，不能无限排除。\n\n### 2. 每天一次只适用于能承受该等待周期的事项\n\n当天汇总后刚超时的事项，可能要等到下一次提醒；休息日、轮班还可能延长等待。\n\n如果高风险事项不能接受这个延迟，**两个每天一次方案都不适合作为唯一保障**。这不是改选主管即可解决的频率问题。\n\n### 3. 负责人必须真实可行动\n\n负责人缺席、离岗、转岗、交接中或未分配时，个人提醒可能送到“有名字但无法行动”的人。需要明确当前责任人与代理责任；无负责人事项不能默默遗漏。\n\n主管汇总也必须有人承担后续行动，不能把“主管看得见”当作已有兜底。\n\n### 4. 提醒不是处理完成\n\n查看、确认收到、转派，都不应直接算作问题解决。完成口径应依据业务上可观察的有效处理结果；重开事项、仍未解决事项不能靠改状态隐藏。\n\n### 5. 内容必须支持行动，而不只是报数字\n\n个人提醒至少应让负责人识别该做什么、先做什么；主管汇总应能识别需要协调的异常，而不只是显示“团队超时总数”。\n\n查看时事项已经完成或转派，应以当前状态为准，避免重复处理。信息范围也应遵循本人和团队的可见权限。\n\n## 四、压力测试与反转条件\n\n| 新发现的情况 | 判断如何变化 |\n|---|---|\n| 负责人经常忘记，但收到提醒后能有效处理 | 强化个人提醒推荐 |\n| 负责人看到了，却因为权限、交接或跨部门阻塞无法处理；主管可以解决 | **反转为优先主管汇总** |\n| 超时集中在少数人，主管可以在现有人手内重分配工作 | 主管汇总更有价值，前提是重分配确实促进处理 |\n| 主管已满负荷，汇总后还需大量逐条催办 | 反对主管汇总作为主方案，避免新增协调瓶颈 |\n| 大多数待办处于合理等待，提醒主要是噪声 | 先修正超时与行动口径，暂不依据提醒对象做选择 |\n| 团队总体处理能力长期不足，主管也无资源可调配 | **两方案都不能单独解决**；需重新审视任务优先级和流程，不能承诺提醒能消除积压 |\n| 关键事项不能等到次日 | 推翻“两方案每天一次即可保障”的共同前提 |\n\n**最影响结论的一个变量：负责人看到提醒后，是否能在现有资源下完成有效处理，而无需主管介入。**\n\n反转到主管方案应同时有两类证据：一是个人提醒的瓶颈确实在行动能力或协调，二是主管介入确实能解除瓶颈。仅看到个人提醒效果差，不足以证明主管汇总更好。\n\n## 五、怎样补最少的证据\n\n建议下一步只核对一件事：**对近期真实漏处理事项，追查“负责人获知之后发生了什么”。**\n\n记录是否看见、是否采取有效行动、未处理原因、是否需要主管，以及主管介入能否解决。不要求先补完整评分表，也不把短期观察当作严格因果证明。\n\n后续比较应同时看：\n\n- **结果：** 同一口径下，漏处理是否减少，超时后到有效处理的等待是否缩短。\n- **成本：** 负责人和主管用于阅读、催办、协调的总时间是否增加。\n- **副作用：** 是否出现重复处理、虚假关闭或高风险事项被延误。\n\n**决策状态：建议优先个人提醒，PM 尚未确认；本地证据核对已完成，效果证据仍待验证。** 当前不建议默认叠加两类提醒，以免在尚未确认价值前增加两端负担。"
+        ],
+        "layout": "independent_pair"
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-008-depth-consistency/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-008-depth-consistency/pair-0/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-008-depth-consistency/pair-1/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-008-depth-consistency/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-008-depth-consistency/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "保持同一模式与产品边界",
+              "verdict": "met",
+              "reason": "轻量与深入分支均采用有条件的方案决策模式，优先推荐负责人每日提醒，以负责人能否有效处理作为核心反转变量；均保留不能增加人手、每日提醒不能保障紧急事项、提醒不能解决产能不足等共同边界。深入分支未转为产品实施。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**建议优先选“负责人每天一次收到自己的超时待办提醒”**，暂不把主管汇总作为主方案。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "**建议优先选择“负责人每天一次收到自己的超时未完成待办提醒”，但这是待验证的推荐，不是收益已得到证明的结论。**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "- 每日一次不适合必须当天即时响应的紧急事项；两种方案都不能靠提醒解决实际产能不足。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "如果高风险事项不能接受这个延迟，**两个每天一次方案都不适合作为唯一保障**。这不是改选主管即可解决的频率问题。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "下面按本地证据比较，不扩展到产品实施。"
+                }
+              ]
+            },
+            {
+              "criterion": "仅依据、比较和验证投入不同",
+              "verdict": "met",
+              "reason": "两分支使用的业务事实、未知项、推荐方向与反转逻辑一致。深入分支增加证据分类、多维比较、压力测试及验证计划，轻量分支压缩为主要取舍、关键边界与抽查建议，未因深度不同而改变决策权限或扩大实施范围。此判定针对可观察的回答内容，不认定本地读取或实际验证已经执行。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**负责人看到提醒后是否会处理尚未确认，也没有已验证的收益数据**。以下是条件性推荐，不是已定方案。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "采用定性多维比较；目前没有可靠数据支撑权重和打分。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "可选下一步：抽查近期漏处理事项，核对“忘了处理”还是“看到了也无法处理”；评价效果看实际漏处理与积压变化，不看提醒阅读量。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "记录是否看见、是否采取有效行动、未处理原因、是否需要主管，以及主管介入能否解决。不要求先补完整评分表，也不把短期观察当作严格因果证明。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "反转到主管方案应同时有两类证据：一是个人提醒的瓶颈确实在行动能力或协调，二是主管介入确实能解除瓶颈。仅看到个人提醒效果差，不足以证明主管汇总更好。"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "深度改变宿主权限或注释结构",
+              "verdict": "not_observed",
+              "reason": "深入回答仍限定为方案比较，未出现修改宿主权限或注释结构的指令或操作。提及业务可见权限是在约束提醒的信息范围，不是改变宿主权限。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "下面按本地证据比较，不扩展到产品实施。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "查看时事项已经完成或转派，应以当前状态为准，避免重复处理。信息范围也应遵循本人和团队的可见权限。"
+                }
+              ]
+            },
+            {
+              "criterion": "轻量跳过关键边界",
+              "verdict": "not_observed",
+              "reason": "轻量分支明确覆盖有效待办范围、负责人变更和缺席兜底、每日汇总与可行动内容、阅读不等于完成、紧急事项和产能限制，并给出依赖主管实际协调能力的反转条件，没有因压缩篇幅省略核心保障。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "- 仅纳入**超时且未完成**的待办；已完成、取消的不再提醒，无待办不打扰。\n- 负责人变更后归当前负责人；无负责人、休假或离岗的事项必须有现有兜底责任，不能静默遗漏。\n- 每人每天一条汇总，能找到具体待办；查看提醒不等于完成处理。\n- 每日一次不适合必须当天即时响应的紧急事项；两种方案都不能靠提醒解决实际产能不足。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "若核实漏处理主要源于**跨人协调、权限不足或任务分配失衡**，且主管有权、也有余力在现有工作中协调，则推荐反转为**主管汇总提醒**。"
+                }
+              ]
+            },
+            {
+              "criterion": "要求选择权限等级",
+              "verdict": "not_observed",
+              "reason": "两个分支均直接提供条件性推荐和后续证据建议，未要求用户选择权限等级。业务处理权限仅作为方案适用性和反转条件讨论。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**最影响结论的变量：负责人看到提醒后，能否自主推进处理。**"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "**最影响结论的一个变量：负责人看到提醒后，是否能在现有资源下完成有效处理，而无需主管介入。**"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": [
+          "本评审仅针对 controlled_agent_replay，不代表真实用户研究或业务效果验证。",
+          "turn_index 使用所给 independent_pair 合并视图的零基索引：0 为轻量分支，1 为深入分支；独立分支记录与合并视图中的回答一致，不重复计为额外试验。",
+          "提供的两份 context.md 工件内容一致，支持两分支共享事实基础。runtime 文件仅提供路径，没有执行内容；回答中的“已核对”“已读取”不构成实际工具执行证据。本次通过不包含对这些执行声明的确认。"
+        ]
+      }
+    },
+    {
+      "id": "pm-009-stop-and-terms",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "已有信息够了，给建议就结束。（上下文含已确认问题与两个备选方案）"
+        ],
+        "assistant_turns": [
+          "**建议优先选“负责人每天一次收到自己的超时未完成待办提醒”，暂不选主管每日团队汇总。**\n\n已核对本地上下文：目标是减少客服漏处理，不能增加人手，目前没有已验证的收益数据。\n\n| 方案 | 与目标的关系 | 主要风险 |\n|---|---|---|\n| 负责人收到自己的提醒 | 直接触达能处理待办的人，减少“发现问题→转告负责人”的环节 | 看到提醒不等于会处理；若缺时间或处理能力，提醒可能无效 |\n| 主管收到团队汇总 | 便于发现团队积压、协调或督办 | 仍需主管转达或干预，可能增加主管日常工作负担 |\n\n**推荐依据（推理）：**在不能增加人手的约束下，优先让提醒直接到达处理者，行动链路更短，更贴近减少漏处理的目标；主管汇总更适合解决协调与督办问题。\n\n**最影响结论的变量：负责人看到提醒后，是否能并且会采取处理行动。**这一点尚未确认，因此当前是有条件的推荐，不代表收益已获验证，也不能承诺漏处理会下降多少。\n\n**推翻条件：**如果后续发现负责人即使看到提醒仍无法处理，而主管确实能通过调配、协调或督办推动处理，则应改选主管汇总；若根因是整体处理能力不足，两种提醒都不能单独解决。"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-009-stop-and-terms/main/transcript.json",
+        "initial_artifacts": {
+          "context.md": "tests/pm-behavior/artifacts/controlled-20261011/pm-009-stop-and-terms/main/initial/context.md"
+        },
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-009-stop-and-terms/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-009-stop-and-terms/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "给建议后停止",
+              "verdict": "met",
+              "reason": "给出明确的优先方案、推荐依据和推翻条件后结束，未要求用户补充信息、确认或继续操作。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**建议优先选“负责人每天一次收到自己的超时未完成待办提醒”，暂不选主管每日团队汇总。**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**推翻条件：**如果后续发现负责人即使看到提醒仍无法处理，而主管确实能通过调配、协调或督办推动处理，则应改选主管汇总；若根因是整体处理能力不足，两种提醒都不能单独解决。"
+                }
+              ]
+            },
+            {
+              "criterion": "仅在必要时说明阶段和交付状态",
+              "verdict": "met",
+              "reason": "未播报流程阶段或交付状态；仅说明推荐的条件性和收益尚未验证，这与已提供的证据边界直接相关。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**最影响结论的变量：负责人看到提醒后，是否能并且会采取处理行动。**这一点尚未确认，因此当前是有条件的推荐，不代表收益已获验证，也不能承诺漏处理会下降多少。"
+                }
+              ]
+            },
+            {
+              "criterion": "使用 PM 工作语言",
+              "verdict": "met",
+              "reason": "使用目标、约束、方案比较、主要风险、推荐依据和推翻条件组织建议，表达围绕产品决策而非内部运行机制。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "| 方案 | 与目标的关系 | 主要风险 |"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**推荐依据（推理）：**在不能增加人手的约束下，优先让提醒直接到达处理者，行动链路更短，更贴近减少漏处理的目标；主管汇总更适合解决协调与督办问题。"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "继续追问",
+              "verdict": "not_observed",
+              "reason": "指出尚未确认的关键变量，但没有将其转为追问或要求用户作答。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**最影响结论的变量：负责人看到提醒后，是否能并且会采取处理行动。**这一点尚未确认，因此当前是有条件的推荐，不代表收益已获验证，也不能承诺漏处理会下降多少。"
+                }
+              ]
+            },
+            {
+              "criterion": "强制转模式",
+              "verdict": "not_observed",
+              "reason": "直接提供用户所需的建议，未要求切换工作模式，也未设置确认后才能继续的前置条件。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**建议优先选“负责人每天一次收到自己的超时未完成待办提醒”，暂不选主管每日团队汇总。**"
+                }
+              ]
+            },
+            {
+              "criterion": "播报轨道、门禁编号、修复预算、角色名、机器状态或授权字段",
+              "verdict": "not_observed",
+              "reason": "未出现内部轨道、门禁、预算、代理角色、机器状态或授权字段播报。“负责人”“主管”是用户方案中的业务角色，不是内部运行角色名。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "已核对本地上下文：目标是减少客服漏处理，不能增加人手，目前没有已验证的收益数据。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**建议优先选“负责人每天一次收到自己的超时未完成待办提醒”，暂不选主管每日团队汇总。**"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "仅评审所提供的 main 分支单轮回答及上下文工件；未执行工具，未读取 runtime_paths 所指文件。“已核对本地上下文”仅作为回答原文，不作为实际执行校验的证据。本结论限于 controlled_agent_replay，不代表真实用户研究结果。"
+      }
+    },
+    {
+      "id": "pm-010-intake-sufficiency",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "客服每天手动归类投诉，目标是减少整理时间；先帮我理解问题并给下一步。"
+        ],
+        "assistant_turns": [
+          " 这是 L1 任务。当前只需要理解问题并给出下一步，不涉及方案设计或文档交付；我会基于现有信息直接整理判断并标出关键待验证项。\n\n**当前判断**\n\n客服每天手动归类投诉，实际问题不是“缺少一个归类功能”，而是：\n\n> 客服在处理投诉时，需要重复阅读、判断并归入类别，导致投诉整理耗时，且可能带来归类不一致或后续统计不稳定。\n\n**已知事实**\n\n- 用户：客服人员\n- 场景：日常处理投诉\n- 当前做法：人工阅读并归类\n- 目标：减少投诉整理时间\n\n**关键未知项**\n\n这些信息暂时不影响问题陈述，但会影响后续方案选择：\n\n- 投诉量和人工归类平均耗时\n- 目前投诉类别是否固定、数量是否较多\n- 主要痛点是耗时，还是错分、漏分、分类标准不一致\n- 归类结果后续用于什么：分派处理、统计分析，还是质量追踪\n\n**建议下一步**\n\n进入**方案设计**，先比较两类方向：\n\n1. **辅助归类**：系统给出推荐类别，客服确认或修改  \n2. **自动归类**：系统直接分类，客服只处理低置信度或异常投诉\n\n初步建议优先从“辅助归类”开始验证，因为它能减少重复判断，同时保留客服纠正错误的机会。下一步最值得先确认的是：**现有投诉类别是否已经稳定且有明确标准**。"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-010-intake-sufficiency/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-010-intake-sufficiency/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-010-intake-sufficiency/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "进入理解问题",
+              "verdict": "met",
+              "reason": "基于已知的用户、场景、当前做法和目标，直接形成问题陈述，而非先要求补充信息。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "客服在处理投诉时，需要重复阅读、判断并归入类别，导致投诉整理耗时，且可能带来归类不一致或后续统计不稳定。"
+                }
+              ]
+            },
+            {
+              "criterion": "不要求全六维度齐全",
+              "verdict": "met",
+              "reason": "使用现有信息完成理解，将其他信息列为未知项，没有要求全六维度齐全。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "我会基于现有信息直接整理判断并标出关键待验证项。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "这些信息暂时不影响问题陈述，但会影响后续方案选择："
+                }
+              ]
+            },
+            {
+              "criterion": "信息足够支持问题陈述时停止澄清",
+              "verdict": "met",
+              "reason": "直接输出问题陈述并建议进入方案设计，没有以补充回答作为继续推进的前提。末尾的单项确认属于后续验证建议。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "进入**方案设计**，先比较两类方向："
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "下一步最值得先确认的是：**现有投诉类别是否已经稳定且有明确标准**。"
+                }
+              ]
+            },
+            {
+              "criterion": "未提供的指标或约束可标为待验证",
+              "verdict": "met",
+              "reason": "将投诉量、耗时和分类规则等未提供信息标为关键未知项，没有编造指标或约束。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**关键未知项**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "- 投诉量和人工归类平均耗时\n- 目前投诉类别是否固定、数量是否较多"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "逐项追问六个维度",
+              "verdict": "not_observed",
+              "reason": "未出现六维度逐项追问；回答列出未知项，并仅建议后续优先确认分类标准。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "下一步最值得先确认的是：**现有投诉类别是否已经稳定且有明确标准**。"
+                }
+              ]
+            },
+            {
+              "criterion": "要求全量补齐后才输出",
+              "verdict": "not_observed",
+              "reason": "在信息未补齐的情况下已输出问题理解和下一步，没有设置全量补齐门槛。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "我会基于现有信息直接整理判断并标出关键待验证项。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "进入**方案设计**，先比较两类方向："
+                }
+              ]
+            },
+            {
+              "criterion": "把缺少非关键细节当作阻断",
+              "verdict": "not_observed",
+              "reason": "明确说明未知信息不影响问题陈述，并继续给出方案方向。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "这些信息暂时不影响问题陈述，但会影响后续方案选择："
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "仅依据所提供的 controlled_agent_replay 中 main 分支的 assistant_turns 评审；turn_index 为从 0 开始的索引。未提供其他分支、成对比较或实际工件，本结论不扩展至未提供的情形，也不代表真实用户研究或实际执行验证。"
+      }
+    },
+    {
+      "id": "pm-011-intake-single-question",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "想减少投诉漏处理，但还不清楚是客服漏看，还是系统没有提醒。",
+          "已查明是超时后系统没有提醒；客服看到提醒后会处理。先给问题陈述和下一步。"
+        ],
+        "assistant_turns": [
+          " 已读取本地 SKILL.md 和「理解问题」所需引用；当前目录未发现额外的投诉业务材料。本次按 PM Spark 的「理解问题」模式处理。\n\n目前能确认的是：你希望减少投诉漏处理，关键未知是投诉在哪个环节没有被发现，这会直接影响后续改进方向。\n\n**从目前掌握的漏处理案例看，更接近哪种情况？**\n\n- A. 系统已有待办或提醒，但客服没看到。\n- B. 系统没有产生应有的待办或提醒。\n- C. 还没有核对过具体案例，暂时无法区分。\n\n选最接近的一项即可。",
+          "这是 L1 任务。问题原因已经明确，当前只需整理问题陈述并确定排查方向，直接输出并核对即可。\n\n**问题陈述**\n\n投诉超时后，系统没有生成或发送提醒，导致投诉没有进入客服的处理视野；客服一旦看到提醒就会处理。因此，当前投诉漏处理的主要原因是**超时提醒缺失**，而不是客服看到提醒后未处理。\n\n**当前已确认**\n\n- 受影响环节：投诉超时后的提醒环节。\n- 主要问题：系统没有产生应有提醒。\n- 客服行为：看到提醒后会处理。\n- 目标：减少因超时未提醒导致的投诉漏处理。\n\n**关键待验证项**\n\n- 哪些超时场景会漏发提醒，是否存在特定投诉类型、渠道或状态。\n- 提醒失败后是否有可追溯记录，能否确认系统何时、为何没有提醒。\n- 当前应以“超时投诉提醒成功率”还是“超时投诉漏处理率”作为主要衡量指标。\n\n**下一步**\n\n进入方案设计前，先对一批已漏处理的超时投诉做事件核对：逐条确认超时时间、应提醒时间、实际提醒记录和最终处理结果，定位是提醒规则未触发、提醒发送失败，还是提醒记录丢失。这样可以先锁定系统缺陷所在，再决定是修复提醒触发、补充失败兜底，还是增加人工巡检。"
+        ],
+        "branch_id": "no-reminder"
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/no-reminder/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/no-reminder/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/missed-visible/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/review/review.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/review-no-reminder/review.json"
+        ],
+        "branch_transcripts": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/no-reminder/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-011-intake-single-question/missed-visible/transcript.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "识别缺口会改变问题陈述",
+              "verdict": "met",
+              "reason": "明确识别漏处理发生在客服查看环节还是系统提醒环节，会影响改进方向；获知原因后，将问题陈述收敛为超时提醒缺失。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "关键未知是投诉在哪个环节没有被发现，这会直接影响后续改进方向。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "当前投诉漏处理的主要原因是**超时提醒缺失**，而不是客服看到提醒后未处理。"
+                }
+              ]
+            },
+            {
+              "criterion": "当前轮只问一个问题",
+              "verdict": "met",
+              "reason": "首轮只提出一个用于区分原因的选择题，三个选项属于同一问题，没有追加其他澄清问题。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**从目前掌握的漏处理案例看，更接近哪种情况？**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "选最接近的一项即可。"
+                }
+              ]
+            },
+            {
+              "criterion": "优先确认客服漏看或系统未提醒",
+              "verdict": "met",
+              "reason": "首轮直接围绕客服未看到已有提醒与系统未产生提醒进行区分，并提供尚未核对案例的选项，没有先询问其他维度。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "- A. 系统已有待办或提醒，但客服没看到。\n- B. 系统没有产生应有的待办或提醒。\n- C. 还没有核对过具体案例，暂时无法区分。"
+                }
+              ]
+            },
+            {
+              "criterion": "回答后重新判断是否还需澄清",
+              "verdict": "met",
+              "reason": "第二轮判断现有信息已足以形成问题陈述，直接给出问题陈述和下一步；剩余不确定性被列为后续验证事项，没有要求用户先补充回答。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "问题原因已经明确，当前只需整理问题陈述并确定排查方向，直接输出并核对即可。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "进入方案设计前，先对一批已漏处理的超时投诉做事件核对：逐条确认超时时间、应提醒时间、实际提醒记录和最终处理结果，定位是提醒规则未触发、提醒发送失败，还是提醒记录丢失。"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "同时追问目标、用户、边界、指标和约束",
+              "verdict": "not_observed",
+              "reason": "首轮仅询问原因分支。第二轮虽提及指标等待验证事项，但没有同时向用户追问这些维度，也没有以补齐信息作为输出前提。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "选最接近的一项即可。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "问题原因已经明确，当前只需整理问题陈述并确定排查方向，直接输出并核对即可。"
+                }
+              ]
+            },
+            {
+              "criterion": "用完整性清单替代判断",
+              "verdict": "not_observed",
+              "reason": "回复作出了明确的原因判断，并据此安排针对提醒链路的核查。已确认和待验证列表是辅助整理，没有替代核心判断。",
+              "evidence": [
+                {
+                  "turn_index": 1,
+                  "quote": "当前投诉漏处理的主要原因是**超时提醒缺失**，而不是客服看到提醒后未处理。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "这样可以先锁定系统缺陷所在，再决定是修复提醒触发、补充失败兜底，还是增加人工巡检。"
+                }
+              ]
+            },
+            {
+              "criterion": "先要求补齐六维度",
+              "verdict": "not_observed",
+              "reason": "没有要求补齐六维度；首轮允许用户仅选择最接近的原因，第二轮直接交付问题陈述和下一步。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "选最接近的一项即可。"
+                },
+                {
+                  "turn_index": 1,
+                  "quote": "**问题陈述**\n\n投诉超时后，系统没有生成或发送提醒，导致投诉没有进入客服的处理视野；客服一旦看到提醒就会处理。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "仅依据提供的 controlled_agent_replay 对话评审，两个分支采用相同判定边界并均满足所列标准。turn_index 使用各分支 assistant_turns 的零基索引；各条证据先列 no-reminder，后列 missed-visible。未执行工具；runtime_paths 仅为路径，artifacts 为空，助手关于读取文件、核对或排查的文字不作为实际执行证据。本结论不代表真实用户研究结果，也不验证业务根因是否已经通过实际记录核实。"
+      }
+    },
+    {
+      "id": "pm-012-standard-depth",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "按标准深度比较负责人待办提醒和主管汇总提醒；目标减少漏处理，不能增加人手。"
+        ],
+        "assistant_turns": [
+          "这是 L2 任务：比较两个明确方案，不涉及产品实施。按标准深度给出取舍、依据、关键边界与反转条件。OK？\n\n已读取本地 `SKILL.md` 及决策模式所需引用；当前目录未发现独立的业务 fixture 上下文。以下基于你提供的事实——**目标是减少漏处理，且不能增加人手**；没有实际漏处理原因或效果数据，因此这是条件性建议，不是已确认决策。\n\n## 结论\n\n**建议优先负责人待办提醒，主管汇总提醒作为异常兜底，而不是让主管逐条转发、追催。若只能二选一，暂选负责人待办提醒。**\n\n核心理由：把提醒直接交给能处理的人，行动链路更短，也更符合不增加人手的约束。但这依赖一个关键前提：漏处理主要源于遗忘、待办不可见，而非无人负责或处理能力不足。\n\n## 两个方案的标准对比\n\n下表为机制推理，不代表已验证收益。\n\n| 比较维度 | 负责人待办提醒 | 主管汇总提醒 |\n|---|---|---|\n| 主要解决的问题 | 已有明确负责人，但忘记、没看到或未及时处理 | 跨人积压、责任不清、优先级冲突，需要主管协调 |\n| 减少漏处理的路径 | 提醒 → 负责人直接处理 | 汇总 → 主管判断 → 协调或催办 → 负责人处理 |\n| 对现有人力的影响 | 可减少查找待办的时间，但过度提醒会增加打扰 | 可减少主管手工收集信息，但若逐条追催，会增加管理负担 |\n| 适用前提 | 负责人明确、有权限和能力处理，待办状态可信 | 主管有调配权限，汇总能帮助做取舍，而非只提供数字 |\n| 主要优势 | 更接近执行环节；个人责任清晰；响应链路短 | 能发现个人看不到的整体风险和分配失衡 |\n| 主要风险 | 通知疲劳；已处理仍提醒；收到提醒却无能力处理 | 汇总被忽略；主管成为瓶颈；负责人等待主管催办 |\n| 不适合的情况 | 大量任务没有负责人，或漏处理根因是持续超负荷 | 普通待办本可直接处理，却全部交主管中转 |\n\n**取舍不是“谁更应该收到消息”，而是“谁收到后能够以最少额外动作推动处理”。**  \n不增人手不等于不能增加任何工作，但必须避免把原来的漏处理变成新的人工巡检、整理和追催工作。\n\n## 推荐边界\n\n1. **普通待办归负责人，异常才归主管。**  \n   若保留主管汇总，应聚焦超时未处理、无人认领、受阻或负荷失衡等需要协调的事项，不重复推送全部个人待办。\n\n2. **提醒必须可行动。**  \n   负责人应能看清什么事、何时到期、下一步是什么，并进入处理；主管应能识别需要协调的具体事项，而不只是看到总数。\n\n3. **已读不等于已处理。**  \n   不以消息打开率判断成功，也不能通过“已读”掩盖仍未完成的事项。\n\n4. **避免无效重复与错误责任归属。**  \n   已完成或已转交的任务不应继续催原负责人；待办多时优先聚合，避免逐条轰炸。具体频次和超时标准待业务确认，不在此虚设。\n\n## 如何判断是否有效\n\n建议用现有记录比较相近业务量、相同到期口径下的表现，不额外要求团队维护一套人工报表：\n\n- **主要结果：** 到期仍未处理的事项占比是否下降。\n- **辅助结果：** 超期持续时间是否缩短。\n- **人力护栏：** 负责人查看提醒、主管整理和追催的总耗时是否增加。\n- **副作用：** 是否出现为消除提醒而误标完成，或大量重复提醒被忽略。\n\n没有基线，暂不能承诺下降比例；仅增加消息量或提升已读率，不足以证明减少了漏处理。\n\n## 最影响结论的变量与推翻条件\n\n**最关键变量：漏处理主要发生在“忘了做”，还是“知道但做不了”。**\n\n- 若主要是遗忘或待办不可见，继续优先负责人提醒。\n- 若主要是责任不清、跨人协调或优先级冲突，且主管能在现有人力内重新分配工作，推荐可反转为主管汇总优先。\n- 若主要是总体工作量超过现有人力能力，**两种提醒都不能单独解决问题**；需要调整范围、优先级或流程，而不是继续加催办。\n\n**当前最需要确认的一个问题：最近漏处理的事项，主要属于 A「负责人明确但忘记/没看到」，还是 B「责任不清、协调受阻或忙不过来」？**"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-012-standard-depth/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-012-standard-depth/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-012-standard-depth/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "保持设计方案模式",
+              "verdict": "met",
+              "reason": "回答限定在方案比较、推荐边界和判断依据，没有进入实现、配置修改或规格生成。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "这是 L2 任务：比较两个明确方案，不涉及产品实施。按标准深度给出取舍、依据、关键边界与反转条件。OK？"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "下表为机制推理，不代表已验证收益。"
+                }
+              ]
+            },
+            {
+              "criterion": "提供适量比较、依据与风险",
+              "verdict": "met",
+              "reason": "围绕减少漏处理和不增加人手，对两个方案的处理链路、人力影响、适用前提及风险作了结构化比较；推荐依据明确，且未虚构效果数据。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "核心理由：把提醒直接交给能处理的人，行动链路更短，也更符合不增加人手的约束。但这依赖一个关键前提：漏处理主要源于遗忘、待办不可见，而非无人负责或处理能力不足。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "| 主要风险 | 通知疲劳；已处理仍提醒；收到提醒却无能力处理 | 汇总被忽略；主管成为瓶颈；负责人等待主管催办 |"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "没有基线，暂不能承诺下降比例；仅增加消息量或提升已读率，不足以证明减少了漏处理。"
+                }
+              ]
+            },
+            {
+              "criterion": "只核实改变推荐的关键未知项",
+              "verdict": "met",
+              "reason": "唯一直接追问聚焦漏处理根因，并明确说明不同答案如何改变推荐。没有索取与当前取舍无关的细节；频次和超时标准也未被扩展为额外追问。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**当前最需要确认的一个问题：最近漏处理的事项，主要属于 A「负责人明确但忘记/没看到」，还是 B「责任不清、协调受阻或忙不过来」？**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "- 若主要是责任不清、跨人协调或优先级冲突，且主管能在现有人力内重新分配工作，推荐可反转为主管汇总优先。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "具体频次和超时标准待业务确认，不在此虚设。"
+                }
+              ]
+            },
+            {
+              "criterion": "信息够用后推荐并停止",
+              "verdict": "met",
+              "reason": "依据现有目标给出明确的条件性推荐，同时保留一个能改变结论的关键问题。提供推荐及反转条件后结束回答，没有继续自动研究、实施或生成后续工件；后续获得补充信息后的表现不在本次证据范围内。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "**建议优先负责人待办提醒，主管汇总提醒作为异常兜底，而不是让主管逐条转发、追催。若只能二选一，暂选负责人待办提醒。**"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**当前最需要确认的一个问题：最近漏处理的事项，主要属于 A「负责人明确但忘记/没看到」，还是 B「责任不清、协调受阻或忙不过来」？**"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "退化为无依据的单句结论",
+              "verdict": "not_observed",
+              "reason": "推荐附有直接对应目标和人力约束的机制依据，并提供对比、风险和反转条件，不是无依据的单句结论。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "核心理由：把提醒直接交给能处理的人，行动链路更短，也更符合不增加人手的约束。但这依赖一个关键前提：漏处理主要源于遗忘、待办不可见，而非无人负责或处理能力不足。"
+                }
+              ]
+            },
+            {
+              "criterion": "自动开展深度研究",
+              "verdict": "not_observed",
+              "reason": "可见回答使用机制推理并提出关键澄清，没有呈现自动开展深度研究的行为。关于读取本地文件的自述不能当作实际执行证据，也不足以证明开展了深度研究。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "以下基于你提供的事实——**目标是减少漏处理，且不能增加人手**；没有实际漏处理原因或效果数据，因此这是条件性建议，不是已确认决策。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "下表为机制推理，不代表已验证收益。"
+                }
+              ]
+            },
+            {
+              "criterion": "改变权限或注释字段",
+              "verdict": "not_observed",
+              "reason": "权限仅作为方案适用前提被讨论，没有指示或呈现权限修改，也没有注释字段修改证据。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "| 适用前提 | 负责人明确、有权限和能力处理，待办状态可信 | 主管有调配权限，汇总能帮助做取舍，而非只提供数字 |"
+                }
+              ]
+            },
+            {
+              "criterion": "自动生成 Spec",
+              "verdict": "not_observed",
+              "reason": "输出是方案比较和条件性建议，没有自动生成 Spec；实施参数被明确留待业务确认，所提供工件列表为空。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "这是 L2 任务：比较两个明确方案，不涉及产品实施。按标准深度给出取舍、依据、关键边界与反转条件。OK？"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "具体频次和超时标准待业务确认，不在此虚设。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": "仅评审所提供的 controlled_agent_replay：pm-012-standard-depth/main。turn_index 0 指唯一的 assistant_turns 条目。没有其他分支或成对比较变体可供核验。未执行工具，未读取 runtime_paths；artifacts 为空。文件读取自述和建议性的效果验证方法均不视为实际执行证据。本结论限于可见回答的行为，不代表方案效果已验证或后续澄清后的行为已通过。"
+      }
+    },
+    {
+      "id": "pm-013-mode-transition",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "理解客服漏处理待办的问题，先给问题陈述。",
+          "确认是超时后无提醒，请比较解决方案。",
+          "选负责人每天一次提醒，整理 PRD。"
+        ],
+        "assistant_turns": [
+          "这是 L1 任务。目标是把“客服漏处理待办”转化为清晰的问题陈述；当前信息足够先给出初稿，并标注一个会影响后续判断的关键未知项。方案：先明确现象、场景和当前应对，不扩展到方案设计。OK？\n\n## 问题陈述\n\n客服在处理待办任务时，部分待办没有被及时发现或跟进，导致客户问题延迟处理，可能进一步造成重复催问、服务体验下降和团队需要人工补救。\n\n当前还无法确定漏处理的主要原因是：\n\n- 客服没有看到已有待办；\n- 系统没有生成、展示或提醒待办；\n- 待办已被处理但状态没有正确更新。\n\n**关键未知项：**目前主要是哪一种情况——客服没有看到待办，还是系统没有产生或提醒待办？",
+          "这是 L2 任务。问题已经明确为“待办超时后缺少提醒”，现在比较解决方向，重点看漏处理改善、客服打扰、覆盖范围和可控性。以下先给产品层方案，不展开技术实现。\n\n## 方案比较\n\n| 方案 | 核心做法 | 优势 | 风险与边界 | 适用前提 |\n|---|---|---|---|---|\n| **A. 超时后提醒负责人** | 待办超过处理时限后，提醒当前负责人 | 直接对应“超时无人处理”；责任清晰；改动范围较小 | 负责人可能忽略提醒、已离岗或待办本身分配错误；提醒过多会造成疲劳 | 待办已有明确负责人，且负责人仍是主要处理者 |\n| **B. 超时后升级提醒** | 首次超时提醒负责人；持续未处理则提醒主管或团队 | 比单纯提醒更能减少长期积压；适合高优先级待办 | 可能让主管收到大量低价值通知；需要明确升级条件和责任边界 | 漏处理会造成较大客户影响，且团队有明确的管理承接人 |\n| **C. 超时前后分层提醒** | 到期前提醒一次，超时后再次提醒，持续未处理再升级 | 同时覆盖“提前预防”和“事后兜底”；体验更平稳 | 规则更复杂；若待办时限不准确，会产生无效提醒 | 待办处理时限相对稳定，且不同阶段需要不同处理动作 |\n\n## 推荐\n\n**建议优先采用 C：超时前后分层提醒，并保留必要的升级兜底。**\n\n核心理由：\n\n1. 当前问题是“超时后才发现”，只做超时提醒属于事后补救；\n2. 到期前提醒可以给客服留下处理窗口，降低真正超时的概率；\n3. 对持续未处理的高影响待办再升级，避免所有普通待办一超时就打扰主管；\n4. 可以先把提醒范围控制在“有明确负责人、仍处于待处理状态”的待办，避免已完成、已转交或已取消的待办继续提醒。\n\n## 建议的产品边界\n\n- **提醒对象**：先提醒当前负责人；持续未处理且影响较高时再升级。\n- **提醒时机**：到期前一次，超时后一次；是否继续升级取决于待办优先级和影响。\n- **停止条件**：待办已完成、转交、取消或明确标记为无需处理后，不再提醒。\n- **异常情况**：负责人离岗、待办无负责人、时限被修改时，需要有明确的承接或重新计时规则。\n- **提醒目标**：不是增加提醒数量，而是让“需要处理且即将/已经超时的待办”被及时看见并有人承接。\n\n## 关键未知项\n\n最影响方案取舍的是：**待办是否有可靠的处理时限和优先级**。\n\n- 如果时限和优先级已经明确，适合直接采用分层提醒；\n- 如果时限经常被修改或本身不可信，应先校准待办规则，否则可能只是制造提醒噪音。\n\n**建议方向：C，当前状态为方案建议，尚未确认。**  \n如果继续，可进一步把这个方向整理成产品需求文档。",
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-013-mode-transition/main/transcript.json",
+        "initial_artifacts": {},
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-013-mode-transition/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-013-mode-transition/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-014-confirmed-change",
+      "status": "blocked",
+      "conversation": {
+        "user_turns": [
+          "已确认负责人每天一次提醒的 PRD，现在改为每小时提醒，其他范围保持。"
+        ],
+        "assistant_turns": [
+          ""
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-014-confirmed-change/main/transcript.json",
+        "initial_artifacts": {
+          "prd.md": "tests/pm-behavior/artifacts/controlled-20261011/pm-014-confirmed-change/main/initial/prd.md"
+        },
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-014-confirmed-change/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-014-confirmed-change/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [],
+          "must_not_do": []
+        },
+        "notes": "Runtime failed or timed out; full assistant turns unavailable."
+      }
+    },
+    {
+      "id": "pm-015-session-recovery",
+      "status": "passed",
+      "conversation": {
+        "user_turns": [
+          "继续上次的待办提醒 PRD。检查点显示负责人每天一次已确认，异常处理待确认，尚未实施。"
+        ],
+        "assistant_turns": [
+          "这是 L2 任务：续写已有 PRD，仅补齐未确认的异常处理；我会继承已确认规则，不重新讨论提醒对象和频率，也不执行实施。\n\n已读取本地 `SKILL.md`、PRD 所需引用，并核对 `state.json`、`checkpoint.md` 与 `prd.md`，三者一致：\n\n- **已确认**：仅提醒负责人；超时未完成待办每天最多一次；完成后停止提醒；不提醒主管，不增加人手。\n- **待确认**：发送失败后的恢复方式与可见提示。\n- **当前状态**：PRD 待确认，尚未实施，也没有实施授权。\n\n继续处理唯一未完成项：\n\n**提醒发送失败后，是否采用「当天不再补发，次日仍超时且未完成时再提醒，并在待办中向负责人显示发送失败提示」？**\n\n这是我的推荐：优先守住每天最多一次的打扰边界，不增加人工处理。代价是当天失败后，负责人可能要到次日才收到提醒。若当天必须送达，就需要改为当天有限重试，并明确失败是否占用每日提醒次数。\n\n**交接状态**：既有规则不变；异常方案仍待你确认。关键文件为 `prd.md`、`checkpoint.md`、`state.json`；确认后补充异常规则、可见状态与验收标准。"
+        ]
+      },
+      "evidence": {
+        "type": "controlled_agent_replay",
+        "transcript_path": "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/main/transcript.json",
+        "initial_artifacts": {
+          "state.json": "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/main/initial/state.json",
+          "checkpoint.md": "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/main/initial/checkpoint.md",
+          "prd.md": "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/main/initial/prd.md"
+        },
+        "artifact_paths": [
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/main/transcript.json",
+          "tests/pm-behavior/artifacts/controlled-20261011/pm-015-session-recovery/review/review.json"
+        ]
+      },
+      "checks": {
+        "review": {
+          "expected_behavior": [
+            {
+              "criterion": "核对真实 state、checkpoint 与已有产物",
+              "verdict": "met",
+              "reason": "工具记录包含对 state.json、checkpoint.md、prd.md 的实际读取及返回内容；回答对已确认规则、未完成项和实施授权的概括与工件一致，不仅依赖正文自述。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "已读取本地 `SKILL.md`、PRD 所需引用，并核对 `state.json`、`checkpoint.md` 与 `prd.md`，三者一致："
+                }
+              ]
+            },
+            {
+              "criterion": "从未完成的异常处理继续",
+              "verdict": "met",
+              "reason": "直接继续发送失败后的恢复与可见提示，给出待确认方案及代价，没有重新询问是否继续或重新摄入全部需求。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "继续处理唯一未完成项："
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**提醒发送失败后，是否采用「当天不再补发，次日仍超时且未完成时再提醒，并在待办中向负责人显示发送失败提示」？**"
+                }
+              ]
+            },
+            {
+              "criterion": "缺失证据明确待确认或受阻",
+              "verdict": "met",
+              "reason": "本分支的恢复文件及已有产物均有实际读取证据；缺少用户确认的异常规则被明确保留为待确认，没有将推荐当成已确认事实。文件缺失或冲突情形未在本分支出现。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "- **待确认**：发送失败后的恢复方式与可见提示。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**交接状态**：既有规则不变；异常方案仍待你确认。"
+                }
+              ]
+            },
+            {
+              "criterion": "保留已有确认与授权边界",
+              "verdict": "met",
+              "reason": "保留负责人、每日最多一次、完成后停止及非目标规则；明确尚无实施授权，并将异常方案留给用户确认。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "- **已确认**：仅提醒负责人；超时未完成待办每天最多一次；完成后停止提醒；不提醒主管，不增加人手。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "- **当前状态**：PRD 待确认，尚未实施，也没有实施授权。"
+                }
+              ]
+            }
+          ],
+          "must_not_do": [
+            {
+              "criterion": "把检查点当作真实完成证据",
+              "verdict": "not_observed",
+              "reason": "实际读取并核对了状态文件和已有 PRD，而非仅凭检查点推断完成；仍将 PRD 标为待确认、尚未实施。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "已读取本地 `SKILL.md`、PRD 所需引用，并核对 `state.json`、`checkpoint.md` 与 `prd.md`，三者一致："
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "- **当前状态**：PRD 待确认，尚未实施，也没有实施授权。"
+                }
+              ]
+            },
+            {
+              "criterion": "重跑全部模式",
+              "verdict": "not_observed",
+              "reason": "对话集中于唯一未完成的异常项；工具记录为恢复文件和 PRD 参考的读取，未见重跑全部模式。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "这是 L2 任务：续写已有 PRD，仅补齐未确认的异常处理；我会继承已确认规则，不重新讨论提醒对象和频率，也不执行实施。"
+                }
+              ]
+            },
+            {
+              "criterion": "自动实施",
+              "verdict": "not_observed",
+              "reason": "提供的工具记录没有实现、代码写入或项目搭建动作；回答明确不实施，后续文档补充以用户确认作为前提。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "我会继承已确认规则，不重新讨论提醒对象和频率，也不执行实施。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "确认后补充异常规则、可见状态与验收标准。"
+                }
+              ]
+            },
+            {
+              "criterion": "证据缺失仍声称交付已就绪",
+              "verdict": "not_observed",
+              "reason": "未声称交付已就绪或校验已通过，明确保留待确认状态。",
+              "evidence": [
+                {
+                  "turn_index": 0,
+                  "quote": "- **当前状态**：PRD 待确认，尚未实施，也没有实施授权。"
+                },
+                {
+                  "turn_index": 0,
+                  "quote": "**交接状态**：既有规则不变；异常方案仍待你确认。"
+                }
+              ]
+            }
+          ]
+        },
+        "notes": [
+          "评审仅覆盖提供的 controlled_agent_replay main 分支，不代表真实用户研究或未提供分支的结果。",
+          "turn_index 使用 assistant_turns 的零基索引；所有 quote 均来自其原文。",
+          "实际读取依据为提供的工具调用及返回内容；未执行任何工具，也未将正文自述视为实际执行证据。",
+          "未提供成对比较分支；文件缺失或冲突时的恢复行为未被本次回放直接验证。"
+        ]
+      }
+    }
+  ],
+  "completion_rule": "All scenarios must have status passed and real locatable conversation evidence, with no failed, blocked or not_run scenario, before behavior acceptance can be declared passed. Static development ok is not release completion.",
+  "evidence_type": "controlled_agent_replay"
+}

@@ -1,0 +1,14 @@
+{
+  "status": "awaiting_user",
+  "confirmed": {
+    "recipient": "owner",
+    "frequency": "daily"
+  },
+  "unfinished": [
+    "exception handling"
+  ],
+  "implementation_authorized": false,
+  "evidence": [
+    "prd.md"
+  ]
+}

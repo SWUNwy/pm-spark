@@ -1,0 +1,22 @@
+{
+  "scenario_id": "pm-011-intake-single-question",
+  "evidence_type": "controlled_agent_replay",
+  "variant": "no-reminder",
+  "conversation": {
+    "user_turns": [
+      "想减少投诉漏处理，但还不清楚是客服漏看，还是系统没有提醒。",
+      "已查明是超时后系统没有提醒；客服看到提醒后会处理。先给问题陈述和下一步。"
+    ],
+    "assistant_turns": [
+      "已读取本地 SKILL.md 和「理解问题」所需引用，接下来按这个模式澄清投诉在哪个环节漏掉。当前能确认的是减少漏处理的目标，原因仍待核实。目前的问题可以先表述为：**投诉未被及时接手处理，需要确认遗漏发生在提醒环节，还是客服查看待办的环节。** 这个区别会影响后续改进方向。\n\n**最近一次漏处理的投诉，更接近哪种情况？**\n\n- 系统有待办或提醒，但客服没有注意到。\n- 系统没有产生应有的待办或提醒。\n- 还没核实，暂时分不清。\n\n我们可以先从这一例定位断点，再判断下一步。",
+      "**问题陈述：**投诉超过处理时限后，系统没有提醒客服，导致超时投诉未被及时发现和处理。根据你已核实的情况，客服看到提醒后会处理，因此当前应聚焦补齐超时提醒，让超时未处理的投诉及时进入客服视野，减少漏处理。\n\n**下一步：**围绕超时提醒设计方案，明确何时触发、提醒谁，以及如何让客服看到并接手处理。后续用“超时投诉漏处理率”和“超时后到首次处理的时间”观察效果，具体目标值待确认。\n\n超时判定标准和提醒接收人仍需在设计阶段明确，但不影响当前问题判断。"
+    ],
+    "branch_id": "no-reminder"
+  },
+  "runtime_paths": [
+    "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/no-reminder/turn-0.runtime.json",
+    "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/no-reminder/turn-1.runtime.json"
+  ],
+  "initial_artifacts": {},
+  "recorded_at": "2026-10-12T02:18:22.390Z"
+}

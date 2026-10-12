@@ -1,228 +1,55 @@
-# Quality Self-Check & Review Checklists
+# 注释质量检查与评审
 
-Spec-analyze's unique quality assurance system. Each output type has its own self-check checklist, plus cross-doc consistency checks and role-specific review checklists.
+所有 PM 注释以六字段和组件类型检查完整性。工程交接独立说明技术要求，不在 PM 评审页面中折叠存放实施字段。
 
----
+## 作者自检
 
-## Proposal Self-Check
+- [ ] 每个交互组件有唯一 ID/锚点，并映射到 T1–T11 类型。
+- [ ] `summary` / `feature` / `logic` / `states` / `boundary` 均有非空产品描述。
+- [ ] 关键可见文案全部列入 `copy`；无文案时省略，不能填空值。
+- [ ] 行为说明包含触发、界面响应、成功/失败结果、关闭和取消（如适用）。
+- [ ] 状态按照 `annotation-templates.md §3` 覆盖；条件不适用时说明理由。
+- [ ] 输入范围、必填、枚举、权限、重复提交、空数据和异常恢复描述完整。
+- [ ] 使用产品语言，无代码语法、模糊词、占位文本；同一术语跨组件一致。
+- [ ] 数据中没有旧注释深度字段、标签映射或实现明细。
+- [ ] 运行 `validate-annotations.js`，无错误；警告已评估。
 
-- [ ] Each F00X's three annotation columns are filled
-- [ ] **Data annotation** marks field source + format constraint + boundary value
-  - Field source: API path? Body parameter? Return field?
-  - Format constraint: Data type? Length limit? Regex? Enum values?
-  - Boundary value: Empty strategy? Default value? Overflow handling?
-- [ ] **Interaction annotation** marks grade (L1/L2/L3) + one-line behavior description
-- [ ] **UI text annotation** includes all visible copy: placeholder / label / error / tooltip / button text
-- [ ] Interaction grade selection is reasonable (no over-annotation: simple interactions don't get L2+)
+## 文档与 HTML 一致性
 
-## Design Self-Check
+- [ ] 结构化六字段是唯一来源，HTML 与 design.md 使用相同内容。
+- [ ] proposal 的需求 ID 与组件 `logic` 引用一致；tasks 的注释引用章节存在。
+- [ ] Component Manifest 的 ID、名称、类型、位置和字段完整性对应实际组件。
+- [ ] 每个 review-docs 条目有非空 `summary`、`type` 和 annotation 必填字段。
+- [ ] `scopeMark` 为 existing/new/adjusted，`protoId` 对应原型锚点。
+- [ ] `decision` 仅在场景级，空场景正确展示空态。
+- [ ] 左右悬停高亮、点击定位、场景切换、徽标重新注入正常。
+- [ ] 右栏拖宽与记忆、窄屏堆叠正常。
+- [ ] 内联、侧栏或编辑功能存在时，修改六字段后全部展示同步更新。
+- [ ] HTML 修正已反向同步 design.md；受影响的 proposal/tasks 引用已更新。
 
-- [ ] Every interactive component has an annotation block
-- [ ] Annotation block fields are complete per grade (L1 at minimum trigger/behavior/dismiss)
-- [ ] **State covers key states per component type (see annotation-templates.md §4 各类型 state 字段最低覆盖要求)**
-- [ ] **Permission is declared for every component with access restrictions (see annotation-templates.md Block C)**
-- [ ] **Validation rules are declared for every form/input component (see annotation-templates.md T6 fields.validation)**
-- [ ] **Error handling section covers: network error / validation failure / business error — all three categories**
-- [ ] **Field specification table includes: format constraint column (prevents proposal-design information gap)**
-- [ ] L3 components supplement with accessibility and responsive annotations
-- [ ] **如果存在 HTML 原型（含本次新生成的）且组件数 ≥ 3：HTML 注释系统已按 `html-annotation-system.md` 内建并验证**
-- [ ] **Full 路径：组件枚举已完成（annotation-templates.md §9），无遗漏无幽灵项**
-- [ ] **注释展示模式已确认（内联/侧边/双模式），在 Step 8F 中记录决策**
-- [ ] **内联注释渲染数据已准备（ANNOTATIONS 包含 type 字段，用于决定渲染顺序）**
-- [ ] **每个组件有对应的内联注释容器占位（在 HTML 结构中）**
-- [ ] **字段级注释已定义：统计卡片每个指标有 Definition + Permission**
-- [ ] **字段级注释已定义：表格每个列头有 Format + Source**
-- [ ] **字段级注释已定义：表单每个字段有 Validation + Options**
-- [ ] **字段级 ℹ️ 触发按钮已放置在对应的字段值/标签旁**
+## 角色评审
 
-## Tasks Self-Check
+| 角色 | 关注 PM 字段 | 核对内容 |
+|---|---|---|
+| PM | summary、feature、logic、boundary | 用途、范围、规则、权限与需求一致 |
+| 开发 | logic、states、boundary | 操作序列、可见反馈、恢复路径和字段约束足以实现 |
+| 测试 | logic、states、boundary、copy | 正常、错误、空态、边界和文案可验证 |
+| UI | states、copy、logic | 状态视觉语义、提示位置、文案与交互一致 |
 
-- [ ] Each implementation task contains an annotation reference section
-- [ ] Reference section points to the correct design.md section (section number + component name)
-- [ ] Reference section includes component name
-- [ ] All referenced design.md sections actually exist (cross-doc consistency)
+接口契约、内部状态机、CSS参数、无障碍和响应式技术要求仅在明确选择的 implementation 交接中评审；不能要求 PM 为这些技术字段选择注释标签。
 
-## Cross-Doc Consistency Check
+## 审核与修改
 
-- [ ] **Proposal data annotation ↔ design interface/field design**: field names consistent
-- [ ] **Proposal UI text annotation ↔ design field table**: copy consistent
-- [ ] **Proposal F00X IDs ↔ tasks referenced features**: full coverage
-- [ ] **Tasks annotation references ↘ design.md sections**: one-to-one existence verified
-- [ ] **如果生成了 HTML 注释：ANNOTATIONS keys ↔ design.md @ComponentName**: 一一对应，无遗漏
-- [ ] **如果生成了 HTML 注释：data-annot 属性值 ↔ ANNOTATIONS keys**: 完全一致
-- [ ] **Full 路径：Component Manifest ↔ design.md Annotation Block**: Manifest 中的每个条目在文档中有对应的 §5.x 和 Annotation Block（一一对应，无遗漏无多余）
-- [ ] **Full 路径：编辑操作 edit_history 已全部同步到文档**（如有未同步的记录 → 在 S3d 中补全）
-- [ ] **Full 路径：注释内容语言为产品语言（无代码语法，无模糊词，无占位符）← 对照 annotation-templates.md §6**
-- [ ] **Full 路径：HTML trigger 按钮位置验证 — 每个组件至少 1 个 trigger，在可视边界内（≤ 8px）**
-- [ ] **Full 路径：Back-propagation 验证 — 如果 HTML 注释验证中有修正，检查 design.md 是否同步更新**
-- [ ] **双模式数据同步验证：editAnnot() 修改后，内联和面板同时更新**
-- [ ] **内联注释渲染顺序验证：ANNOTATIONS.type 字段存在，且渲染顺序与 html-annotation-system.md §2.2 一致**
-- [ ] **内联注释折叠状态持久化：localStorage 在所有浏览器中正常工作**
-- [ ] **弹窗替换验证：所有 .annot-panel 引用已替换为 .annot-modal**
-- [ ] **弹窗功能验证：居中展示、缩放动画、遮罩层关闭、ESC 关闭**
-- [ ] **编辑模式验证：editAnnot() 函数调用后内联和弹窗同步更新**
-- [ ] **字段级注释验证：字段级 data-annot-field 值与 ANNOTATIONS.fields/columns key 一致**
+1. 作者完成自检并运行脚本。
+2. 各角色输出 approve / change-requested / not-applicable。
+3. 汇总阻断项，修正六字段并同步文档，再运行验证。
+4. 审核通过后在独立评审记录中登记状态、时间、审核人和变更原因；产品注释保持六字段契约。
 
----
-## 新增：类型化模板专检（Full 路径）
+脚本检查字段结构、类型和锚点，不自动裁定自然语言是否覆盖全部业务语义。旧文件检查显式使用 `--legacy`，不能代替当前输出验证；迁移草稿缺字段时必须补充后交付。
 
-在完成基础自检后，补充以下针对类型化模板的专项检查。
+## 与 v6.1 验收的边界
 
-### 组件枚举检查
-
-- [ ] 所有交互组件已列举，无遗漏
-- [ ] 每个组件已映射到 annotation-templates.md 的类型（T1-T11）
-- [ ] 类型选择合理：同交互模式使用同类型
-- [ ] 嵌套关系已通过 context 声明
-
-### 内容质量检查
-
-- [ ] 注释使用产品语言（完整陈述句，无代码语法）← annotation-templates.md §6.1
-- [ ] 无模糊词（"可能"、"应该"、"酌情"）← §6.2
-- [ ] 枚举值全列举，无"等"、"..." ← §6.2
-- [ ] 无占位符（{占位符}均已替换）← §6.3
-- [ ] 无 "N/A" 字段（不适用字段直接省略）← §6.3
-- [ ] 每条 behavior 如果对应 proposal 需求，标注了 F00X ID ← §6.4
-
-### 跨组件一致性检查
-
-- [ ] 同类型各实例字段填充深度一致
-- [ ] 同一术语在不同组件中表述一致
-
-### 错误场景与表现
-- [ ] 网络不通 - Toast error 提示
-- [ ] 操作误触/条件不满足导致操作时 - Disabled 体现、Toast 错误提示
-- [ ] 填写内容不符合规则 - Blur 边框置红、提示文案【标注格式约束、长度约束、枚举值约束】，submit 阻止提交，字段级错误提示
-- [ ] 空数据 - 空状态设计（占位插图 + 提示文案 + 补充操作按钮）
-- [ ] 数据加载中 - Skeleton 加载骨架屏
-- [ ] 业务规则拦截 - 弹窗/行内红色提示区块，禁用操作按钮
-- [ ] 超时/服务不可用 - 友好的中文错误提示（Toast/页面提示）
-- [ ] 并发/重复提交 - 按钮 loading 状态，防重复提交
-- [ ] 接口返回 409/其他业务冲突 - 具体错误提示（如"该人员已拥有账号「某名称」"）
-- [ ] 身份/权限异常 - Toast 提示"无法确认操作人身份"或操作按钮隐藏/禁用
-- [ ] 编辑模式下修改注释 → 保存后内联注释同步更新
-- [ ] 编辑模式下不保存直接关闭 → 内容不丢失（取消按钮恢复原始内容）
-- [ ] 字段级注释弹窗 → 关闭后再打开 → 内容保持正确
-
----
-
-## Review Checklists
-
-Used during requirements review. Each role checks items line by line.
-
-### Dev Perspective Review
-
-- [ ] Every field's format constraint is clear (type/length/regex/enum)                          ← from annotation @{Component} behavior
-- [ ] Every field's empty/boundary strategy is clear                                              ← from annotation @{Component} state
-- [ ] Annotation state covers loading / error / empty                                             ← from annotation @{Component} state
-- [ ] API request/response structure is complete                                                  ← from annotation @{Component} behavior
-- [ ] Error handling trigger conditions and presentation are clear                                ← from annotation @{Component} trigger + state
-
-### Tester Perspective Review
-
-- [ ] Annotation state is convertible to test cases (normal / loading / error / empty)            ← from annotation @{Component} state
-- [ ] Error handling section covers: network exception + data exception + business exception      ← from annotation @{Component} state + behavior
-- [ ] Every input field's boundary values are defined (empty/overflow/special chars)              ← from annotation @{Component} state
-- [ ] User action triggers are testable (blur / click / Enter)                                    ← from annotation @{Component} trigger
-- [ ] Flow has clear "success" and "failure" determination conditions                              ← from annotation @{Component} dismiss + state
-
-### UI Perspective Review
-
-- [ ] All visible copy is defined (placeholder / label / error / tooltip / button text)          ← from annotation @{Component} state
-- [ ] Color/spacing/border-radius are annotated                                                   ← from annotation @{Component} style
-- [ ] Loading/empty/error visual states are described                                             ← from annotation @{Component} state
-- [ ] Responsive/mobile behavior is defined (if applicable)                                       ← from annotation @{Component} responsive
-- [ ] Animation timing is annotated (if applicable)                                               ← from annotation @{Component} timing
-
-### PM Perspective Review
-
-- [ ] 每个组件的业务背景（rationale）定义清晰，解释了"为什么"                        ← annotation background
-- [ ] 触发条件与用户实际使用场景一致                                                    ← annotation trigger
-- [ ] 行为描述符合功能需求（F00X 引用完整）                                            ← annotation behavior
-- [ ] 权限分级合理（view/operate 角色划分匹配业务场景）                                ← annotation context (Block C)
-- [ ] 状态覆盖完整：无遗漏的关键用户路径                                                ← annotation state
-- [ ] 跨组件一致性：同一术语在不同组件中表述一致                                        ← cross-component check
-- [ ] 注释语言使用产品语言，研发可直接理解实现                                          ← §6 内容规则
-- [ ] 决策记录（decisionRef）引用完整，可追溯设计变更原因                                ← annotation background
-
----
-
-## 注释审核流程（Review → Approve → Lock）
-
-在 Full 路径或已有方案注释路径完成后，可按以下流程组织注释审核。
-
-### R1: 自检（Author Self-Check）
-
-注释填充者自行完成：
-
-- [ ] 运行 `validate-annotations.js`，无 Error（Warning 可接受）
-- [ ] 每个组件至少有 trigger + behavior + state 三个字段
-- [ ] 所有占位文本已替换
-- [ ] 组件依赖关系（dependencies）无循环引用
-
-### R2: 角色审核（Role-Based Review）
-
-按角色分配审核项，每位角色关注自己的审核维度：
-
-| 角色 | 审核重点 | 审核清单 |
-|------|---------|---------|
-| PM | 业务背景、触发条件、行为描述、权限分级 | PM Perspective Review |
-| Dev | 接口定义、字段约束、状态覆盖、错误处理 | Dev Perspective Review |
-| Tester | 状态可测试性、边界值、异常覆盖 | Tester Perspective Review |
-| UI | 视觉规范、文案、动效、响应式 | UI Perspective Review |
-
-**审核输出：** 每个角色输出 `approve / change-requested / not-applicable` 三选一。
-
-### R3: 变更执行（Change Implementation）
-
-1. 汇总所有 `change-requested` 项
-2. 按优先级排序（阻断性 > 建议性）
-3. 逐项执行修改
-4. 修改后重新运行 `validate-annotations.js`
-
-### R4: 锁定（Lock）
-
-当所有角色审核通过后：
-
-1. 注释标记为 `_locked: true`
-2. 锁定后的注释修改需要走变更申请流程（记录变更原因 + 重新审核）
-3. Component Manifest 中标记审核状态
-
-```javascript
-// 锁定标记示例
-window.ANNOTATIONS = {
-  "C00": {
-    type: "T4",
-    // ... 其他字段
-    _review: {
-      status: "approved",        // pending / in-review / changes-requested / approved
-      locked: true,              // 锁定后不可直接编辑
-      reviewers: {
-        pm: "approved",
-        dev: "approved",
-        tester: "approved",
-        ui: "approved"
-      },
-      reviewedAt: "2026-07-16",
-      changeHistory: [
-        { date: "2026-07-15", reason: "初始创建", reviewer: "author" },
-        { date: "2026-07-16", reason: "PM 审核修改 trigger 描述", reviewer: "pm" }
-      ]
-    }
-  }
-};
-```
-
-### 审核状态流转
-
-```text
-pending → in-review → changes-requested → in-review → approved → locked
-  │                        ↑                  │
-  └── 直接修改 ───────────┘                  │
-                                              └── 变更申请 → in-review
-```
-
-## 双门禁通过条件（v3.7）
-
-- Intake Audit：六维度全部 Ok 或 Waived（见 references/intake-audit.md）
-- S-AR：无 Open 状态的 blocking 级发现（见 references/adversarial-review.md）
+- 本清单只判定 PM 注释的产品内容质量；`approve`、`change-requested` 和 `not-applicable` 是评审结果，不是新的等级、轨道或权限选择。
+- Intake Audit 按 `references/intake-audit.md` 的影响范围执行：只追问会改变当前结论、范围、风险或交付类型的缺口，信息足够时停止，不要求六个维度全部有答案。
+- 真实对话验收按 `references/pm-behavior-acceptance.md` 与 `tests/pm-behavior/results.json` 单独记录。静态检查、注释校验或本清单通过，均不得推断真实对话已通过。
+- 本清单通过只表示注释内容完成相应检查，不代表 Spec 就绪、实施授权或发布完成。

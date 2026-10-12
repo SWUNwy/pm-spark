@@ -1,0 +1,97 @@
+{
+  "run_id": "controlled-20261012-final",
+  "cli_version": "2.1.63",
+  "skill_sha256": "b45152620d4e399a142fb39c887589399c0cd71ace4ad6b7721fd147292daf6b",
+  "scenarios": [
+    {
+      "id": "pm-001-ambiguous-request",
+      "status": "passed",
+      "transcript_sha256": "b6f83ee44ad80399f9c7e82e486900184910b6c565d68ca61d7d29abc90d1027",
+      "review_sha256": "ca2dd0989c6b0597a0c187d347a0597d88f1a736e76b6aae0d5239d4d047d237"
+    },
+    {
+      "id": "pm-002-challenge-request",
+      "status": "passed",
+      "transcript_sha256": "1208abd364ad9e525d20107c4023b8f71565b3c627136ee05045e0e81c33295f",
+      "review_sha256": "73d813d738128f007ac1354d1b64dd9062fa6f1c1b38366d69c19a7c89de6e9f"
+    },
+    {
+      "id": "pm-003-solution-design",
+      "status": "passed",
+      "transcript_sha256": "de7b56d3356e363c2afaaec2027b6328661c1f394b1a36aa8a9b6b78bbea96e0",
+      "review_sha256": "027ced14017503e62405e8fc998250f019dc7c5a39982e4c26130e721db9e285"
+    },
+    {
+      "id": "pm-004-decision",
+      "status": "passed",
+      "transcript_sha256": "a5f5647bb05dceb43b58b077564471cb74c7995136752085b51fbd2e94aa2226",
+      "review_sha256": "20d470c69e0817cbb84cb66551ed8f64c5d147439ede0f2f3a77e24335e33e6c"
+    },
+    {
+      "id": "pm-005-prd-boundary",
+      "status": "passed",
+      "transcript_sha256": "b847ac12c29433bec95ae7cf97b5d9577b6f055f5d632a2acbaab5ccbd4d492c",
+      "review_sha256": "075be4c691ef070e6083a6d0baee0a8d279997553aa1306bbabfd9d02f29022e"
+    },
+    {
+      "id": "pm-006-annotation-boundary",
+      "status": "passed",
+      "transcript_sha256": "ebc3f7f57970f02055485689fc7096bafa4fcde87a22c4fe48c1f9ba840c233e",
+      "review_sha256": "a91f438772431369ebf3e9794beab77f9a2b669340e207cc5793efae7a7cdc51"
+    },
+    {
+      "id": "pm-007-spec-boundary",
+      "status": "passed",
+      "transcript_sha256": "d96dc339d56f71ca658ba57c6a679454ce4e5647ec199eb27e4663bb45762a79",
+      "review_sha256": "eb5ef189af6a40bbe675a3446165cfe4fab1fadfcd131ea2a571cbcbd3510d7c"
+    },
+    {
+      "id": "pm-008-depth-consistency",
+      "status": "passed",
+      "transcript_sha256": "025ac8bb45810df4a1e74e066ea0de5a90128f6f0cb8dde7c523f2dba7f8a78e",
+      "review_sha256": "39ccdf74bd573e7443bd42d44e8b40547f25a16d1c6ee6348073a1e17eaab62b"
+    },
+    {
+      "id": "pm-009-stop-and-terms",
+      "status": "passed",
+      "transcript_sha256": "2a0b2c77bb30a2667b5b384452f20a90889397a82414d389f02e3fbb6ae98100",
+      "review_sha256": "1ddfff26f759fd15cb5477a00783f6aafdef9e8fff3ca2ad51e5c884c4258ad2"
+    },
+    {
+      "id": "pm-010-intake-sufficiency",
+      "status": "passed",
+      "transcript_sha256": "3d6161a242f7ab5519ae8feeb9a2bd047f5c9bfa020b36667ee1c75361170ba0",
+      "review_sha256": "40395ee2351a7dd9e6407dd06fdc4caa3a64536eefda40f2875745178cda454d"
+    },
+    {
+      "id": "pm-011-intake-single-question",
+      "status": "passed",
+      "transcript_sha256": "4f9ab467cd943d50c6e3401813a5bbafae1ce77b159aa9c18f8e8fbbdd29b313",
+      "review_sha256": "33b77d8df2830237d8171298a812f03510347057ce67f36d07cdb6164101e493"
+    },
+    {
+      "id": "pm-012-standard-depth",
+      "status": "passed",
+      "transcript_sha256": "d7bef976cd5c39a26f4e72cf9d42f85034319ef2ed11a4d968fe0dd17ffe7cc4",
+      "review_sha256": "855c2128c09bb8cd5206fe0bd94f38c06922f7a885495006d3ee63d07b176f8b"
+    },
+    {
+      "id": "pm-013-mode-transition",
+      "status": "passed",
+      "transcript_sha256": "2e4a895f00418963e38201f2b2bac743308a9903f00e460ed80a5038b1465754",
+      "review_sha256": "3d3c0f1f9544badbbc0496a96c5294c5bf49fb99e8022347ec519d3061beecea"
+    },
+    {
+      "id": "pm-014-confirmed-change",
+      "status": "passed",
+      "transcript_sha256": "fb48b5077237c62537f449d1e149555a281146c0439874399553ae85707d6730",
+      "review_sha256": "ebdc1efaceee69ec402f567b19512492572a966c5a12d70fc37d81248358e689"
+    },
+    {
+      "id": "pm-015-session-recovery",
+      "status": "passed",
+      "transcript_sha256": "d45f0e716f253807e259b3a093c3fa50e35cb49d35a3f4f4b608dc15b3c8795b",
+      "review_sha256": "12dbce49629cc0a9b425c8cd622d4ffb8cdf1381267c0dca2bb81dd1f9e8f31b"
+    }
+  ]
+}

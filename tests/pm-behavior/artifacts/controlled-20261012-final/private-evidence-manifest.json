@@ -1,0 +1,217 @@
+{
+ "type": "controlled_agent_replay",
+ "private_directory": "Downloads/pm-spark-validation-private/controlled-20261012-final",
+ "transform": "Replace repository absolute prefix with [REPOSITORY], home prefix with [HOME]; originals retained byte-for-byte.",
+ "files": [
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-013-mode-transition/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-013-mode-transition/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-009-stop-and-terms/review/review.stdout.jsonl",
+   "private_relative_path": "pm-009-stop-and-terms/review/review.stdout.jsonl",
+   "original_sha256": "f8b2d0a7c28fea87cf8ce344542c1eaa82fe8679e5d27d67d7f1174525a87813",
+   "sanitized_sha256": "91519e00154ae35bb0bdaef5f98254258e9fc3635a23afe5a662ff641edb3512",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-009-stop-and-terms/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-009-stop-and-terms/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-014-confirmed-change/review/review.stdout.jsonl",
+   "private_relative_path": "pm-014-confirmed-change/review/review.stdout.jsonl",
+   "original_sha256": "abb2176f2f892fb30ea8566a9d534d6460bcd0bdf4916c73d15113d53b92f1b1",
+   "sanitized_sha256": "e32c3ae6e7229db290152941e115f67c0bedac8b2d3c01f0d5ffe08923d91ed0",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-014-confirmed-change/review/review.input.json",
+   "private_relative_path": "pm-014-confirmed-change/review/review.input.json",
+   "original_sha256": "8d63071151c0f53180f0c0f4d6402cfbe87de665fc800457b0ef8983105d6322",
+   "sanitized_sha256": "603e9a5248121c5c532ad37a7cc8b885180788bf5bc81a85781e4817369d41b3",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-014-confirmed-change/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-014-confirmed-change/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-014-confirmed-change/main/transcript.json",
+   "private_relative_path": "pm-014-confirmed-change/main/transcript.json",
+   "original_sha256": "6215a5609fea5750386ede754380ffca81c8e8d931ad2898b4323a7bdc273642",
+   "sanitized_sha256": "f44783ea6b17dcf1c899da3504122ddfaff8e52c089d57348fdb48103e742782",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-010-intake-sufficiency/review/review.stdout.jsonl",
+   "private_relative_path": "pm-010-intake-sufficiency/review/review.stdout.jsonl",
+   "original_sha256": "ebea29680230c498a38fb0b55b3a90534c9eb3eed8032c8de72044eb8f796c80",
+   "sanitized_sha256": "e93923ec842aeb211eaa6767679a1701ef4be08e191e4c7595446aab5b76fbe6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-010-intake-sufficiency/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-010-intake-sufficiency/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-012-standard-depth/review/review.stdout.jsonl",
+   "private_relative_path": "pm-012-standard-depth/review/review.stdout.jsonl",
+   "original_sha256": "71a7aa085317878639698e8443c3274323c3a627123de20fcceee8c717916e37",
+   "sanitized_sha256": "e1c6ebc3b9e1d7450f886713a6d7df20e93efc8c84a836ccef3e0e32391d0cae",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-012-standard-depth/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-012-standard-depth/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-002-challenge-request/review/review.stdout.jsonl",
+   "private_relative_path": "pm-002-challenge-request/review/review.stdout.jsonl",
+   "original_sha256": "412df374c18c19545d8b6a6c31a8370f3ccdf87f0f0201dead165bf45c6247bb",
+   "sanitized_sha256": "ab530817391296cb8f867f972795ecb31769f69665a858c0343d0c8e1697a39b",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-002-challenge-request/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-002-challenge-request/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/review/review.stdout.jsonl",
+   "private_relative_path": "pm-005-prd-boundary/review/review.stdout.jsonl",
+   "original_sha256": "a81c38c56d77a4a8ee6477f301f78bf93f643bfeace9951a09e639a0cd152e6b",
+   "sanitized_sha256": "c3ffa13347e6c8a2ce7470b8ff7925aa6514facbd629cf5d765fff1f33d35a2f",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/review/review.input.json",
+   "private_relative_path": "pm-005-prd-boundary/review/review.input.json",
+   "original_sha256": "35700e3582e0b6df8ad39c04c2f6f2cfe18939d00834da42b0faa61c6e687066",
+   "sanitized_sha256": "4963e260b1772c778f246b05949637c25c3cd8d34269f1886246aa3e3ef3c212",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/review/review.json",
+   "private_relative_path": "pm-005-prd-boundary/review/review.json",
+   "original_sha256": "df9e5072e64a721e24789ac20e927dbbc9662b77fc97fc0c6ae49e26c3361533",
+   "sanitized_sha256": "9d0a0b3be888f54939150f31183a5222a544f07f5c93d1cf509d6cb91087f0e5",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/review/review.runtime.json",
+   "private_relative_path": "pm-005-prd-boundary/review/review.runtime.json",
+   "original_sha256": "5bb2299423f18877bc37401d5a397b8aa4787e7fdf6fec349383ede1c2dc6a48",
+   "sanitized_sha256": "f4c3f110d0be782735cd79361d81c578200b4fd8d52ac89ce2bac396e1f07b79",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-005-prd-boundary/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/main/transcript.json",
+   "private_relative_path": "pm-005-prd-boundary/main/transcript.json",
+   "original_sha256": "6d0ec5a1f1f08f15e1dbaa866dc5761464252f9eadef22ad64281812d59bb72c",
+   "sanitized_sha256": "a3ba15fcb61da0e155d7be4323f7b87cdb9890a2e63d2e7af85c2d3f08c524c7",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-015-session-recovery/review/review.stdout.jsonl",
+   "private_relative_path": "pm-015-session-recovery/review/review.stdout.jsonl",
+   "original_sha256": "b6edc139936c3d6d16247ebcc6a12af85deef443331dca8784b6255cef4712f2",
+   "sanitized_sha256": "66e18f7154b2b4b8a708245db2046bd49585db41f4b5672e4400b833aa213bb8",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-015-session-recovery/review/review.input.json",
+   "private_relative_path": "pm-015-session-recovery/review/review.input.json",
+   "original_sha256": "730eccdcb4685f555adc9e89b2970465175adebc2458e6c85e12d16e5239f46c",
+   "sanitized_sha256": "1e6cfb0ec99bf7b3ef99867c69c5eb2065635244e9a034066b3b4d2adfd45d05",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-015-session-recovery/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-015-session-recovery/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-015-session-recovery/main/transcript.json",
+   "private_relative_path": "pm-015-session-recovery/main/transcript.json",
+   "original_sha256": "1a4ac4c7d51d1b96ad46ad9a74fac2279b89e0fb948568eb684b7bcc01b75c27",
+   "sanitized_sha256": "a3e258a4e3035bdc8afa33ca32d2af8b96672ac1b6ec0b49e0c015fec90af770",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/no-reminder/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-011-intake-single-question/no-reminder/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/review/review.stdout.jsonl",
+   "private_relative_path": "pm-011-intake-single-question/review/review.stdout.jsonl",
+   "original_sha256": "4c9155f8f9de9367ff378b0cb1bcea1df182d1092da284c90aa78706324629d6",
+   "sanitized_sha256": "f026f4da45059bc533218ed84a9d3aea87e9a3aa75f946c8b7e0d011d501702e",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/missed-visible/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-011-intake-single-question/missed-visible/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-007-spec-boundary/review/review.stdout.jsonl",
+   "private_relative_path": "pm-007-spec-boundary/review/review.stdout.jsonl",
+   "original_sha256": "7c60d8640b959d759626afc74afaab155817cfb126650866e3f7cc8a4536c86d",
+   "sanitized_sha256": "5e669791b1c0de0e2f34310f30509c142229bb3aa86d19fec1fb3b7ab241c6e0",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-007-spec-boundary/review/review.input.json",
+   "private_relative_path": "pm-007-spec-boundary/review/review.input.json",
+   "original_sha256": "cb47a9204e0f5ef93a51022ffffb4998e602d0e9e2c3bc3907419e813ce58a3f",
+   "sanitized_sha256": "a426c636e42f788f46f0ee2914860a21143fa92adc42cac71003369744da7fb1",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-007-spec-boundary/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "private_relative_path": "pm-007-spec-boundary/main/fixture/scripts/check-replay-annotation-browser.cjs",
+   "original_sha256": "75dc22845d2b21e77099db117bdc03db64ea736cf4b186916255e2d0071e0b9c",
+   "sanitized_sha256": "9beabae1419d0f02f1cd213685fa014965da1fa0b8ce240107f5b5517ca3bec6",
+   "redacted": true
+  },
+  {
+   "repository_path": "tests/pm-behavior/artifacts/controlled-20261012-final/pm-007-spec-boundary/main/transcript.json",
+   "private_relative_path": "pm-007-spec-boundary/main/transcript.json",
+   "original_sha256": "0cd1366379a8b2bfb74cd8d666ed9f656c33b25bea814dc141011e81b7b5767b",
+   "sanitized_sha256": "eaf431b72e55310216b3714bc51cb9838b4c2fc7339b874e62dd15a53028443f",
+   "redacted": true
+  }
+ ]
+}

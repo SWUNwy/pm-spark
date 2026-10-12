@@ -1,457 +1,193 @@
-# Spec 模板（Spec Templates）
+# Spec 三文档模板
 
-## 目录
+## 交付契约
 
-- Purpose（目的）
-- Spec Readiness（Spec 就绪）
-- Spec Subtype Classification（Spec 子类型分类）
-- Spec Freeze Confirmation（Spec 冻结确认）
-- Section Review（章节评审）
-- Layer Model（层模型）
-- Light Spec（核心层精简）
-- Standard Spec
-- Verified Spec
-- Tests Skeleton Rules（测试骨架规则）
-- Spec Review（Spec 评审）
-- No Auto Execution（不自动执行）
+只在用户请求或确认 Spec 工作后使用。固定产品交付物为 `proposal.md` + `design.md` + `tasks.md`。轻量、标准、深度只影响内容详略，不隐式增减文件，不向 PM 提供交付等级选择。
 
-## 目的
+Spec 是产品评审与交接工件，不是执行许可。`tasks.md` 是可追踪工作包，不是已获授权的执行计划。
 
-只在用户请求或确认 Spec 工作后使用本文件。
+`test-cases`、`tests/`、API、events 仅在需求类型适用且用户明确请求时作为附录。两个条件必须同时成立；需求涉及接口、异步流程或高风险不等于请求工程附录。默认不生成 `test-cases.md`、`tests/`、API 或 events 文件，也不在产品正文填入接口契约、事件 payload、测试命令或测试代码。
 
-Spec 是交接工件，不是执行许可。
+项目 constitution 可作为内部检查来源，但不能隐式增加产品交付物。其附加工件要求未获得用户明确请求时，记录差异并解释影响，不自动生成；不得把未生成的工件标为已完成。
 
-## Spec 就绪
+## Spec 就绪与冻结
 
-生成 Spec 工件前检查：
+生成前检查范围、用户场景、可观察验收标准、非目标、风险与假设。缺失项只追问影响当前产品判断的最小问题；检查方案可用性不要求 PM 提供技术栈或测试框架。
 
-- 范围清晰。
-- 验收标准可测试。
-- 非目标明确。
-- 风险与假设已点名。
-- 推荐深度有论证。
-- 工件清单可见。
-- 已提议 Spec 子类型（见下）。
-
-未就绪：从 `output-templates.md` 输出 Spec Readiness Check。
-
-## Spec 子类型分类
-
-每个 Spec 声明一个或多个子类型。子类型决定哪些扩展章节强制。可多子类型；其扩展章节的并集成为强制。
-
-| 子类型 | 触发信号 | 扩展层 |
-|---|---|---|
-| Form/Data Heavy | 字段密集表单、结构化数据 CRUD、校验规则、数据模型是主要交付物 | A |
-| Product/Frontend | 页面、UI 流程、交互组件、前端布局 | B |
-| Event-Driven | 异步事件、消息代理、webhook、跨系统副作用、订阅者 | C |
-| Infrastructure/Algorithm | 纯重构、性能、内部逻辑、无 UI 且无外部契约 | None — core layer only |
-
-在 `proposal.md` 的 `## Spec Subtype` 记录所选子类型。都不适用时标 `Infrastructure/Algorithm` 并跳过扩展章节。
-
-不确定时用此测试：*如果今天就冻结实现，哪些章节会迫使追问？* 每个会触发追问的章节都属于激活扩展层。
-
-## Spec 冻结确认
-
-写文件前使用：
+写文件前确认以下内容；用户已有明确确认时沿用，不重复索取同一批准：
 
 ```markdown
-## Spec Freeze Confirmation
+## 范围确认
 
-I recommend **[Light Spec / Standard Spec / Verified Spec]** because ...
-
-### Freeze Items
-| Item | Current Draft |
+| 项目 | 当前约定 |
 |---|---|
-| Scope | ... |
-| Acceptance Criteria | ... |
-| Non-goals | ... |
-| Risks / Assumptions | ... |
-| Depth | ... |
-| Spec Subtype(s) | Form/Data Heavy / Product/Frontend / Event-Driven / Infrastructure |
-| Artifacts | ... |
+| 范围 | ... |
+| 用户可观察验收标准 | ... |
+| 非目标 | ... |
+| 风险与假设 | ... |
+| 交付物 | proposal.md + design.md + tasks.md |
+| 明确请求且适用的附录 | 无 / [附录及请求依据] |
 
-Please confirm whether to generate these Spec artifacts.
+确认后按以上范围生成三文档。
 ```
 
-## 章节评审
+## 需求类型与章节适用性
 
-复杂 Spec 在冻结前验证章节：
+需求类型用于判断内容适用性，不决定文件数量。可同时适用多个类型。
 
-```markdown
-## Section Review: [Section Name]
-
-**Current draft:** ...
-**Why this section matters:** ...
-**Potential ambiguity:** ...
-**Question:** Does this section look right before I continue?
-```
-
-章节评审用于：
-
-- 复杂架构。
-- 多干系人。
-- 多个工作流。
-- 高风险验收标准。
-- 一次性呈现可能被误解的任何设计。
-
-## 层模型
-
-Standard 与 Verified Spec 模板按两层组织：
-
-- **Core Layer** — 每个 Standard/Verified Spec 强制。覆盖缺失时造成最多实施摩擦的 10 个维度：module goal、scope boundaries、actors and permissions、domain objects with state machines、entry and preconditions、main flow、exception flow、boundary cases、acceptance criteria、open questions。
-- **Extension Layer** — 按声明子类型条件强制。Form/Data Heavy 的 Section A（Field Rules）；Product/Frontend 的 Section B（Page and Interaction）；Event-Driven 的 Section C（Events and Side Effects）。API and Data Mapping 是核心邻近章节，只要 Spec 暴露外部契约（REST/GraphQL/RPC/任务接口）就激活，无论子类型。
-
-章节不适用时写 `N/A — <reason>`，不要删除。负空间也是契约的一部分。
-
-## Light Spec（核心层精简）
-
-用于小而清晰、低风险的改动。
-
-工件：
-
-```text
-proposal.md
-```
-
-`proposal.md`：
-
-```markdown
-# Proposal: [Name]
-
-## Context
-...
-
-## Module Goal
-- Goal: ...
-- Success metric (one): ...
-
-## Scope
-### In
-- ...
-
-### Out
-- ...
-
-## Actors and Permissions (one-line table)
-| Actor | Permissions |
-|---|---|
-
-## Domain Objects (one-line table)
-| Object | Key State |
-|---|---|
-
-## Main Flow (5–7 steps)
-1. ...
-2. ...
-
-## Acceptance Criteria
-- [ ] ...
-
-## Open Questions
-- ...
-
-## Next Step
-...
-```
-
-Light Spec 有意舍弃：exception flow（由验收标准覆盖）、boundary cases（并入验收标准）、状态机图（由 "Key State" 捕获）、完整字段规则、页面布局、事件目录。其中任何一项实质影响改动，就升级为 Standard Spec。
-
-## Standard Spec
-
-用于常规实施交接。
-
-工件：
-
-```text
-proposal.md
-design.md
-tasks.md
-test-cases.md
-```
-
-### Constitution Spec 工件
-
-项目 constitution 存在并定义 `spec_artifacts` 时，把 constitution 定义的附加工件并入每个 Spec 深度的默认工件清单：
-
-| Spec 深度 | 默认工件 | Constitution 附加工件（示例） |
+| 需求类型 | 产品正文应覆盖 | 工程附录（仅明确请求时） |
 |---|---|---|
-| Standard Spec | `proposal.md`、`design.md`、`tasks.md`、`test-cases.md` | `verification.md` |
-| Verified Spec | 默认 + `tests/` | `verification.md` |
+| 表单 / 数据管理 | 字段含义、展示、编辑与业务校验规则 | 数据结构、API 与数据映射 |
+| 页面 / 前端交互 | 页面、用户操作、可见状态、错误与恢复反馈 | 技术组件约束、接口契约 |
+| 异步 / 跨系统流程 | 触发时机、用户可见结果、副作用与失败补救 | events 目录、payload、订阅者、幂等策略 |
+| 内部逻辑 / 性能 / 算法 | 行为变化、指标、兼容边界及验收 | 技术方案、性能验证或测试骨架 |
 
-精确附加工件在 constitution 的 Spec Artifacts 章节定义。上表展示 Loop Engineering 模式作为示例。
+`design.md` 的技术章节条件化：只有需求类型适用且用户明确请求相应工程内容时展开；不适用写 `N/A — 原因`，适用但未请求写“未展开：本次未请求工程附录；产品行为见相关正文”。不能用技术章节占位迫使 PM 补工程细节。
 
-constitution 添加工件时：
-
-1. 把附加工件纳入 Spec Freeze Confirmation 工件清单。
-2. 读 constitution 的 Additional References 章节获取模板路径。
-3. 指定了模板就用作附加工件内容的来源。
-4. 用与核心工件相同的深度原则生成附加工件。
-
-附加工件必须通过与核心工件相同的 Spec Review 门禁。不要跳过 constitution 定义工件的评审。
-
-### `proposal.md`
+## proposal.md
 
 ```markdown
-# Proposal: [Name]
+# Proposal: [名称]
 
-## Spec Subtype
-- [ ] Form/Data Heavy (Extension A)
-- [ ] Product/Frontend (Extension B)
-- [ ] Event-Driven (Extension C)
-- [ ] Infrastructure/Algorithm (core layer only)
-
-Rationale: ...
-
-## Problem
+## 问题与背景
 ...
 
-## Module Goal
-- Goal: ...
-- Success metrics:
-  - ...
+## 目标与成功指标
+- 目标：...
+- 可观察的成功指标：...
 
-## Scope
-### In Scope
+## 用户与场景
+| 用户 | 场景 | 当前问题 | 期望结果 |
+|---|---|---|---|
+
+## 范围与非目标
+### 范围内
+- ...
+### 范围外 / 非目标
 - ...
 
-### Out of Scope
-- ...
+## 验收标准
+| 编号 | 场景 / 前置条件 | 用户可观察的通过条件 |
+|---|---|---|
+| AC-01 | ... | ... |
 
-## Non-goals
-- ...
+## 风险与假设
+| 编号 | 风险 / 假设 | 影响 | 依据 / 待确认事项 |
+|---|---|---|---|
 
-## Acceptance Criteria
-- [ ] ...
-
-## Open Questions
-| # | Question | Impact if Unanswered | Owner | Status |
+## 待确认问题
+| 编号 | 问题 | 影响 | 负责人 | 状态 |
 |---|---|---|---|---|
-| 1 | ... | ... | ... | Open / Answered / Waived |
 ```
 
-### `design.md`
+## design.md
 
 ```markdown
-# Design: [Name]
+# Design: [名称]
 
-## Overview
+## 方案概览
 ...
 
-## Actors and Permissions
-| Actor | Description | Permissions | Constraints |
+## 角色与权限
+| 角色 | 可做的操作 | 可见范围 | 限制 |
 |---|---|---|---|
 
-## Domain Objects
-### Object List
-| Object | Description | Key Attributes | Lifecycle Owner |
-|---|---|---|---|
-
-### State Machines
-For each stateful object, draw the state machine. Mermaid preferred.
-
-```mermaid
-stateDiagram-v2
-    [*] --> Draft
-    Draft --> Submitted: submit
-    Submitted --> Approved: approve
-    Submitted --> Rejected: reject
-    Approved --> [*]
-    Rejected --> Draft: reopen
-```
-
-| Object | State | Entry Condition | Exit Condition | Allowed Transitions |
+## 业务对象与可见状态
+| 对象 | 业务含义 | 状态 | 触发动作 | 变化后的可见结果 |
 |---|---|---|---|---|
 
-## Entry and Preconditions
-### Entry Points
-| Entry | Trigger | Actor |
+## 入口与前置条件
+| 入口 | 用户 / 触发时机 | 前置条件 |
 |---|---|---|
 
-### Preconditions
-- ...
-
-## Main Flow
-| Step | Actor | Action | System Response | Postcondition |
+## 主流程
+| 步骤编号 | 用户操作 / 业务触发 | 系统行为 | 可见结果 | 对应验收标准 |
 |---|---|---|---|---|
 
-(For complex flows, also include a Mermaid sequence/flow diagram.)
+## 异常与恢复
+| 情况 | 可见反馈 | 恢复 / 补救方式 | 对应验收标准 |
+|---|---|---|---|
 
-## Exception Flow
-| Trigger | Detection | Handling | Recovery | User-visible Message |
-|---|---|---|---|---|
-
-## Boundary Cases
-| Case | Expected Behavior | Rationale |
+## 边界情况
+| 情况 | 预期行为 | 原因 |
 |---|---|---|
 
-## Field Rules  *(Extension A — Form/Data Heavy)*
-### Field List
-| Object.Field | Type | Required | Source | Default |
-|---|---|---|---|---|
-
-### Display Rules
-| Object.Field | Visible To | Condition | Format |
+## 字段与业务规则
+[表单 / 数据需求适用；否则 N/A — 原因]
+| 字段 / 规则 | 含义 | 展示 / 编辑条件 | 校验与反馈 |
 |---|---|---|---|
 
-### Edit Rules
-| Object.Field | Editable By | Condition | Side Effect |
+## 页面与交互
+[页面 / 前端需求适用；否则 N/A — 原因]
+| 页面 | 用户操作 | 可见状态与反馈 | 相关流程 |
 |---|---|---|---|
 
-### Validation Rules
-| Object.Field | Rule | Error Code | Message |
+## 异步结果与业务副作用
+[异步 / 跨系统需求适用；否则 N/A — 原因]
+| 业务触发 | 期望结果 | 失败反馈 | 补救方式 |
 |---|---|---|---|
 
-## Page and Interaction  *(Extension B — Product/Frontend)*
-### Page Inventory
-| Page | Route / Path | Primary Actor | Purpose |
+## 方案决策与风险
+| 决策 | 选择 | 理由 / 依据 | 风险 |
 |---|---|---|---|
 
-### Key Interactions
-| Page | Trigger | Component Response | System Response | State Change |
-|---|---|---|---|---|
-
-(For complex UI flows, attach a Mermaid state or sequence diagram.)
-
-## API and Data Mapping  *(Core when external contract exists)*
-| Endpoint | Method | Request | Response | Permission | Side Effect | Error Codes |
-|---|---|---|---|---|---|---|
-
-If the Spec does not expose an external contract, write `N/A — internal-only`.
-
-## Events and Side Effects  *(Extension C — Event-Driven)*
-### Events Emitted
-| Event | Payload | Emitter | Trigger | Subscriber(s) |
-|---|---|---|---|---|
-
-### Side Effects
-| Side Effect | Trigger | Idempotency | Failure Handling |
+## 技术章节适用性
+| 章节 | 是否适用与原因 | 明确请求依据 | 内容位置 / 未展开原因 |
 |---|---|---|---|
+| 技术架构与数据模型 | ... | ... | ... |
+| API 与数据映射 | ... | ... | ... |
+| events 与技术副作用 | ... | ... | ... |
+| 测试用例与测试骨架 | ... | ... | ... |
 
-### Subscribers
-| Subscriber | Event | Action | Failure Handling |
-|---|---|---|---|
-
-## Key Decisions
-| Decision | Choice | Reason | Alternatives Rejected |
-|---|---|---|---|
-
-## Risks
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
+## 附录
+[仅放置需求类型适用且用户明确请求的工程内容；没有时写“无”。]
 ```
 
-扩展章节不适用时写 `N/A — <reason>`，不要移除标题。评审者依赖标题确认该章节被考虑过。
+技术章节不适用时必须写具体原因，例如 `N/A — 静态说明页没有外部接口`；不能仅写 `N/A`。产品可见的异步行为仍需在正文说明，不因未请求 events 附录而遗漏。
 
-### `tasks.md`
+## tasks.md
 
 ```markdown
-# Tasks: [Name]
+# Tasks: [名称]
 
-## Phase 1
-- [ ] ...
+本文件用于评审、分工和进度追踪；工作包不代表执行授权。
 
-## Phase 2
-- [ ] ...
+## 工作包
+| 编号 | 工作包 / 目标 | 范围与产出 | 负责人 | 依赖 | 对应设计章节 | 对应验收标准 | 完成条件 | 状态 |
+|---|---|---|---|---|---|---|---|---|
+| WP-01 | ... | ... | 待分配 | 无 / WP-... | design.md §... | AC-01 | 可观察的完成结果 | 待评审 |
 
-## Validation
-- [ ] ...
-```
-
-任务应追溯回 `design.md` 章节（如 `[Domain Objects]`、`[Exception Flow]`），使缺失工作可检测。
-
-### `test-cases.md`
-
-```markdown
-# Test Cases: [Name]
-
-| Case | Given | When | Then | Priority |
+## 待确认与阻塞
+| 工作包 | 待确认事项 / 阻塞 | 影响 | 负责人 | 解除条件 |
 |---|---|---|---|---|
 ```
 
-测试用例必须覆盖：
+每个工作包具有稳定编号，并可追溯至设计章节和验收标准。状态可用“待评审 / 待安排 / 进行中 / 已完成 / 阻塞”，按实际进度更新，不能把生成清单写成已开工。尚未确定的负责人或依赖明确标待确认，不虚构安排。默认不填代码路径、实施命令或部署操作；用户明确请求的工程内容放附录。
 
-- 每个 Main Flow 步骤。
-- 每个 Exception Flow 行。
-- 每个 Boundary Case 行。
-- 每个状态机转换。
-- 每个 Validation Rule（Extension A）。
-- 每个 Page Interaction 错误态（Extension B）。
-- 每个 Event 幂等与失败路径（Extension C）。
+## 可选附录
 
-## Verified Spec
+生成附录前核对需求适用性、用户请求与范围确认中的清单。默认将附录放在 `design.md`；用户明确要求独立附录文件时才列出具体路径，三份产品文档始终保留。
 
-用于高风险、测试敏感或工程繁重的工作。
+- `test-cases`：适用于需要详细行为验证的需求，记录 Given / When / Then、优先级与 AC 编号；覆盖主流程、异常、边界及适用业务规则。
+- `tests/`：适用于软件需求且明确请求测试代码或骨架。匹配项目已有框架；框架未知时仅给标明未运行的伪代码或骨架，不编造包命令，不把骨架称为通过验证的测试。
+- API：适用于有外部接口契约的需求，记录权限、请求、响应、副作用及错误处理。
+- events：适用于异步 / 跨系统需求，记录事件、payload、触发、订阅者、幂等与失败处理。
 
-工件：
+附录输出不授权运行测试、修改业务代码或部署。
 
-```text
-proposal.md
-design.md
-tasks.md
-test-cases.md
-tests/
-```
+## 内部验证策略
 
-`tests/` 必须是真实的。技术栈不清时用伪代码或测试骨架；框架清晰时用可运行 stub。
+以下策略仅供代理内部使用，不出现在用户输出中。按风险与复杂度选择检查强度，不能据此改变交付文件或向 PM 输出验证等级、门禁名称、分数、测试命令。
 
-建议结构：
+- 所有三文档检查完整性、一致性、清晰度、范围、过度设计、可观察验收及执行边界。
+- 复杂或高风险方案按章节评审，使用 `spec-document-reviewer-prompt.md`；简单方案可合并检查但保留真实检查依据。
+- 检查主流程、异常、边界、业务状态、权限与 AC 的对应关系；不要求默认生成测试用例文件。
+- 检查工作包对设计与验收标准的追踪，以及每个技术章节的适用原因。
+- 检查附录是否同时有适用需求与明确请求依据，拒绝未经请求的文件扩张。
+- 阻塞问题先修复；向 PM 说明实际产品缺口和影响，不暴露内部验证策略。审查通过不代表用户授权执行。
 
-```text
-tests/
-├── README.md
-├── acceptance/
-├── integration/
-└── unit/
-```
+## 交付后的下一步
 
-Verified Spec 还必须：
+生成后提供三份文档的路径与简短用途，只提供一个可选下一步，按当前最有价值的事项选择，例如“可选下一步：一起评审异常与恢复场景”。用户未要求时，不固定询问执行计划，也不自动进入 4A 或生成 HTML。
 
-- 把每个验收标准映射到至少一个测试路径。
-- 每个 Exception Flow 行至少一个负面测试。
-- 每个 Boundary Case 行至少一个边界测试。
-
-## 测试骨架规则
-
-技术栈未知时：
-
-- 用带期望行为的伪代码测试。
-- 把必需测试框架标为显式缺口：`Missing: test framework is not confirmed`。
-- 加确认测试框架所需的最小澄清问题。
-- 不要编造包命令。
-
-技术栈已知时：
-
-- 匹配既有项目测试框架。
-- 创建最小可运行骨架。
-- 至少一个验收级测试。
-
-## Spec 评审
-
-起草 Standard Spec 或 Verified Spec 后，用 `spec-document-reviewer-prompt.md` 做 Spec 评审。
-
-评审类别：
-
-- 完整性。
-- 一致性。
-- 清晰度。
-- 范围。
-- YAGNI。
-- 可测试性。
-- 执行边界。
-- 子类型覆盖（扩展层匹配声明子类型）。
-- 状态机与异常覆盖。
-- 权限/角色完整性。
-
-发现阻塞问题：请用户批准前先修 Spec。
-
-评审者批准不等于用户批准。
-
-## 不自动执行
-
-Spec 生成后问：
-
-```text
-Spec is drafted. Do you want me to prepare an execution plan? I will not execute until you confirm after seeing the plan and risks.
-```
-
-Spec 期间不要创建 `manifest.md`。`manifest.md` 只属于 Execution 可见性。
+Spec 期间不创建 `manifest.md` 或交接包。用户明确请求下游交接时才使用 `handoff-format.md`；机器验证工件留在内部目录，不混入产品交付物。

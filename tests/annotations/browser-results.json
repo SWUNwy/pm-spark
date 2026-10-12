@@ -1,0 +1,349 @@
+{
+  "status": "passed",
+  "runner": "playwright",
+  "scenarios": [
+    {
+      "id": "badge-position",
+      "status": "passed"
+    },
+    {
+      "id": "bidirectional-highlight",
+      "status": "passed"
+    },
+    {
+      "id": "scroll-linkage",
+      "status": "passed"
+    },
+    {
+      "id": "scene-switch",
+      "status": "passed"
+    },
+    {
+      "id": "mobile-fallback",
+      "status": "passed"
+    }
+  ],
+  "evidence": {
+    "artifact_paths": [
+      "tests/annotations/artifacts/badge-position.png",
+      "tests/annotations/artifacts/bidirectional-highlight.png",
+      "tests/annotations/artifacts/scroll-linkage.png",
+      "tests/annotations/artifacts/scene-switch.png",
+      "tests/annotations/artifacts/mobile-fallback.png"
+    ],
+    "observations": [
+      {
+        "id": "badge-position",
+        "dom": {
+          "active_scene": "coupon-create",
+          "badges": [
+            {
+              "proto_id": "coupon-create-1",
+              "text": "1",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 51,
+                "width": 20,
+                "height": 20,
+                "top": 51,
+                "right": 895,
+                "bottom": 71,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-2",
+              "text": "2",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 187,
+                "width": 20,
+                "height": 20,
+                "top": 187,
+                "right": 895,
+                "bottom": 207,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-3",
+              "text": "3",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 323,
+                "width": 20,
+                "height": 20,
+                "top": 323,
+                "right": 895,
+                "bottom": 343,
+                "left": 875
+              }
+            }
+          ],
+          "highlighted": [],
+          "canvas_scroll_top": 47,
+          "doc_scroll_top": 0,
+          "layout_direction": "row",
+          "viewport": {
+            "width": 1440,
+            "height": 520
+          }
+        }
+      },
+      {
+        "id": "bidirectional-highlight",
+        "dom": {
+          "active_scene": "coupon-create",
+          "badges": [
+            {
+              "proto_id": "coupon-create-1",
+              "text": "1",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 33,
+                "width": 20,
+                "height": 20,
+                "top": 33,
+                "right": 895,
+                "bottom": 53,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-2",
+              "text": "2",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 874.829833984375,
+                "y": 168.82984924316406,
+                "width": 20.34033203125,
+                "height": 20.340301513671875,
+                "top": 168.82984924316406,
+                "right": 895.170166015625,
+                "bottom": 189.17015075683594,
+                "left": 874.829833984375
+              }
+            },
+            {
+              "proto_id": "coupon-create-3",
+              "text": "3",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 305,
+                "width": 20,
+                "height": 20,
+                "top": 305,
+                "right": 895,
+                "bottom": 325,
+                "left": 875
+              }
+            }
+          ],
+          "highlighted": [],
+          "canvas_scroll_top": 65,
+          "doc_scroll_top": 662,
+          "layout_direction": "row",
+          "viewport": {
+            "width": 1440,
+            "height": 520
+          }
+        }
+      },
+      {
+        "id": "scroll-linkage",
+        "dom": {
+          "active_scene": "coupon-create",
+          "badges": [
+            {
+              "proto_id": "coupon-create-1",
+              "text": "1",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": -67,
+                "width": 20,
+                "height": 20,
+                "top": -67,
+                "right": 895,
+                "bottom": -47,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-2",
+              "text": "2",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 69,
+                "width": 20,
+                "height": 20,
+                "top": 69,
+                "right": 895,
+                "bottom": 89,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-3",
+              "text": "3",
+              "class": "anno-badge active",
+              "bounds": {
+                "x": 873.5,
+                "y": 203.5,
+                "width": 23,
+                "height": 23,
+                "top": 203.5,
+                "right": 896.5,
+                "bottom": 226.5,
+                "left": 873.5
+              }
+            }
+          ],
+          "highlighted": [
+            "coupon-create-3",
+            "coupon-create-3"
+          ],
+          "canvas_scroll_top": 165,
+          "doc_scroll_top": 1204,
+          "layout_direction": "row",
+          "viewport": {
+            "width": 1440,
+            "height": 520
+          }
+        }
+      },
+      {
+        "id": "scene-switch",
+        "dom": {
+          "active_scene": "coupon-create",
+          "badges": [
+            {
+              "proto_id": "coupon-create-1",
+              "text": "1",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": -207,
+                "width": 20,
+                "height": 20,
+                "top": -207,
+                "right": 895,
+                "bottom": -187,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-2",
+              "text": "2",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": -71,
+                "width": 20,
+                "height": 20,
+                "top": -71,
+                "right": 895,
+                "bottom": -51,
+                "left": 875
+              }
+            },
+            {
+              "proto_id": "coupon-create-3",
+              "text": "3",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 875,
+                "y": 65,
+                "width": 20,
+                "height": 20,
+                "top": 65,
+                "right": 895,
+                "bottom": 85,
+                "left": 875
+              }
+            }
+          ],
+          "highlighted": [],
+          "canvas_scroll_top": 305,
+          "doc_scroll_top": 0,
+          "layout_direction": "row",
+          "viewport": {
+            "width": 1440,
+            "height": 520
+          }
+        }
+      },
+      {
+        "id": "mobile-fallback",
+        "dom": {
+          "active_scene": "coupon-verify",
+          "badges": [
+            {
+              "proto_id": "coupon-verify-1",
+              "text": "1",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 274.796875,
+                "y": -40,
+                "width": 20,
+                "height": 20,
+                "top": -40,
+                "right": 294.796875,
+                "bottom": -20,
+                "left": 274.796875
+              }
+            },
+            {
+              "proto_id": "coupon-verify-2",
+              "text": "2",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 274.796875,
+                "y": 83.1875,
+                "width": 20,
+                "height": 20,
+                "top": 83.1875,
+                "right": 294.796875,
+                "bottom": 103.1875,
+                "left": 274.796875
+              }
+            },
+            {
+              "proto_id": "coupon-verify-3",
+              "text": "3",
+              "class": "anno-badge",
+              "bounds": {
+                "x": 274.796875,
+                "y": 206.375,
+                "width": 20,
+                "height": 20,
+                "top": 206.375,
+                "right": 294.796875,
+                "bottom": 226.375,
+                "left": 274.796875
+              }
+            }
+          ],
+          "highlighted": [],
+          "canvas_scroll_top": 0,
+          "doc_scroll_top": 0,
+          "layout_direction": "column",
+          "viewport": {
+            "width": 390,
+            "height": 844
+          }
+        }
+      }
+    ]
+  },
+  "browser": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "version": "154.0.8037.98",
+  "page_errors": [],
+  "recorded_at": "2026-10-12T06:56:26.349Z"
+}

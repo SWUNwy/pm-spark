@@ -24,7 +24,9 @@ assert.strictEqual(validateContract(contract).ok, true);
 const source = {
   product: {
     title: "Product title",
-    scenarios: [{ title: "Scenario", behavior: "Visible behavior" }]
+    scenarios: [{ title: "Scenario", behavior: "Visible behavior" }],
+    acceptance_criteria: ["选择记录后显示确认结果"],
+    observable_acceptance: ["空列表显示暂无记录"]
   },
   implementation: {
     api: "INTERNAL_API_SENTINEL",
@@ -48,6 +50,20 @@ assert.deepStrictEqual(
 );
 assert.deepStrictEqual(filterDelivery(source, "acceptance", contract), source);
 assert.deepStrictEqual(source.implementation.api, "INTERNAL_API_SENTINEL");
+
+assert.deepStrictEqual(product.product.acceptance_criteria, source.product.acceptance_criteria);
+assert.deepStrictEqual(product.product.observable_acceptance, source.product.observable_acceptance);
+assert.deepStrictEqual(
+  filterDelivery({ product: { ...source.product, api: "private", verification_commands: ["npm test"] } }, "product", contract),
+  product
+);
+for (const value of ["GET /api/private", "src/private.ts", "npm test", "错误码：403"]) {
+  expectCode(() => filterDelivery({ acceptance_criteria: [value] }, "product", contract), "ENGINEERING_CONTENT");
+}
+assert.deepStrictEqual(filterDelivery({ acceptance_criteria: ["点击按钮后显示成功"] }, "product", contract),
+  { acceptance_criteria: ["点击按钮后显示成功"] });
+assert.deepStrictEqual(filterDelivery({ acceptance_criteria: ["npm test"] }, "acceptance", contract),
+  { acceptance_criteria: ["npm test"] });
 
 expectCode(
   () => filterDelivery({ product: { title: "x", unknown: true } }, "product", contract),
@@ -86,5 +102,14 @@ assert(skill.includes("references/delivery-contract.json"));
 assert(skill.includes("filterDelivery(sourceDocument, \"product\", contract)"));
 assert(template.includes("references/delivery-contract.json"));
 assert(template.includes("filterDelivery(sourceDocument, \"product\", contract)"));
+
+assert(template.includes("当前请求够用即停"));
+assert(template.includes("4A 默认直接生成评审面板，无需额外模式确认"));
+assert(template.includes("只有用户请求或确认 Spec 工作且完成范围确认后，才固定生成三文档"));
+assert(template.includes("不自动扩大到 PRD、Spec 或实现"));
+assert(template.includes("未运行或受阻如实说明"));
+assert(!template.includes("经 Step 8F 模式路由确认后启用"));
+assert(!template.includes("三种输出格式对应三条路由路径"));
+assert(!template.includes("spec-analyze 的核心差异化"));
 
 console.log("delivery contract: all tests passed");

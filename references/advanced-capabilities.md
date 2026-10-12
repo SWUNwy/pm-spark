@@ -21,7 +21,7 @@
 | `remember` / `forget` | 增删工作记忆条目 | `--field --content` / `--field --id` |
 | `store-result` | 大结果外置存储 | `--content [--type]` |
 | `guardrail` | 6 条内置 Guardrail 的检查/覆盖/列表 | `--add / --override / --check / --list` |
-| `action` | 查看/设置 Action Level | `--check / --set-level` |
+| `migrate` | 补齐旧状态门禁并清理废弃权限字段，记录迁移事件 | `--state` |
 | `retry-policy` | 查看/修改修复预算 | `--set-iterations` |
 
 ## 二、上下文工程（实验性）

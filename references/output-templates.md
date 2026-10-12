@@ -26,18 +26,20 @@
 
 ## 输出文件路径
 
-写输出文件时用这些默认路径。写非默认位置前先问用户。
+PM Spark 输出路径以 `SKILL.md` 为权威，下表仅为旧路径参考。用户指定路径或已有确认直接继承；需要确认时，将范围、验收、非目标与路径合并为一次确认，避免重复。
+
+模式切换继承已确认事实与约束。轻量输出仍保留关键边界和推荐反转条件。模式五缺少评分依据时用定性比较、条件化推荐和待验证变量，不虚构评分、权重、收益或用户量；只有用户提供或查证的数据足够时才量化。Spec 有阻塞未决项时可交付标注缺口与影响的草稿，不得称已就绪；非阻塞未知项标为待验证。PRD 局部变更只核对受影响章节与旧 AC，保留未变化确认项；每个未决项都单独标为**阻塞**（会改变当前交付或验收，不得称已就绪）或**待验证**（非阻塞未知项），不在回复正文展开非关键清单。
 
 | 输出类型 | 默认路径 | 说明 |
 |---|---|---|
 | Idea Map / Direction Brief | `docs/analyze/explore/YYYY-MM-DD-<topic>-insight.md` | 头脑风暴输出 |
 | Analysis Report | `docs/analyze/explore/YYYY-MM-DD-<topic>-report.md` | Decision/Requirement/Solution/Strategy 报告 |
 | Decision-grade Report | `docs/analyze/explore/YYYY-MM-DD-<topic>-decision.md` | 高利害决策记录 |
-| Spec 工件 | `docs/analyze/specs/YYYY-MM-DD-<topic>/` | 含 proposal/design/tasks/test-cases 的目录 |
+| Spec 工件 | `docs/analyze/specs/YYYY-MM-DD-<topic>/` | 固定 proposal/design/tasks；附录须适用且明确请求 |
 | Stage Summary | 仅对话 | 除非用户要求，不写文件 |
 | 降级输出 | 仅对话 | 除非用户要求，不写文件 |
 
-用户偏好覆盖这些默认。总是先问再写文件。
+用户偏好覆盖默认路径；指定路径或已确认路径不再问，必要确认与范围确认合并。Spec 目录固定 proposal/design/tasks，附录依适用性和明确请求决定。
 
 ### Constitution 路径覆盖
 
@@ -314,76 +316,44 @@ Ready / Partial / Not ready, because ...
 | Missing Item | Why It Matters | Minimum Completion Path |
 |---|---|---|
 
-### Recommended Depth
-Light Spec / Standard Spec / Verified Spec
+### Product Artifacts
+proposal.md + design.md + tasks.md（固定三文档；详略不改变文件数量）
+
+### Requested Appendices
+仅列需求类型适用且用户明确请求的附录；没有则写“无”。
 
 ### Next Step
 ...
 ```
 
-### Spec Readiness Check（子类型感知）
+### Spec Readiness Check（需求类型感知）
 
-Spec 将涉及表单、UI、事件或外部契约时用此变体。它把核心缺口与子类型触发的扩展缺口分开，让用户决定先修什么。
+只列影响当前产品判断的缺口；技术内容仅在类型适用且用户明确请求工程附录时检查，不能用附录缺失阻断默认三文档。
 
 ```markdown
-## Spec Readiness Check (Subtype-Aware)
+## Spec Readiness Check
 
-**Current status:** Ready / Partial / Not ready
-**Detected subtypes:** [Form/Data Heavy / Product/Frontend / Event-Driven / Infrastructure/Algorithm]
+**当前状态：** 可生成 / 需补充
 
-### Already Satisfied
+### 已明确
 - ...
 
-### Missing — Core Layer (blocks any Spec depth)
-| Missing Item | Why It Matters | Minimum Completion Path |
+### 待补充的产品信息
+| 信息 | 对产品判断的影响 | 最小补充方式 |
 |---|---|---|
-| Module goal + success metric | Without metric, acceptance criteria cannot be testable | Add 1 measurable success signal |
-| Actors & permissions | Permission matrix drives both UI and API layers | List actors and their permissions |
-| Domain objects + state machines | State bugs originate here | Identify stateful objects and transitions |
-| Entry & preconditions | Unknown entry points block implementation | Name the triggers |
-| Main flow (step-by-step) | "Flow" prose hides ambiguity | Tabulate step / actor / action / postcondition |
-| Exception flow | Happy-path-only Specs fail at integration | List triggers, detection, recovery |
-| Boundary cases | Edge cases become prod incidents | Enumerate boundary inputs and expected behavior |
-| Acceptance criteria | Without AC, done is subjective | One observable criterion per scope item |
-| Open questions | Untracked unknowns become silent assumptions | Track with owner and status |
+| 目标与指标 | ... | ... |
+| 角色、权限与可见状态 | ... | ... |
+| 主流程、异常与恢复 | ... | ... |
+| 边界、验收标准与非目标 | ... | ... |
 
-### Missing — Extension A (Form/Data Heavy)
-| Missing Item | Why It Matters | Minimum Completion Path |
-|---|---|---|
-| Field list | Field semantics drift between teams | List Object.Field, type, source |
-| Display rules | UI churn in implementation | Per-field visibility and format |
-| Edit rules | Form logic ambiguity | Per-field editability and side effect |
-| Validation rules | Backend rework | Per-field rule, error code, message |
+### 产品交付物
+proposal.md + design.md + tasks.md（固定三文档；详略不改变文件数量）
 
-### Missing — Extension B (Product/Frontend)
-| Missing Item | Why It Matters | Minimum Completion Path |
-|---|---|---|
-| Page inventory | Routes/pages multiply late | List pages with primary actor |
-| Key interactions | Interaction state leaks into bugs | Trigger / component / system / state change |
+### 附录适用性
+仅列需求类型适用且用户明确请求的附录；没有则写“无”。不适用的技术章节说明具体原因。
 
-### Missing — Extension C (Event-Driven)
-| Missing Item | Why It Matters | Minimum Completion Path |
-|---|---|---|
-| Events emitted | Subscribers integrate against unknowns | List event, payload, emitter, trigger |
-| Side effects | Hidden side effects break idempotency | Per-effect trigger and failure handling |
-| Subscribers | Orphan events cause data drift | Map event → subscriber → action |
-
-### Missing — Cross-Cutting
-| Missing Item | Why It Matters | Minimum Completion Path |
-|---|---|---|
-| API and data mapping | External contracts fail review | List endpoints with method/permission/side effect |
-
-### Recommended Depth
-Light Spec / Standard Spec / Verified Spec
-
-### Recommended Subtype Extensions
-- [ ] A: Form/Data Heavy
-- [ ] B: Product/Frontend
-- [ ] C: Event-Driven
-- [ ] None — Infrastructure/Algorithm only
-
-### Next Step
-...
+### 可选下一步
+[只提供一个与当前产品需要相关的下一步]
 ```
 
 ### Open Questions Brief

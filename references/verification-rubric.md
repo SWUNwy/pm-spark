@@ -80,7 +80,7 @@ weighted_score = Σ(score / 4 × weight)
 - 内部矛盾；
 - 适用的条件门禁与 Constitution 门禁；
 - 输出/Track 契约完整性；
-- 未授权 L2/L3 动作；
+- 工件写入、代码执行与外部动作是否符合宿主策略及用户授权；
 - 停止与失效条件。
 
 该记录让原 G4 Self-Review 机器可见，且不与 G3 重复。

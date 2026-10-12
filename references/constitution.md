@@ -22,7 +22,7 @@ run 初始化时，`run-state.cjs` 按顺序检查：
 system/developer policy > current user authority > project Constitution > Skill defaults
 ```
 
-Constitution 可以收窄模式、路径、工件、引用或门禁。它不能授予外部授权、绕过 G1/G2/G3、授权 L3 动作，或削弱更高层安全规则。
+Constitution 可以收窄模式、路径、工件、引用或门禁。它不能授予外部授权、绕过 G1/G2/G3、授权实施或外部动作，或削弱更高层安全规则。
 
 与更高层指令冲突时：记录冲突，遵循更高层指令。内部冲突或无法可靠解读时：进入 `awaiting_user` 或 `blocked`；不要静默选择方便的解读。
 
@@ -32,7 +32,7 @@ Constitution 可以收窄模式、路径、工件、引用或门禁。它不能�
 
 | 字段 | 含义 |
 |---|---|
-| `mode_overrides` | 禁用/受限的轨道或行动等级 |
+| `mode_overrides` | 禁用/受限的轨道或具体动作 |
 | `output_paths` | 必需的目的地与命名约定 |
 | `spec_artifacts` | Specify 输出的必需增补/替换 |
 | `additional_gates` | 带 `id`、描述与执行阶段的项目门禁 |
@@ -55,7 +55,7 @@ node <skill-dir>/scripts/run-state.cjs constitution \
 ## 映射规则
 
 - `mode_overrides`：更新路由/行动行为；除非 Constitution 定义了回退，否则不要发明禁用轨道的替代路径。
-- `output_paths`：创建 L2 工件前应用；值未知前保留占位符。
+- `output_paths`：创建报告或 Spec 工件前应用；值未知前保留占位符。
 - `spec_artifacts`：审慎合并并记录增补；项目要求优先于 Skill 默认。
 - `additional_gates`：创建机器可见的 pending 门禁；永远不要降级为散文提醒。
 - `additional_references`：及时加载并记录为本地来源。

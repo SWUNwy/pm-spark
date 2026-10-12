@@ -1,0 +1,322 @@
+{
+  "schema_version": "1.0.0",
+  "stage": "v6.1-phase-1",
+  "description": "Machine-readable PM behavior acceptance scenarios. These definitions require real conversations; automation does not mark them passed.",
+  "status_values": [
+    "passed",
+    "failed",
+    "not_run",
+    "blocked"
+  ],
+  "scenarios": [
+    {
+      "id": "pm-010-intake-sufficiency",
+      "title": "按需摄入检查",
+      "user_turns": [
+        "客服每天手动归类投诉，目标是减少整理时间；先帮我理解问题并给下一步。"
+      ],
+      "expected_behavior": [
+        "进入理解问题",
+        "不要求全六维度齐全",
+        "信息足够支持问题陈述时停止澄清",
+        "未提供的指标或约束可标为待验证"
+      ],
+      "must_not_do": [
+        "逐项追问六个维度",
+        "要求全量补齐后才输出",
+        "把缺少非关键细节当作阻断"
+      ],
+      "evidence_required": "真实代理回复摘录"
+    },
+    {
+      "id": "pm-011-intake-single-question",
+      "title": "关键缺口单问",
+      "user_turns": [
+        "想减少投诉漏处理，但还不清楚是客服漏看，还是系统没有提醒。",
+        "已查明是超时后系统没有提醒；客服看到提醒后会处理。先给问题陈述和下一步。"
+      ],
+      "answer_branches": [
+        {
+          "id": "no-reminder",
+          "turn_index": 1,
+          "user_turn": "已查明是超时后系统没有提醒；客服看到提醒后会处理。先给问题陈述和下一步。"
+        },
+        {
+          "id": "missed-visible",
+          "turn_index": 1,
+          "user_turn": "已查明系统有提醒，但客服漏看；先给问题陈述和下一步。"
+        }
+      ],
+      "expected_behavior": [
+        "识别缺口会改变问题陈述",
+        "当前轮只问一个问题",
+        "优先确认客服漏看或系统未提醒",
+        "回答后重新判断是否还需澄清"
+      ],
+      "must_not_do": [
+        "同时追问目标、用户、边界、指标和约束",
+        "用完整性清单替代判断",
+        "先要求补齐六维度"
+      ],
+      "evidence_required": "真实代理回复摘录"
+    },
+    {
+      "id": "pm-001-ambiguous-request",
+      "title": "模糊需求",
+      "user_turns": [
+        "老板说要加 AI，帮我搞清楚到底解决什么。",
+        "客服每天手动归类投诉，目标是减少整理时间。"
+      ],
+      "expected_behavior": [
+        "进入理解问题",
+        "首轮最多一个关键问题",
+        "形成问题陈述和关键未知项",
+        "信息够用后停止澄清"
+      ],
+      "must_not_do": [
+        "六维度打包追问",
+        "直接设计 AI 功能",
+        "信息够用后继续填表"
+      ],
+      "evidence_required": "真实代理回复摘录或交付物路径"
+    },
+    {
+      "id": "pm-002-challenge-request",
+      "title": "挑战需求",
+      "user_turns": [
+        "销售要全量导出客户数据，我觉得有风险，帮我准备反问。"
+      ],
+      "expected_behavior": [
+        "列出假设及后果",
+        "给出可带去讨论的挑战问题",
+        "给出推进、先验证或推回去之一及依据"
+      ],
+      "must_not_do": [
+        "将假设写成事实",
+        "要求用户当轮答完挑战清单",
+        "未经请求设计方案"
+      ],
+      "evidence_required": "真实代理回复摘录或交付物路径"
+    },
+    {
+      "id": "pm-003-solution-design",
+      "title": "方案设计",
+      "user_turns": [
+        "客服漏处理待办；不能增加人手，帮我设计产品方案。"
+      ],
+      "expected_behavior": [
+        "给出 2-3 个方向",
+        "逐项说明差异、前提和风险",
+        "给出推荐及推翻条件"
+      ],
+      "must_not_do": [
+        "只给一个默认实现",
+        "开始写代码",
+        "自动生成 PRD 或 Spec"
+      ],
+      "evidence_required": "真实代理回复摘录或交付物路径"
+    },
+    {
+      "id": "pm-004-decision",
+      "title": "做决策",
+      "user_turns": [
+        "两周内只能做投诉自动归类或待办提醒，怎么选？目前漏处理比整理耗时更严重。"
+      ],
+      "expected_behavior": [
+        "给出有依据的推荐",
+        "指出最影响结论的变量",
+        "给出推翻条件",
+        "缺数据时明确标注"
+      ],
+      "must_not_do": [
+        "要求 PM 先选分析框架",
+        "替 PM 宣布最终决定",
+        "虚构用户量或收益"
+      ],
+      "evidence_required": "真实代理回复摘录或交付物路径"
+    },
+    {
+      "id": "pm-005-prd-boundary",
+      "title": "PRD 边界",
+      "user_turns": [
+        "方案已定：超时待办提醒，只提醒负责人、每天一次。整理 PRD，不加注释。"
+      ],
+      "expected_behavior": [
+        "仅交付产品需求、范围、规则、异常和可观察验收",
+        "关键缺失每轮只问一个"
+      ],
+      "must_not_do": [
+        "自动追加注释或 Spec",
+        "混入接口或实现任务",
+        "拿完整模板当问卷"
+      ],
+      "evidence_required": "真实代理回复摘录或交付物路径"
+    },
+    {
+      "id": "pm-006-annotation-boundary",
+      "title": "注释边界",
+      "user_turns": [
+        "给这个原型加交互注释。（提供含提交按钮、列表和错误态的原型）"
+      ],
+      "expected_behavior": [
+        "直接进入原型注释",
+        "六字段完整且文案可选",
+        "检查锚点、状态和边界",
+        "运行注释校验并核对页面联动"
+      ],
+      "must_not_do": [
+        "要求选择注释等级",
+        "正文混入接口、像素、内部状态枚举",
+        "自动写 Spec"
+      ],
+      "evidence_required": "真实代理回复摘录或 HTML 交付物路径"
+    },
+    {
+      "id": "pm-007-spec-boundary",
+      "title": "Spec 边界",
+      "user_turns": [
+        "输出待办提醒的 proposal、design、tasks。",
+        "确认所展示范围、验收标准与非目标。"
+      ],
+      "expected_behavior": [
+        "一次确认范围",
+        "确认后生成三文档并审查",
+        "仅在存在阻塞问题时标为待确认或受阻且不宣称已就绪",
+        "无阻塞且检查完成时可称已就绪，未验证事实单独标注"
+      ],
+      "must_not_do": [
+        "跳过范围确认",
+        "阻塞未解决仍宣称完成",
+        "把 Spec 就绪视为获准实施"
+      ],
+      "evidence_required": "真实代理回复摘录或三文档路径"
+    },
+    {
+      "id": "pm-008-depth-consistency",
+      "title": "交互深度",
+      "user_turns": [
+        "客服超时待办无提醒，目标减少漏处理，不能增加人手。比较负责人每天一次提醒和主管汇总提醒。轻量给结论、关键边界和反转条件。",
+        "客服超时待办无提醒，目标减少漏处理，不能增加人手。比较负责人每天一次提醒和主管汇总提醒。深入比较并核对本地证据，给关键边界和反转条件。"
+      ],
+      "conversation_layout": "independent_pair",
+      "shared_problem": "客服超时待办无提醒，目标减少漏处理，不能增加人手。比较负责人每天一次提醒和主管汇总提醒。",
+      "expected_behavior": [
+        "保持同一模式与产品边界",
+        "仅依据、比较和验证投入不同"
+      ],
+      "must_not_do": [
+        "深度改变宿主权限或注释结构",
+        "轻量跳过关键边界",
+        "要求选择权限等级"
+      ],
+      "evidence_required": "两次真实代理回复摘录"
+    },
+    {
+      "id": "pm-009-stop-and-terms",
+      "title": "停止与术语",
+      "user_turns": [
+        "已有信息够了，给建议就结束。（上下文含已确认问题与两个备选方案）"
+      ],
+      "expected_behavior": [
+        "给建议后停止",
+        "仅在必要时说明阶段和交付状态",
+        "使用 PM 工作语言"
+      ],
+      "must_not_do": [
+        "继续追问",
+        "强制转模式",
+        "播报轨道、门禁编号、修复预算、角色名、机器状态或授权字段"
+      ],
+      "evidence_required": "真实代理回复摘录"
+    },
+    {
+      "id": "pm-012-standard-depth",
+      "title": "标准深度",
+      "user_turns": [
+        "按标准深度比较负责人待办提醒和主管汇总提醒；目标减少漏处理，不能增加人手。"
+      ],
+      "expected_behavior": [
+        "保持做决策（收敛取舍）模式",
+        "提供适量比较、依据与风险",
+        "只核实改变推荐的关键未知项",
+        "信息够用后推荐并停止"
+      ],
+      "must_not_do": [
+        "退化为无依据的单句结论",
+        "自动开展深度研究",
+        "改变权限或注释字段",
+        "自动生成 Spec"
+      ],
+      "evidence_required": "真实代理回复及可定位对话记录"
+    },
+    {
+      "id": "pm-013-mode-transition",
+      "title": "模式衔接",
+      "user_turns": [
+        "理解客服漏处理待办的问题，先给问题陈述。",
+        "确认是超时后无提醒，请比较解决方案。",
+        "选负责人每天一次提醒，整理 PRD。"
+      ],
+      "expected_behavior": [
+        "按各轮请求从理解问题衔接设计方案和 PRD",
+        "继承已确认事实与约束",
+        "每轮只交付所请求结果",
+        "最多一个可选下一步"
+      ],
+      "must_not_do": [
+        "首轮自动串联全部模式",
+        "重复询问已确认信息",
+        "输出未请求的 Spec 或代码"
+      ],
+      "evidence_required": "完整多轮真实对话及交付物路径"
+    },
+    {
+      "id": "pm-014-confirmed-change",
+      "title": "已确认需求变更",
+      "user_turns": [
+        "已确认负责人每天一次提醒的 PRD，现在改为每小时提醒，其他范围保持。"
+      ],
+      "initial_artifacts": {
+        "prd.md": "已确认产品 PRD：只提醒负责人，超时未完成待办每天一次；AC-01 每天最多一次，AC-02 完成后停止提醒，AC-03 失败可恢复；不提醒主管、不增加人手；已确认输出路径；尚未实施"
+      },
+      "expected_behavior": [
+        "识别频率变更影响规则、打扰风险和验收",
+        "保留未变化的确认项",
+        "只核对受影响范围，明确变更不重复确认",
+        "更新受影响文档和旧 AC 并标注阻塞未决项"
+      ],
+      "must_not_do": [
+        "沿用旧验收声称已就绪",
+        "扩大到其他需求",
+        "无授权实施",
+        "重问全部摄入信息"
+      ],
+      "evidence_required": "真实回复、变更前后文档及定位信息"
+    },
+    {
+      "id": "pm-015-session-recovery",
+      "title": "会话恢复",
+      "user_turns": [
+        "继续上次的待办提醒 PRD。检查点显示负责人每天一次已确认，异常处理待确认，尚未实施。"
+      ],
+      "initial_artifacts": {
+        "state.json": "status awaiting_user; confirmed: owner daily reminder; unfinished: exception handling; implementation_authorized: false",
+        "checkpoint.md": "actual checkpoint for the run",
+        "prd.md": "existing PRD with owner daily reminder and exception handling pending"
+      },
+      "expected_behavior": [
+        "核对真实 state、checkpoint 与已有产物",
+        "从未完成的异常处理继续",
+        "缺失证据明确待确认或受阻",
+        "保留已有确认与授权边界"
+      ],
+      "must_not_do": [
+        "把检查点当作真实完成证据",
+        "重跑全部模式",
+        "自动实施",
+        "证据缺失仍声称交付已就绪"
+      ],
+      "evidence_required": "真实恢复对话、检查点与产物路径"
+    }
+  ]
+}

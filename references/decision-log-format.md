@@ -1,132 +1,122 @@
 # 决策日志格式（Decision Log Format）
 
-用户做出或接近有意义决策时使用本文件。目标是保留推理过程而不只是结论——让后来者理解*为什么*做出该选择，并在环境变化时能够重新评估。
+用于模式三和模式五中有重大影响的方案选择。目标是保留判断依据、备选方案和推翻条件，让后来者理解为什么推荐或确认该选择，并在环境变化时重新评估。
+
+## 使用原则
+
+遵循 `SKILL.md` 的 PM 日常工作协议；本文件不新增工作模式、交付等级或权限选择。轻量 / 标准 / 深度仅影响比较与证据核验的详略，不改变产品交付边界。
+
+- 先给推荐和依据，决策权在 PM；未获 PM 确认时写“建议”，不得写成已决定。
+- 已有信息足够支持当前判断即停止；非关键缺口标为假设或待验证，不为填满模板追问。确有会改变结论、范围、风险或交付类型的缺口时，每轮最多一个需要用户回答的问题。
+- 区分用户事实、已查验证据、推理与假设；引用可定位的来源，不杜撰数据、评分、权重或成本估算。比较标准按当前问题选取；权重仅在使用加权框架且 PM 已提供依据时记录，不要求 PM 为记录补打分。
+- 默认输出产品取舍、用户可见影响与业务边界。工程实现或工程验证内容仅在用户明确要求时单独交付；写文件前遵循 `SKILL.md` 的路径确认与 Product-only 交付契约。
+- 对话与评审正文使用中文 PM 工作语言，内部框架与检查名称不进入正文。下列形式按需选用，不要求全部输出，不自动追加 PRD、Spec 或实现；如需建议下一步，最多一个可选建议。
 
 ## 何时记录决策
 
-记录决策：
-- 考虑过 2+ 个可行备选方案。
-- 选择有非平凡影响（成本、风险、时间、实施工作量）。
-- 推理对后来阅读者可能不明显。
-- 决策可能随需求演进被重访。
+方案选择有重大影响且需要保留权衡依据时，可按当前请求记录：
 
-不记录决策：
-- 只有一个可行选项。
-- 选择琐碎且可逆（如命名、文件组织）。
-- 没有真正发生权衡。
+- 考虑过两个或更多可行备选方案。
+- 选择会明显影响成本、风险、时间或用户体验。
+- 理由对后来阅读者可能不明显，或环境变化后需要重新评估。
 
-## 轻量决策
+只有一个可行选项、选择琐碎且可逆或没有实际权衡时，不额外生成决策记录。
+
+## 对话内简要记录
 
 ```markdown
-## Decision Log
+建议：[推荐方向]。理由：[核心依据]。
 
-| Decision | Choice | Reason | Open Risk |
-|---|---|---|---|
-| ... | ... | ... | ... |
+| 决策问题 | 备选方案 | 推荐方向 | 核心依据 | 关键未知项 |
+|---|---|---|---|---|
+| ... | ... | ... | [用户事实 / 已查验证据 / 推理 / 假设] ... | ... |
+
+最影响结论的变量：...
+推翻条件：...
 ```
 
-## 决策级记录
+## 需要保留详细依据时
+
+仅保留对当前判断有用的字段；已有上下文直接复用，非关键缺失标为待验证。
 
 ```markdown
-## Decision Record: [Decision]
+## 决策记录：[决策问题]
 
-**Date:** [YYYY-MM-DD]
-**Context Basis:** ...
-**Decision owner:** ...
-**Status:** Proposed / Confirmed / Revisit
+日期：[YYYY-MM-DD]
+决策人：[已知则填写，未知则标待确认]
+决策情况：[建议 / PM 已确认 / 需重新评估]
+依据：[用户事实 / 已查验证据 / 推理 / 假设及来源]
 
-### Question
-...
-
-### Options Considered
-| Option | Description | Why Kept / Rejected |
+### 备选方案
+| 方案 | 核心差异与适用前提 | 保留或不推荐的原因 |
 |---|---|---|
+| ... | ... | ... |
 
-### Criteria
-| Criterion | Weight | Reason |
-|---|---:|---|
+### 判断依据
+| 比较标准 | 依据与关键未知项 |
+|---|---|
+| ... | ... |
 
-### Choice
-...
+### 推荐与确认
+推荐方向：...
+核心理由：...
+PM 确认情况：[尚未确认 / 已确认及可定位的确认依据]
 
-### Rationale
-...
-
-### Risks
-| Risk | Mitigation | Trigger to Revisit |
+### 风险与重新评估条件
+| 风险 | 应对方式 | 什么新信息会改变推荐 |
 |---|---|---|
+| ... | ... | ... |
 
-### Anti-anchor Check
-- Prior context that could bias the choice:
-- Alternative paths if starting from zero:
-- Why this choice still fits the current goal:
+最影响结论的变量：...
+
+### 重新审视已有判断（仅在先前讨论可能影响当前选择时）
+- 先前判断依赖了什么前提：...
+- 从当前目标出发，还有哪些可行方案：...
+- 当前依据为何仍支持或不再支持原方向：...
 ```
 
-## 讨论中内联捕获
+决策情况描述该项选择是否得到 PM 确认，与交付状态分开。交付状态仅使用草稿 / 待确认 / 已就绪 / 受阻，并说明已完成什么、还缺什么。已就绪表示当前交付物完成检查，不表示获准实施；PM 确认方案也不自动授予实施或外部动作权限，具体动作遵循宿主当前策略与用户已有授权。
 
-决策发生时就地捕获：
+## 已请求文档中的决策摘要
 
-> **Decision: [what was decided]**
-> - Options: [A] / [B] / [C]
-> - Chose: [X] because [reason]
-> - Rejected [Y] because [specific reason]
+在用户已请求的方案简报或产品文档中，可用下表保留关键权衡；不因记录决策额外扩展交付物。
 
-## 输出文档中的表格化
+| 决策问题 | 备选方案 | 推荐或已确认方向 | 判断依据 | 不推荐其他方案的原因 | 推翻条件 |
+|---|---|---|---|---|---|
+| ... | ... | [注明建议或 PM 已确认] ... | ... | ... | ... |
 
-在最终文档（Analysis Report / Design Doc）中表格化决策：
+## 示例
 
-| # | Decision | Options Considered | Chosen Approach | Rationale | Rejected Alternatives |
-|---|----------|--------------------|-----------------|-----------|----------------------|
-| 1 | [What] | A: ..., B: ... | A | [Why A] | B: [specific reason] |
-
-## 好示例
+以下为示意，不代表真实用户决策或真实对话验收证据。
 
 **好：**
-> **Decision: Use optimistic UI for status update**
-> Options: (A) Optimistic update with rollback, (B) Wait-for-API synchronous update, (C) Queue-based eventual update
-> Chose: A — status update is low-risk, high-frequency; optimistic creates immediate feedback; rollback handles the 5% failure case
-> Rejected B — 200ms+ delay on every tap feels sluggish for a frequently used action
-> Rejected C — over-engineered; status updates don't need eventual consistency guarantees
 
-**好（架构决策）：**
-> **Decision: Abstract payment provider behind an interface**
-> Options: (A) Direct Stripe dependency, (B) Payment interface with Stripe implementation
-> Chose: B — currently only Stripe, but payment provider switching is a common requirement; the abstraction costs ~1 day now vs 2 weeks if refactoring later
-> Rejected A — violates "抗补丁性" principle; replacing Stripe calls scattered across codebase would be high-risk
-
-## 坏示例
+> 建议先做超时待办提醒。
+> - 用户事实：两周内只能做投诉自动归类或待办提醒，目前漏处理比整理耗时更严重。
+> - 备选：投诉自动归类 / 超时待办提醒。
+> - 推理：待办提醒更直接对应当前最严重的问题；自动归类暂缓，因为它首先解决整理耗时。
+> - 待验证：提醒是否能减少漏处理，尚无效果数据。
+> - 最影响结论的变量：漏处理的主要原因是否为忘记处理。
+> - 推翻条件：若主要原因是负责人没有处理能力，或归类耗时成为更严重的瓶颈，应重新比较。
+> - PM 确认情况：尚未确认。
 
 **坏（太含糊）：**
-> **Decision: Use optimistic UI**
-> Chose: optimistic because it's better UX
 
-**坏（缺备选）：**
-> **Decision: Use optimistic UI for status update**
-> Chose: optimistic UI — standard approach for this pattern
+> 建议做待办提醒，因为体验更好。
 
-**坏（无理由）：**
-> **Decision: Use abstract payment interface**
-> Chose: interface pattern
-> Rejected: direct dependency
+**坏（缺备选与依据）：**
 
-## 决策重访
+> 做待办提醒，这是标准做法。
 
-决策不是永久的。环境变化时，决策日志让重访变得容易：
+**坏（替 PM 决策并虚构收益）：**
 
-- 新信息与理由矛盾 → 标记重访。
-- 被否决的选项变得可行（新库、需求变化）→ 重新考虑。
-- 问题范围变化 → 检查决策是否仍适用。
-- 先前次要的顾虑变得关键 → 重新评估权衡。
+> 已决定做待办提醒，预计漏处理下降 50%。
 
-Full 路径输出中包含此提示：
+## 决策重新评估
 
-> "Decisions in this log should be revisited if project scope, timeline, or technical landscape changes significantly."
+按当前风险说明具体推翻条件，不绑定输出路径，不强制附加通用提示。以下变化可能需要重新比较：
 
-## 重访触发
-
-以下情况定义重访触发：
-
-- 外部事实不确定。
-- 决策昂贵或难逆。
-- 用户的资源或目标可能变化。
-- 被否决的选项日后可能变得可行。
+- 新证据与原理由矛盾，或原先不确定的事实已查明。
+- 原先不推荐的选项因用户需求或业务条件变化而变得可行。
+- 问题范围、时间、资源或目标变化。
+- 原先次要的顾虑成为关键风险，尤其是选择成本高或难以撤回时。

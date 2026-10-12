@@ -1,0 +1,18 @@
+{
+  "scenario_id": "pm-005-prd-boundary",
+  "evidence_type": "controlled_agent_replay",
+  "variant": "main",
+  "conversation": {
+    "user_turns": [
+      "方案已定：超时待办提醒，只提醒负责人、每天一次。整理 PRD，不加注释。"
+    ],
+    "assistant_turns": [
+      "已整理为 [超时待办提醒 PRD](docs/requirements/prd.md)，**不加注释，也未扩展为工程规格**。\n\n文档保留已定方案：超时待办提醒、只提醒负责人、每天一次，并补充了流程、状态、异常边界和用户可观察的验收标准。产品内容及结构校验已通过。\n\n当前仍为**待确认草稿**：超时判定、每日一次的计算口径、提醒入口，以及负责人变更或发送失败时的处理尚未明确，已在文档中标出，未擅自补成既定规则。\n\n最优先确认一个问题：**同一负责人有多项超时待办时，每天汇总提醒一次，还是每项待办每天各提醒一次？**"
+    ]
+  },
+  "runtime_paths": [
+    "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/main/turn-0.runtime.json"
+  ],
+  "initial_artifacts": {},
+  "recorded_at": "2026-10-12T03:11:20.095Z"
+}

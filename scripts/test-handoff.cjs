@@ -96,6 +96,8 @@ test("exports a bound ready packet", () => {
   const expectedHash = crypto.createHash("sha256").update(fs.readFileSync(fixture.spec)).digest("hex");
   if (packet.artifacts[0].sha256 !== expectedHash) throw new Error("artifact hash was not bound");
   if (packet.authority.grants_implementation_authority !== false) throw new Error("authority boundary was not preserved");
+  if ("source_action_level" in packet.authority) throw new Error("legacy action level was exported");
+  if (!packet.authority.host_policy || !packet.authority.approval) throw new Error("host policy and approval instructions are missing");
   if (!fs.existsSync(result.feedback) || !fs.existsSync(result.checksum)) throw new Error("companion files were not created");
 });
 
@@ -119,6 +121,62 @@ test("refuses accidental packet overwrite", () => {
   invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest]);
   const result = invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest], 1);
   if (!String(result.error).includes("already exists")) throw new Error("existing packet was overwritten without --force");
+});
+
+test("rejects legacy packets even when their checksum is recomputed", () => {
+  const fixture = completeSpecify("legacy-packet");
+  const exported = invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest]);
+  const base = JSON.parse(fs.readFileSync(exported.packet, "utf8"));
+  const mutations = [
+    packet => { packet.source_action_level = "L3"; },
+    packet => { packet.authority.level = "L3"; },
+    packet => { packet.authority.source_action_level = "L2"; },
+    packet => { packet.context.assumptions.push({ source_action_level: "L3" }); },
+    packet => { packet.context.decisions.push({ claim: "Action level L3 approved" }); },
+    packet => { packet.evidence_ledger.events.push({ authority: { level: "L3" } }); },
+    packet => { delete packet.authority.host_policy; },
+    packet => { packet.authority.approval = "  "; },
+    packet => { packet.context.assumptions.push({ historical_compatibility: { level: "L3" } }); }
+  ];
+  for (const mutate of mutations) {
+    const packet = structuredClone(base);
+    mutate(packet);
+    writeJson(exported.packet, packet);
+    fs.writeFileSync(exported.checksum, crypto.createHash("sha256").update(fs.readFileSync(exported.packet)).digest("hex"));
+    if (invoke(verifier, ["--packet", exported.packet], 1).ok) throw new Error("legacy packet passed");
+  }
+});
+
+test("migrates source state before re-export while isolating legacy context and preserving evidence", () => {
+  const fixture = completeSpecify("legacy-source");
+  const original = invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest]);
+  const originalChecksum = fs.readFileSync(original.checksum, "utf8");
+  const state = JSON.parse(fs.readFileSync(fixture.state, "utf8"));
+  state.source_action_level = "L3";
+  state.authority = { level: "L3", source_action_level: "L2" };
+  state.assumptions.push("Action level L3 permits implementation", { authority: { level: "L3" } });
+  state.history.push({ type: "action_level_changed", from: "L1", to: "L3" });
+  const ledger = path.join(fixture.runDir, "evidence.jsonl");
+  fs.appendFileSync(ledger, JSON.stringify({ kind: "decision", claim: "L3 grants implementation", source: "old", authority: { level: "L3" } }) + "\n");
+  state.evidence_count += 1;
+  const key = crypto.createHash("sha256").update(`analyze-state-key:${state.run_id}`).digest("hex");
+  state._state_signature = crypto.createHmac("sha256", key).update(JSON.stringify(state, Object.keys(state).sort().filter(key => key !== "_state_signature"))).digest("hex");
+  writeJson(fixture.state, state);
+  const ledgerBytes = fs.readFileSync(ledger, "utf8");
+  invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest, "--force"], 1);
+  runState(["migrate", "--state", fixture.state]);
+  const migrated = JSON.parse(fs.readFileSync(fixture.state, "utf8"));
+  if (!migrated.historical_compatibility.records.length || !migrated.historical_compatibility.evidence.length) throw new Error("historical data was lost");
+  if (migrated.history.at(-2).type !== "action_level_changed") throw new Error("audit history was lost");
+  if (fs.readFileSync(ledger, "utf8") !== ledgerBytes) throw new Error("evidence ledger was rewritten");
+  if (/\bL[0-3]\b|source_action_level/.test(fs.readFileSync(path.join(fixture.runDir, "checkpoint.md"), "utf8"))) throw new Error("legacy checkpoint leaked");
+  if (runState(["migrate", "--state", fixture.state]).changed) throw new Error("migration is not idempotent");
+  const exported = invoke(exporter, ["--state", fixture.state, "--input", fixture.manifest, "--force"]);
+  const packet = JSON.parse(fs.readFileSync(exported.packet, "utf8"));
+  if (/\bL[0-3]\b|source_action_level|historical_compatibility/.test(JSON.stringify(packet.context))) throw new Error("legacy context leaked");
+  if (!packet.evidence_ledger.events.at(-1).historical_compatibility) throw new Error("historical evidence not isolated");
+  if (fs.readFileSync(exported.checksum, "utf8") === originalChecksum) throw new Error("checksum was not renewed");
+  if (!invoke(verifier, ["--packet", exported.packet]).ok) throw new Error("migrated packet failed");
 });
 
 const failed = tests.filter((item) => !item.ok);

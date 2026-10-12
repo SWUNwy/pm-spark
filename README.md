@@ -1,10 +1,18 @@
-# spec-analyze
+# PM Spark
 
 **产品经理工作伴侣——按 PM 实际处境提供帮助，从需求理解到研发交付全程覆盖。**
 
-spec-analyze 是一个 AI 代理 skill，识别 PM 当前的工作处境，路由到对应的模式执行。五种工作模式：理解问题 / 挑战需求 / 设计方案 / 规格化与交付 / 做决策。
+pm-spark 是一个 AI 代理 skill，使用 `$pm-spark` 调用，识别 PM 当前的工作处境，路由到对应的模式执行。五种工作模式：理解问题 / 挑战需求 / 设计方案 / 规格化与交付 / 做决策。
 
-当前版本：**v5.0.0**（完整变更见 [CHANGELOG.md](CHANGELOG.md)）。
+当前版本：**v6.1.0**（完整变更及迁移见 [CHANGELOG.md](CHANGELOG.md)）。
+
+开发检查：`node scripts/check-v6-contract.cjs`；发布检查：`node scripts/check-v6-contract.cjs --release`。开发检查允许行为 `not_run` / `blocked`，其 `ok` 仅说明静态契约有效；只有全部真实对话通过、浏览器通过且证据完整可定位时，`release_ready` 才为 `true`。当前行为尚未运行、浏览器受阻，不能宣称发布完成。历史仓库 URL 仍为下方真实地址；安装后的 skill 目录名使用 `pm-spark`。
+
+PM 只需要理解五种工作模式、当前阶段和交付状态（草稿 / 待确认 / 已就绪 / 受阻）。行动等级和注释等级已移除；宿主权限留在执行机制中，交付就绪不自动授权实施。
+
+日常使用默认轻量：每轮最多问一个影响结论的关键问题，信息够用就交付并停止。轻量 / 标准 / 深度只调整交互深度；按需增加比较、证据与压力测试，不增加权限或注释层级。PRD 写清产品需求，原型注释描述组件交互，Spec 在确认范围、验收标准和非目标后输出三文档；请求一种交付物不会自动扩展到全部文档。
+
+行为验收场景见 [PM 行为验收](references/pm-behavior-acceptance.md)。
 
 ---
 
@@ -21,9 +29,9 @@ open demo/demo.html
 
 演示页展示优惠券管理改版评审原型：左侧产品原型组件带编号徽标锚点，右侧「PRD 注释」面板展示 PM 6字段注释（功能定位/交互逻辑/状态说明/边界条件），悬停左侧组件右侧自动高亮滚动，点击右侧注释左侧原型跳转到对应组件：
 
-![spec-analyze demo — 优惠券创建场景](demo/screenshot-1.png)
+![PM Spark demo — 优惠券创建场景](demo/screenshot-1.png)
 
-![spec-analyze demo — 优惠券核销场景](demo/screenshot-2.png)
+![PM Spark demo — 优惠券核销场景](demo/screenshot-2.png)
 
 ---
 
@@ -82,6 +90,10 @@ open demo/demo.html
 
 **PM 注释内容边界**（硬约束，不出现）：API路径、HTTP状态码、CSS像素值、timing参数、aria属性、i18n key
 
+注释统一为 `summary / feature / logic / states / boundary / copy`，除可选文案外均需填完整。代理按组件类型核对行为与状态，PM 无需理解注释等级。`node scripts/validate-annotations.js <HTML/Markdown/JSON>` 检查字段与锚点；旧 blocks/VIEW_DESCS 只支持 `--legacy` 显式兼容读取，`--migrate` 写出独立 `.pm.json` 草稿，不带旧等级字段。
+
+注释回归：`node scripts/test-annotations.cjs`；模板同步：`node scripts/test-relationship-layer.cjs`；交付契约：`node scripts/test-delivery-contract.cjs`。
+
 ---
 
 ### 模式五：做决策
@@ -96,7 +108,9 @@ open demo/demo.html
 
 ## 模式衔接
 
-模式之间自然衔接，每个模式结束时主动提示下一步：
+运行状态只记录工作进展、证据与质量门禁；具体动作遵循宿主当前策略及用户已有授权。交接包的 `authority.host_policy` / `authority.approval` 说明下游执行边界，Spec 就绪不自动授予实施或外部动作权限。旧运行状态使用 `node scripts/run-state.cjs migrate --state <state.json>` 清理已废弃的权限等级字段。
+
+模式之间按需要自然衔接；当前请求够用即可结束，最多给一个可选下一步，不自动展开全部工作流：
 
 ```
 理解问题 → 挑战需求（发现有问题）/ 设计方案（问题清楚了）
@@ -109,7 +123,7 @@ open demo/demo.html
 ## 目录结构
 
 ```
-spec-analyze/
+pm-spark/
 ├── SKILL.md                    # 主入口：五模式路由与执行协议
 ├── demo/
 │   ├── demo.html               # 可视化演示（无 SVG 连线，编号徽标 + 滚动联动）
@@ -118,7 +132,7 @@ spec-analyze/
 └── references/
     ├── annotation-output-templates.md   # 权威 HTML 模板 + v4.0 JS + PM schema
     ├── annotation-example.md            # PM 注释示例（6字段格式 + 禁止内容清单）
-    ├── annotation-templates.md          # T1-T11 组件类型模板（工程交接路径）
+    ├── annotation-templates.md          # PM 六字段、组件类型与完整性规则
     ├── delivery-contract.json           # 字段层级：PM/Implementation/Acceptance
     ├── html-annotation-system.md        # 徽标锚定系统 + 双向高亮协议
     ├── personas.md                      # 5个专家角色（按模式意图选用）
@@ -136,8 +150,10 @@ spec-analyze/
 
 ## 版本
 
+- **v6.1.0**：入口统一为 PM Spark；补齐标准深度、模式衔接、变更与恢复场景；开发与发布检查分离；15 个 PM 行为场景通过受控回放与独立评审；澄清设计方案（发散）与做决策（收敛）边界。
+- **v6.0.0**：移除行动等级与注释等级；够用即停、每轮一个关键问题；交互深度与宿主权限分离；新增 PM 行为验收。
 - **v5.0.0**：架构重构——复杂度三路径改为 PM 处境五模式；新增挑战需求（模式二）和做决策（模式五）；意图识别路由替代关键词匹配
-- **v4.0.0**：注释系统重构——移除 SVG 连线改用编号徽标；注释 schema 从 L1/L2/L3 改为 PM 6字段；delivery-contract.json 字段层级修正
+- **v4.0.0**：注释系统重构——移除 SVG 连线改用编号徽标；统一 PM 六字段；delivery-contract.json 字段层级修正
 - **v3.x**：原规格驱动开发分析引擎（Lightweight/Standard/Full 路径）
 
 完整变更见 [CHANGELOG.md](CHANGELOG.md)。

@@ -1,4 +1,4 @@
 interface:
-  display_name: "Spec Analyze"
-  short_description: "需求分析与带研发注释的方案输出（可恢复闭环引擎）"
-  default_prompt: "Use $spec-analyze to run or resume this evidence-aware analysis and its verified Claude Code handoff workflow."
+  display_name: "PM Spark"
+  short_description: "产品经理工作伴侣：理解问题、挑战需求、设计方案、交付与决策"
+  default_prompt: "Use $pm-spark to help with the current PM task or resume confirmed progress. Choose the relevant work mode, ask at most one critical question per turn, and stop when the requested result is sufficient."

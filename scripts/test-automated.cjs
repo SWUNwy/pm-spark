@@ -148,10 +148,10 @@ register("harness-004-transition-validation", {
   }
 });
 
-// 5. Action level check
-register("harness-005-action-level", {
+// 5. Removed action command
+register("harness-005-host-policy", {
   group: "harness",
-  description: "Action level command should report current level and permissions",
+  description: "Run state does not model permissions and rejects the removed action command",
   run: () => {
     const runId = `test-action-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
@@ -159,18 +159,18 @@ register("harness-005-action-level", {
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "action test", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
     const stateFile = initResult.parsed.state;
-    // Check action level status
-    const actionResult = run(RUN_STATE, ["action", "--state", stateFile]);
-    assertEq(actionResult.status, 0, "action exit code");
-    assertEq(actionResult.parsed.current_level, "L1", "default L1");
-    // Check a permitted action
-    const checkResult = run(RUN_STATE, ["action", "--state", stateFile, "--check", "read_project"]);
-    assertEq(checkResult.status, 0, "check exit code");
-    assert(checkResult.parsed.allowed, "L1 can read_project");
-    // Check a blocked action
-    const blockResult = run(RUN_STATE, ["action", "--state", stateFile, "--check", "execute"]);
-    assertEq(blockResult.status, 0, "blocked check exit code");
-    assert(!blockResult.parsed.allowed, "L1 cannot execute");
+    const before = fs.readFileSync(stateFile, "utf8");
+    const state = JSON.parse(before);
+    assert(!("action_level" in state) && !("authority" in state), "init has no legacy authority fields");
+    for (const options of [[], ["--check", "execute"], ["--set-level", "L3"]]) {
+      const result = run(RUN_STATE, ["action", "--state", stateFile, ...options]);
+      assertEq(result.status, 1, "removed action exit code");
+      assertEq(JSON.parse(result.stderr).error, "Unknown command", "removed action error");
+    }
+    assertEq(fs.readFileSync(stateFile, "utf8"), before, "removed command does not mutate state");
+    const checkpoint = run(RUN_STATE, ["checkpoint", "--state", stateFile]);
+    assertEq(checkpoint.status, 0, "checkpoint exit code");
+    assert(!/Action level|\bL[0-3]\b/i.test(fs.readFileSync(checkpoint.parsed.checkpoint, "utf8")), "checkpoint has no action level");
     return { passed: true };
   }
 });
@@ -2745,7 +2745,7 @@ register("phase10-001-delivery-contract", {
     const demo = fs.readFileSync(REVIEW_DEMO, "utf8");
     const variants = [
       ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "api": "INTERNAL_API_SENTINEL",'],
-      ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "acceptance_criteria": ["ACCEPTANCE_SENTINEL"],'],
+      ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "verification_commands": ["node test.js"],'],
       ['"heading": "优惠券创建",', '"heading": "优惠券创建",\n    "unknown_delivery_field": true,']
     ];
     for (const [needle, replacement] of variants) {

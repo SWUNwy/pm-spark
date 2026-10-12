@@ -1,0 +1,55 @@
+{
+  "type": "controlled_agent_replay",
+  "results": [
+    {
+      "id": "pm-010-intake-sufficiency",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-010-intake-sufficiency/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-002-challenge-request",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-002-challenge-request/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-011-intake-single-question",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/no-reminder/transcript.json",
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/missed-visible/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-015-session-recovery",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-015-session-recovery/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-013-mode-transition",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-013-mode-transition/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-009-stop-and-terms",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-009-stop-and-terms/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-005-prd-boundary",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-005-prd-boundary/main/transcript.json"
+      ]
+    },
+    {
+      "id": "pm-012-standard-depth",
+      "transcripts": [
+        "tests/pm-behavior/artifacts/controlled-20261012-final/pm-012-standard-depth/main/transcript.json"
+      ]
+    }
+  ],
+  "updated_at": "2026-10-12T06:31:05.788Z"
+}

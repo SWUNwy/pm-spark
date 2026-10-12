@@ -1,6 +1,14 @@
 {
-  "version": "3.5.0",
-  "description": "Regression and harness tests for spec-analyze (v3.0: closed-loop engine, Chinese documentation, checkpoint auto-sync).",
+  "version": "6.1.0",
+  "description": "Regression, harness, and PM behavior acceptance tests for pm-spark v6.1.",
+  "behavior_acceptance": {
+    "stage": "v6.1-phase-1",
+    "scenarios": "pm-behavior/scenarios.json",
+    "results_template": "pm-behavior/results.template.json",
+    "results": "pm-behavior/results.json",
+    "required_status": "passed",
+    "real_conversation_required": true
+  },
   "required_groups": {
     "router": 4,
     "explore": 3,

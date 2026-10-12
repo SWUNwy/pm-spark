@@ -54,7 +54,7 @@ function makeFixture(id) {
     context: { scope: ["CRM"], non_goals: ["billing"], assumptions: ["RBAC exists"], acceptance_evidence: ["AC-1"], decisions: [{ line: 1, kind: "decision", claim: "Use scoped roles" }] },
     evidence_ledger: { path: path.relative(root, evidence), sha256: shaFile(evidence), event_count: 1, events: [{ line: 1, kind: "decision", claim: "Use scoped roles" }] },
     execution: { target_stage: "plan", recommended_skill: "plan-authoring", objective: `Implement ${id}`, steps: [{ id: "S1", action: "Implement" }], verification: ["Run tests"], constraints: [] },
-    authority: { source_action_level: "L2", grants_implementation_authority: false, grants_external_action_authority: false, rule: "Host policy applies" },
+    authority: { host_policy: "Host policy applies", approval: "Use existing user authorization and obtain additional approval when required by the host", grants_implementation_authority: false, grants_external_action_authority: false, rule: "Host policy applies" },
     feedback: { path: path.relative(root, feedback), format: "jsonl", append_only: true, required_fields: ["timestamp", "kind", "step_id", "claim", "evidence", "impact", "recommended_route"] }
   };
   const serialized = `${JSON.stringify(packet, null, 2)}\n`;

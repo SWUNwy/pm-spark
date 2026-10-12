@@ -63,6 +63,18 @@ test("initializes a valid run", () => {
   if (!result.ok || result.status !== "intake") throw new Error("initialized state did not validate");
 });
 
+test("rejects legacy authority fields in contracts", () => {
+  run(["init", "--root", tempRoot, "--goal", "Contract compatibility", "--run-id", "legacy-contract"]);
+  const file = statePath("legacy-contract");
+  const before = fs.readFileSync(file, "utf8");
+  for (const contract of [{ action_level: "L3" }, { authority: { level: "L3" } }, { authority: { source_action_level: "L2" } }]) {
+    const input = writeJson(path.join(tempRoot, "legacy-contract.json"), contract);
+    const result = run(["contract", "--state", file, "--input", input], 1);
+    if (!String(result.error).includes("unsupported")) throw new Error("legacy contract was accepted");
+    if (fs.readFileSync(file, "utf8") !== before) throw new Error("rejected contract changed state");
+  }
+});
+
 test("rejects illegal direct completion", () => {
   run(["init", "--root", tempRoot, "--goal", "Illegal transition test", "--run-id", "illegal-complete"]);
   const result = run(["transition", "--state", statePath("illegal-complete"), "--to", "completed", "--reason", "skip"], 1);
@@ -265,6 +277,28 @@ test("migrates an old state without overwriting existing gates", () => {
   if (invalid.gate.status !== "fail") throw new Error("failed adversarial review was not recorded");
 });
 
+test("migrates legacy permission fields even with all built-in gates present", () => {
+  run(["init", "--root", tempRoot, "--goal", "Legacy permissions", "--run-id", "migrate-permissions"]);
+  const file = statePath("migrate-permissions");
+  const state = JSON.parse(fs.readFileSync(file, "utf8"));
+  state.action_level = "L3";
+  state.source_action_level = "L2";
+  state.authority = { level: "L3", source_action_level: "L2", notes: "Set by action command", approval: "Existing user authorization" };
+  state.history.push({ type: "action_level_changed", from: "L1", to: "L3" });
+  signTestState(state);
+  writeJson(file, state);
+  const migrated = run(["migrate", "--state", file]);
+  if (!migrated.changed || migrated.added_gates.length || migrated.removed_fields.length !== 5) throw new Error("permission-only migration failed");
+  const after = JSON.parse(fs.readFileSync(file, "utf8"));
+  if ("action_level" in after || "source_action_level" in after || "level" in after.authority || "source_action_level" in after.authority) throw new Error("legacy fields remain");
+  if (after.authority.approval !== "Existing user authorization") throw new Error("unrelated approval was lost");
+  if (after.history.at(-1).type !== "state_migrated" || after.history.at(-2).type !== "action_level_changed") throw new Error("migration history was not preserved");
+  const checkpoint = fs.readFileSync(path.join(path.dirname(file), "checkpoint.md"), "utf8");
+  if (/Action level|\bL[0-3]\b/i.test(checkpoint)) throw new Error("checkpoint still reports a level");
+  if (!run(["validate", "--state", file]).ok) throw new Error("migrated state is invalid");
+  if (run(["migrate", "--state", file]).changed) throw new Error("permission migration is not idempotent");
+});
+
 test("migration rejects unsigned state", () => {
   run(["init", "--root", tempRoot, "--goal", "Unsigned migration", "--run-id", "migrate-unsigned"]);
   const stateFile = statePath("migrate-unsigned");
@@ -273,6 +307,42 @@ test("migration rejects unsigned state", () => {
   fs.writeFileSync(stateFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
   const result = run(["migrate", "--state", stateFile], 1);
   if (!String(result.error).includes("signature")) throw new Error("unsigned migration was accepted");
+});
+
+test("quarantines legacy assumptions and working memory without rewriting audit evidence", () => {
+  run(["init", "--root", tempRoot, "--goal", "Compatibility isolation", "--run-id", "isolate-context"]);
+  const file = statePath("isolate-context");
+  const state = JSON.parse(fs.readFileSync(file, "utf8"));
+  state.assumptions = ["Keep RBAC", "L2 allows writes", { source_action_level: "L3" }, { authority: { level: "L1" } }];
+  state.working_memory = { active_decisions: [{ content: "Action level L3 approved" }, { content: "Keep RBAC" }] };
+  state.history.push({ type: "action_level_changed", from: "L1", to: "L3" });
+  const ledger = path.join(path.dirname(file), "evidence.jsonl");
+  const evidence = JSON.stringify({ kind: "decision", claim: "L3 permits execution", source: "legacy", status: "supports" }) + "\n";
+  fs.writeFileSync(ledger, evidence);
+  state.evidence_count = 1;
+  signTestState(state);
+  writeJson(file, state);
+  run(["checkpoint", "--state", file]);
+  if (/\bL[0-3]\b|source_action_level/.test(fs.readFileSync(path.join(path.dirname(file), "checkpoint.md"), "utf8"))) throw new Error("pre-migration checkpoint propagated old levels");
+  const historyBefore = JSON.parse(fs.readFileSync(file, "utf8")).history;
+  run(["migrate", "--state", file]);
+  const after = JSON.parse(fs.readFileSync(file, "utf8"));
+  if (JSON.stringify(after.assumptions) !== '["Keep RBAC"]') throw new Error("current assumptions were contaminated or lost");
+  if (after.working_memory.active_decisions.length !== 1) throw new Error("legacy working memory remains active");
+  if (JSON.stringify(after.history.slice(0, -1)) !== JSON.stringify(historyBefore)) throw new Error("audit history was changed");
+  if (!after.historical_compatibility.excluded_from_current_context || after.historical_compatibility.records.length !== 4 || after.historical_compatibility.evidence.length !== 1) throw new Error("isolation archive is incomplete");
+  if (fs.readFileSync(ledger, "utf8") !== evidence) throw new Error("evidence bytes changed");
+  if (run(["migrate", "--state", file]).changed) throw new Error("isolation migration not idempotent");
+});
+
+test("checkpoint instructs evidence-first recovery without granting authority", () => {
+  run(["init", "--root", tempRoot, "--goal", "Resume PRD", "--run-id", "checkpoint-recovery"]);
+  const file = statePath("checkpoint-recovery");
+  run(["checkpoint", "--state", file]);
+  const checkpoint = fs.readFileSync(path.join(path.dirname(file), "checkpoint.md"), "utf8");
+  for (const phrase of [file, "this checkpoint is an index, not completion evidence", "without asking whether to continue", "do not authorize implementation"]) {
+    if (!checkpoint.includes(phrase)) throw new Error(`missing recovery instruction: ${phrase}`);
+  }
 });
 
 const failed = tests.filter((item) => !item.ok);

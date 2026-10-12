@@ -1,0 +1,21 @@
+{
+  "scenario_id": "pm-007-spec-boundary",
+  "evidence_type": "controlled_agent_replay",
+  "variant": "main",
+  "conversation": {
+    "user_turns": [
+      "输出待办提醒的 proposal、design、tasks。",
+      "确认所展示范围、验收标准与非目标。"
+    ],
+    "assistant_turns": [
+      "已读取本地 PM Spark 技能及 Spec 三文档所需引用，按“规格化与交付”处理。当前目录未发现待办提醒的业务说明或已确认方案；我会先整理一版最小范围供确认，避免把提醒渠道和触发规则直接写成既定需求。已读取本地 `SKILL.md`，以及当前模式所需的 `spec-templates.md`、`spec-document-reviewer-prompt.md`、`quality-checklists.md` 和交付边界。当前目录未发现待办提醒的业务上下文，以下为**建议范围，尚未确认**：\n\n| 项目 | 建议约定 |\n|---|---|\n| 用户与场景 | 用户为自己的待办设置提醒，在指定时间收到提示并返回处理待办 |\n| 范围 | 设置、修改和取消单次提醒；到时在应用内展示提醒；点击打开对应待办；已完成或删除的待办不再触发后续提醒 |\n| 可观察验收 | 保存后能看到提醒时间；修改后以新时间为准；取消后不再提醒；提醒能打开对应待办；保存失败时保留输入并允许重试 |\n| 非目标 | 重复提醒、稍后提醒、多人指派、邮件或短信提醒、系统推送、多端同步 |\n| 关键假设 | 首版采用应用内提醒；关闭应用期间的提醒如何补呈现，需要在设计中明确 |\n| 输出路径 | 当前目录 `docs/requirements/proposal.md`、`design.md`、`tasks.md` |\n\n**是否按这版范围生成三文档？** 可以直接回复“按此生成”，或指出需要调整的内容。\n\n此次确认依据本地 [SKILL.md]([PRIVATE]/pm-spark-validation-private/controlled-20261012-fix2/pm-007-spec-boundary/main/fixture/SKILL.md:227)：“Spec Freeze 确认（必须先完成，不得跳过）”。输出路径已继承现有授权；需要确认的是尚未提供的产品范围与验收约定。",
+      "已按确认范围生成待办提醒三文档，并重新读取核对：\n\n- [proposal.md](docs/requirements/proposal.md)：问题、目标、范围与非目标、8 项可观察验收标准、风险和待确认事项。\n- [design.md](docs/requirements/design.md)：设置、修改、取消、到时提示与跳转，以及完成删除、保存失败、重复操作等边界。\n- [tasks.md](docs/requirements/tasks.md)：4 个可追踪工作包，包含负责人、依赖、设计与验收引用、完成条件及状态。\n\n已核对范围与跨文档规则一致性、验收覆盖及工作包追踪，并修正了“尚未到期”状态的展示描述。\n\n当前交付为**可评审草稿**。唯一影响完整就绪的产品未决项是：应用关闭或不可交互期间到期的提醒，恢复后应补呈现，还是仅在详情标明已过期。该事项已在三文档中同步记录；具体负责人待分配。\n\n可选下一步：评审并确定这条到期恢复规则。"
+    ]
+  },
+  "runtime_paths": [
+    "tests/pm-behavior/artifacts/controlled-20261012-fix2/pm-007-spec-boundary/main/turn-0.runtime.json",
+    "tests/pm-behavior/artifacts/controlled-20261012-fix2/pm-007-spec-boundary/main/turn-1.runtime.json"
+  ],
+  "initial_artifacts": {},
+  "recorded_at": "2026-10-12T02:13:05.929Z"
+}

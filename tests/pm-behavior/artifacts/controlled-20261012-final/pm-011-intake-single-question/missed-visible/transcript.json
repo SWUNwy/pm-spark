@@ -1,0 +1,22 @@
+{
+  "scenario_id": "pm-011-intake-single-question",
+  "evidence_type": "controlled_agent_replay",
+  "variant": "missed-visible",
+  "conversation": {
+    "user_turns": [
+      "想减少投诉漏处理，但还不清楚是客服漏看，还是系统没有提醒。",
+      "已查明系统有提醒，但客服漏看；先给问题陈述和下一步。"
+    ],
+    "assistant_turns": [
+      "我会按本地 PM Spark 的「理解问题」模式梳理，先确认漏处理发生在哪个环节，再判断下一步该验证什么。\n目前能确定的是：你希望减少投诉漏处理，但漏处理的原因仍待确认。客服漏看和系统未提醒会指向不同的改进方向。\n\n**从最近一条漏处理的投诉来看，当时更接近哪种情况？**\n\n- A. 待办或提醒已经出现，但客服没有注意到。\n- B. 系统没有产生应有的待办或提醒。\n- C. 暂时无法判断。\n\n可以先选最接近的一项；如果是 C，下一步就先核对这条投诉当时的待办和提醒记录。",
+      "**问题陈述：** 在投诉处理场景中，系统已产生提醒，但客服漏看，导致投诉漏处理。当前需要解决的是如何让负责客服及时注意到待处理投诉，并将其纳入处理流程，目标是减少漏处理。\n\n**关键未知项：** 客服为什么漏看仍待验证，例如提醒入口不显眼、被其他消息淹没，或出现时机与客服工作节奏不匹配。现有信息还不足以确定具体改进方案。\n\n**建议下一步：** 选取近期漏处理的投诉，结合当事客服的实际操作回看提醒出现的位置、时机及当时工作情境，定位漏看的原因，再据此设计改进方案。后续应以投诉漏处理是否减少来判断效果，提醒查看率可作为辅助观察。"
+    ],
+    "branch_id": "missed-visible"
+  },
+  "runtime_paths": [
+    "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/missed-visible/turn-0.runtime.json",
+    "tests/pm-behavior/artifacts/controlled-20261012-final/pm-011-intake-single-question/missed-visible/turn-1.runtime.json"
+  ],
+  "initial_artifacts": {},
+  "recorded_at": "2026-10-12T02:19:27.178Z"
+}

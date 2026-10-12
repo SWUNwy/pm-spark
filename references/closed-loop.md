@@ -67,7 +67,7 @@ node scripts/run-state.cjs recall --state <state.json>
 - 已知输入与事实来源。
 - 待检验假设。
 - 验收证据与语义评分标准。
-- 授权等级与人工门禁。
+- 宿主策略、用户已有授权、必要的补充批准与人工门禁。
 - 最大修复迭代次数、时间/成本代理与停止条件。
 - 条件门禁标记：拆解、章节评审、人工承诺。
 
@@ -133,7 +133,7 @@ draft → deterministic validation → semantic rubric →
 
 ## Specify 交接快照
 
-Specify run 完成后，用 `scripts/export-handoff.cjs` 导出版本绑定包，并用 `scripts/verify-handoff.cjs` 验证。包内快照 state、Gates、证据、假设、决策、Spec 工件哈希与下游验证要求。工件或证据漂移使包失效，并把工作路由回 Specify/Repair。导出不增加 Execution 状态，也不授予 L3 授权。生产者与消费者契约见 `handoff-format.md`。
+Specify run 完成后，用 `scripts/export-handoff.cjs` 导出版本绑定包，并用 `scripts/verify-handoff.cjs` 验证。包内快照 state、Gates、证据、假设、决策、Spec 工件哈希与下游验证要求。工件或证据漂移使包失效，并把工作路由回 Specify/Repair。导出不增加 Execution 状态；交接包的 `authority.host_policy` / `authority.approval` 要求下游遵循宿主当前策略及用户已有授权，必要时补充批准。生产者与消费者契约见 `handoff-format.md`。
 
 Claude Code 续跑时初始化 `scripts/workflow-state.cjs`。把下游 Plan、批准、Execute、Verify 生命周期放在独立 workflow 状态中；不要把 Execution 重新引入 analyze 认知轨道。阶段契约与失败路由见 `workflow-orchestration.md`。
 

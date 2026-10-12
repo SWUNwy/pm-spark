@@ -6,7 +6,7 @@
 - Depth: standard
 
 ## 输入
-"我们需要决定使用哪种方案来实现 spec-analyze skill 的上下文质量评分：方案 A 是独立的评分脚本，方案 B 是集成到 run-state.cjs 中作为新命令。"
+"我们需要决定使用哪种方案来实现 pm-spark skill 的上下文质量评分：方案 A 是独立的评分脚本，方案 B 是集成到 run-state.cjs 中作为新命令。"
 
 ## 流程
 
@@ -16,6 +16,8 @@
 - Consistency: follows existing patterns
 - Testability: ease of automated testing
 - Dependency: coupling with other components
+
+Intake note: 只检查会改变本次推荐的缺口；不要求先补齐背景、用户、边界、指标和约束六个维度。
 
 ### 第 2 步：为每个选项收集证据
 

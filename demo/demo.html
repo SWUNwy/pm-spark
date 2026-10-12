@@ -131,6 +131,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-create-1",
         "title": "券面信息表单",
+        "type": "T6",
         "scopeMark": "existing",
         "summary": "填写券名称、类型和适用范围，必填项校验失败时行内提示，点击取消不保存草稿。",
         "annotation": {
@@ -143,6 +144,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-create-2",
         "title": "有效期限选择器",
+        "type": "T6",
         "scopeMark": "new",
         "summary": "支持固定时间段与领取后 N 天两种模式，切换模式时清空另一种已填值。",
         "annotation": {
@@ -155,6 +157,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-create-3",
         "title": "库存上限设置",
+        "type": "T6",
         "scopeMark": "adjusted",
         "summary": "设置发放总量和每人限领数，超出系统上限时截断并提示，清空视为不限量。",
         "annotation": {
@@ -175,6 +178,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-verify-1",
         "title": "核销二维码扫描",
+        "type": "T3",
         "scopeMark": "existing",
         "summary": "扫码成功后展示核销结果，连续失败 3 次后提示手动输入券码。",
         "annotation": {
@@ -187,6 +191,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-verify-2",
         "title": "核销结果页",
+        "type": "T10",
         "scopeMark": "new",
         "summary": "展示核销成功或失败结果，10 秒后自动返回扫码页。",
         "annotation": {
@@ -199,6 +204,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
       {
         "protoId": "coupon-verify-3",
         "title": "异常券处理",
+        "type": "T11",
         "scopeMark": "adjusted",
         "summary": "过期、冻结等不可用券统一走不可用态展示，点击查看规则弹层说明原因。",
         "annotation": {
@@ -234,7 +240,7 @@ body{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;backgr
 
   function renderAnnotation(ann){
     if (!ann || typeof ann !== 'object') return '';
-    return Object.keys(LABEL).filter(function(k){ return ann[k]; }).map(function(k){
+    return Object.keys(LABEL).filter(function(k){ return Object.prototype.hasOwnProperty.call(ann,k) && typeof ann[k] === 'string' && ann[k].trim(); }).map(function(k){
       return '<div class="ann-block"><div class="ann-label">' + LABEL[k] + '</div>'
         + '<div class="ann-text">' + String(ann[k]).replace(/\n/g,'<br>') + '</div></div>';
     }).join('');

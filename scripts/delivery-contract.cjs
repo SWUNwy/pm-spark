@@ -63,6 +63,22 @@ function validateContract(contract) {
   return { ok: errors.length === 0, errors };
 }
 
+function findEngineeringContent(text) {
+  const patterns = [
+    /\b(?:GET|POST|PUT|DELETE|PATCH)\s+\/[^\s`<]+|\/api\/[\w/{]/i,
+    /(?:^|[\s`"'])(?:[\w.-]+\/)+[\w.-]+\.(?:[cm]?[jt]sx?|py|go|rs|java|sh|vue|svelte)(?=$|[\s`"':])/i,
+    /\b(?:npm|pnpm|yarn)\s+(?:run\s+)?(?:test|build|lint|check)\b|\b(?:node|python3?|pytest|jest|vitest|curl)\s+[^\s]+/i,
+    /错误码\s*[:：=]?\s*[`"']?(?:\d{3}|[A-Z][A-Z_\d]+)|\bHTTP\s*(?:状态码\s*)?[45]\d{2}\b|(?:返回|响应|状态码)\s*[45]\d{2}/
+  ];
+  const findings = [];
+  String(text).split(/\r?\n/).forEach((line, index) => {
+    for (const pattern of patterns) {
+      if (pattern.test(line)) findings.push({ line: index + 1, pattern: pattern.source });
+    }
+  });
+  return findings;
+}
+
 function filterDelivery(document, targetLayer, contract) {
   const contractResult = validateContract(contract);
   if (!contractResult.ok) {
@@ -76,6 +92,9 @@ function filterDelivery(document, targetLayer, contract) {
   const owners = contract.field_owners;
   function visit(value, path) {
     if (Array.isArray(value)) return value.map((item, index) => visit(item, `${path}[${index}]`));
+    if (typeof value === "string" && targetLayer === "product" && findEngineeringContent(value).length) {
+      throw new ContractError("ENGINEERING_CONTENT", `Engineering content in product field: ${path}`, { path });
+    }
     if (!value || typeof value !== "object") return value;
     const output = {};
     for (const [field, child] of Object.entries(value)) {
@@ -92,4 +111,4 @@ function filterDelivery(document, targetLayer, contract) {
   return visit(document, "$");
 }
 
-module.exports = { ContractError, loadContract, validateContract, filterDelivery };
+module.exports = { ContractError, loadContract, validateContract, filterDelivery, findEngineeringContent };

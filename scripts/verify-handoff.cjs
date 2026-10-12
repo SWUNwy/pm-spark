@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { legacyPaths } = require("./historical-compatibility.cjs");
 
 function parseArgs(argv) {
   const out = {};
@@ -65,9 +66,23 @@ function main() {
     if (!packet.source || packet.source.track !== "specify" || packet.source.status !== "completed") errors.push("Packet source must be a completed Specify run");
     if (!packet.readiness || packet.readiness.status !== "ready") errors.push("Packet readiness is not ready");
     if (!packet.authority || packet.authority.grants_implementation_authority !== false || packet.authority.grants_external_action_authority !== false) errors.push("Packet authority boundary is missing or unsafe");
+    for (const key of ["host_policy", "approval"]) {
+      if (typeof packet.authority?.[key] !== "string" || !packet.authority[key].trim()) errors.push(`authority.${key} must be a non-empty string; migrate source state and re-export with a new checksum`);
+    }
+    for (const field of legacyPaths(packet)) errors.push(`Legacy field or semantics at ${field}; migrate source state and re-export with a new checksum`);
+    if (packet.context && JSON.stringify(packet.context).includes("historical_compatibility")) errors.push("Historical compatibility data must not enter current context");
     const root = packet.source && packet.source.project_root ? path.resolve(packet.source.project_root) : path.dirname(packetFile);
     checkSnapshot(packet.source && packet.source.state, root, "state", errors);
     checkSnapshot(packet.source && packet.source.checkpoint, root, "checkpoint", errors, true);
+    const sourceStateFile = packet.source?.state?.path && resolveRef(packet.source.state.path, root);
+    if (sourceStateFile && fs.existsSync(sourceStateFile)) {
+      try {
+        const state = JSON.parse(fs.readFileSync(sourceStateFile, "utf8"));
+        if (legacyPaths({ ...state, history: [] }).length || (legacyPaths(state.history).length && !state.historical_compatibility)) errors.push("Legacy source state must be migrated before re-export");
+      } catch { errors.push("Source state is invalid JSON"); }
+    }
+    const checkpointFile = packet.source?.checkpoint?.path && resolveRef(packet.source.checkpoint.path, root);
+    if (checkpointFile && fs.existsSync(checkpointFile) && legacyPaths(fs.readFileSync(checkpointFile, "utf8")).length) errors.push("Checkpoint contains legacy current summary; migrate source state and re-export");
     checkSnapshot(packet.source && packet.source.result, root, "result", errors, true);
     if (!Array.isArray(packet.artifacts) || packet.artifacts.length === 0) errors.push("Packet has no Spec artifacts");
     else for (const artifact of packet.artifacts) checkSnapshot(artifact, root, `artifact(${artifact.role || "unknown"})`, errors);

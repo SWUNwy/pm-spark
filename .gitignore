@@ -10,3 +10,15 @@
 
 # Hot-pluggable knowledge assets (company-specific, not open source)
 knowledge/
+
+# Controlled-replay evidence: keep only the final acceptance run's locatable
+# evidence (transcript.json, review.json, turn-*.runtime.json, initial/,
+# manifests). Exclude historical run directories, per-scenario fixture copies
+# (they duplicate the repo's own SKILL.md/references/scripts), and raw
+# stdout/stderr streams (originals retained under the private evidence dir).
+tests/pm-behavior/artifacts/*
+!tests/pm-behavior/artifacts/controlled-20261012-final/
+tests/pm-behavior/artifacts/controlled-20261012-final/**/fixture/
+tests/pm-behavior/artifacts/controlled-20261012-final/**/*.stdout.jsonl
+tests/pm-behavior/artifacts/controlled-20261012-final/**/*.stderr.log
+tests/pm-behavior/artifacts/controlled-20261012-final/**/turn-*.input.json

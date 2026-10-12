@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * validate-prd.js
- * spec-analyze 评审就绪 PRD 完整性验证脚本 v3.6
+ * 产品 PRD 与显式工程规格完整性验证
  *
+ * 默认 profile: product-prd；--profile engineering-spec / legacy 为显式工程或旧文档校验。
  * 用法:
  *   node scripts/validate-prd.js <path/to/prd.md>           # 验证 Markdown PRD
  *   node scripts/validate-prd.js <path/to/prd.html>         # 验证 HTML 内嵌 PRD
@@ -14,6 +15,9 @@
  */
 
 const fs = require('fs');
+const { findEngineeringContent } = require('./delivery-contract.cjs');
+const PROFILES = ['product-prd', 'engineering-spec', 'legacy'];
+const ENGINEERING_RULES = new Set(['RC-31', 'RC-43']);
 
 // ============================================================
 // RC 规则定义
@@ -252,19 +256,39 @@ function main() {
   const raw = fs.readFileSync(targetPath, 'utf-8');
   const normalized = normalizeText(raw);
   const { lines } = normalized;
-  const results = RC_RULES.map(rule => {
+  const profileArg = args.find(arg => arg.startsWith('--profile='));
+  const profileIndex = args.indexOf('--profile');
+  const profile = profileArg ? profileArg.slice('--profile='.length) : profileIndex >= 0 ? args[profileIndex + 1] : 'product-prd';
+  if (!PROFILES.includes(profile)) {
+    console.error(`未知 profile: ${profile}；支持 ${PROFILES.join(', ')}`);
+    process.exit(1);
+  }
+  const rules = profile === 'product-prd' ? RC_RULES.filter(rule => !ENGINEERING_RULES.has(rule.id)) : RC_RULES;
+  const results = rules.map(rule => {
     const { pass, matches } = checkRule(rule, lines, normalized);
-    return {
-      id: rule.id,
-      group: rule.group,
-      severity: rule.severity,
-      name: rule.name,
-      pass,
-      matches
-    };
+    return { id: rule.id, group: rule.group, severity: rule.severity, name: rule.name, pass, matches };
   });
+  if (profile === 'product-prd') {
+    for (const rule of [
+      { id: 'PRD-USERS', group: 'B', severity: 'error', name: '用户与场景', match: [/用户|使用者|角色/, /场景/] },
+      { id: 'PRD-SCOPE', group: 'C', severity: 'error', name: '范围与非目标', match: [/范围/, /非目标|不包含|不做/] }
+    ]) {
+      const { pass, matches } = checkRule(rule, lines, normalized);
+      results.push({ ...rule, match: undefined, pass, matches });
+    }
+    const findings = findEngineeringContent(normalized.text);
+    results.push({ id: 'PRD-BOUNDARY', group: 'D', severity: 'error',
+      name: '产品 PRD 不得混入接口、错误码、代码路径或验证命令；请拆分并显式选择 engineering-spec',
+      pass: findings.length === 0, matches: findings });
+    const criteria = lines.filter(line => /AC-\d+/i.test(line));
+    results.push({ id: 'PRD-AC', group: 'E', severity: 'error',
+      name: '验收标准须包含用户操作或场景与可观察预期结果',
+      pass: criteria.length > 0 && criteria.every(line => /→|->|预期|显示|看到|可见|提示|保持|不能|无法|可以|可操作|可选择|不执行|跳转|出现/.test(line)), matches: [] });
+  }
 
   const report = generateReport(results, targetPath);
+  report.json.profile = profile;
+  report.text = `Profile: ${profile}\n${report.text}`;
 
   if (isList) {
     for (const r of results.filter(r => !r.pass)) {

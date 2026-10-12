@@ -1,0 +1,11 @@
+{
+  "code": 0,
+  "signal": null,
+  "timedOut": false,
+  "result": "已按本地 SKILL.md 的 PRD 模式读取所需引用，并核对 state.json、checkpoint.md 和已有 [prd.md]([PRIVATE]/pm-spark-validation-private/controlled-20261012-final/pm-015-session-recovery/main/fixture/prd.md)。三者一致，当前仍是**待确认草稿，尚未实施**。\n\n继承上次已确认的规则：\n\n- 仅提醒负责人，超时未完成待办每天最多一次。\n- 待办完成后停止提醒。\n- 不提醒主管，不增加人手。\n\n当前阻塞项是**发送失败后的恢复与可见提示**，它会影响「每天最多一次」的计数方式及异常验收标准。\n\n建议采用：失败后显示「提醒发送失败」，当天不再补发；次日待办仍超时且未完成时，再按原规则提醒。这样能保持每天最多一次的边界，也避免连续补发带来打扰。这是建议，尚未写成已确认规则。\n\n**发送失败后，你倾向采用上述「提示失败、次日再提醒」，还是允许当天补发？**",
+  "session_id": "c5cecebd-fab6-4fab-a5a4-facd67b234ae",
+  "permission_denials": [],
+  "is_error": false,
+  "stderr": "",
+  "recorded_at": "2026-10-12T02:21:21.606Z"
+}

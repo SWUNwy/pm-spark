@@ -6,7 +6,7 @@
 - Depth: standard
 
 ## 输入
-"为 spec-analyze skill 实现一个 'context-score' 命令，能够计算 5 维度的上下文质量评分，包含 signal_to_noise、information_freshness、working_memory_utilization、context_coherence 和 relevance_decay。"
+"为 pm-spark skill 实现一个 'context-score' 命令，能够计算 5 维度的上下文质量评分，包含 signal_to_noise、information_freshness、working_memory_utilization、context_coherence 和 relevance_decay。"
 
 ## 流程
 
@@ -20,6 +20,7 @@
 - **非目标**：
   - 不直接修改模型行为
   - 不把评分持久化到 state（只读分析）
+- 当前交付是 Spec，范围、契约和验收缺一项会改变交付类型或可执行性时，每轮只补一个关键项。
 
 ### 第 2 步：定义范围边界
 - **范围内**：

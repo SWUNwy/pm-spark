@@ -1,6 +1,10 @@
 # 交接包协议（Handoff Packet Protocol）
 
-在 `Specify` run 完成、下一阶段将由宿主代理或其他 Skill 处理时使用本协议。包保留已验证的分析边界；**它不授权实施**。
+在 `Specify` run 完成且用户明确请求下游交接、下一阶段将由宿主代理或其他 Skill 处理时使用本协议。包保留已验证的分析边界；**它不授权实施**。
+
+产品交付物始终为 `proposal.md` + `design.md` + `tasks.md`，详略不改变文件数量。`tasks.md` 是可追踪工作包，不能作为已获授权的执行计划。`test-cases`、`tests/`、API、events 仅在需求类型适用且用户明确请求时作为附录；subtype、风险或 constitution 都不能隐式扩张工件。
+
+本协议的 manifest、哈希、门禁证据与验证要求是内部机器交接数据，不进入 PM 产品输出。完成三文档不要求导出包或准备执行计划；用户输出只提供一个符合当前需要的可选下一步。
 
 ## 导出前置条件
 
@@ -28,7 +32,9 @@
   },
   "spec_subtypes": ["form_data_heavy", "product_frontend"],
   "spec_artifacts": [
-    { "path": "specs/crm.md", "role": "primary_spec" }
+    { "path": "specs/proposal.md", "role": "proposal" },
+    { "path": "specs/design.md", "role": "design" },
+    { "path": "specs/tasks.md", "role": "work_packages" }
   ],
   "execution_plan": {
     "objective": "Implement the verified CRM Spec",
@@ -83,21 +89,29 @@ node <skill-dir>/scripts/verify-handoff.cjs \
 | `context` | Goal、范围、非目标、假设、验收证据、声明的 Spec Subtypes 与决策事件 |
 | `evidence_ledger` | 证据文件引用、SHA-256、条数与全部解析事件（含行号） |
 | `execution` | 目标 stage/Skill、有界步骤、验证与约束 |
-| `authority` | 显式声明：包不授予任何实施或外部授权 |
+| `authority` | `host_policy` 说明宿主当前仓库、测试与安全策略；`approval` 说明沿用用户已有授权、必要时补充批准；包不授予实施或外部授权 |
 | `feedback` | 执行发现的追加式位置与必需事件字段 |
+
+## 旧包迁移与历史隔离
+
+验证器拒绝当前数据中的 `action_level`、`source_action_level`、`authority.level`、`authority.source_action_level` 及旧等级语义；`authority.host_policy` 与 `authority.approval` 必须为非空字符串。旧字段即使重算 checksum 也不能使旧包通过验证。
+
+旧包必须回到具有有效签名的源 `state.json`，运行 `run-state.cjs migrate --state <run-dir>/state.json`，再运行 `export-handoff.cjs --state <run-dir>/state.json --input <handoff-input.json> --force`。导出器重新绑定源 state、checkpoint 与证据哈希，并生成新的包 checksum；不支持直接修补旧包绕过源迁移。
+
+迁移保留原始 `history` 与追加式审计日志、证据文件原始字节。旧等级字段、相关 assumptions 与 working memory 移入 `state.historical_compatibility`，显式标记 `excluded_from_current_context=true`；历史事件与旧证据也在此隔离区登记。它们不能作为当前状态、授权或规划依据。checkpoint 的当前摘要排除旧等级假设与证据；新包 `context` 只包含当前假设与当前决策。`evidence_ledger.events` 中的旧事件以 `historical_compatibility.original_event` 包装，保留行号与源文件哈希，消费者只能将其用于历史审计。
 
 ## Spec Subtype 传播
 
-`context.spec_subtypes` 把 Specify 阶段声明的 Spec Subtype（见 `spec-templates.md`）带进每个下游阶段。下游 skill 据此知道哪些扩展区块应已起草、哪些验证维度适用。
+`context.spec_subtypes` 是内部适用性提示，不授权生成工程附录。产品三文档根据实际行为覆盖下表内容；下游只有在用户已请求相应工程交接时才展开技术契约或验证细节。
 
-| Subtype 值 | 上游必需起草的 Spec 区块 | 下游强制 |
+| Subtype 值 | 产品设计覆盖 | 请求工程交接后适用的检查 |
 |---|---|---|
-| `form_data_heavy` | Field List、Display Rules、Edit Rules、Validation Rules | Plan 必须包含字段级任务；Verify 必须检查 Validation Rules 覆盖 |
-| `product_frontend` | Page Inventory、Key Interactions | Plan 必须包含页面/交互任务；Verify 必须检查交互错误态 |
-| `event_driven` | Events Emitted、Side Effects、Subscribers | Plan 必须包含事件契约任务；Verify 必须检查幂等性与订阅者失败路径 |
-| `infrastructure_algorithm` | 无（仅核心层） | Plan/Verify 仅应用核心维度 |
+| `form_data_heavy` | 字段含义、展示、编辑、业务校验与反馈 | 字段与数据映射、规则覆盖 |
+| `product_frontend` | 页面、操作、可见状态与异常反馈 | 页面/交互工作包与错误态 |
+| `event_driven` | 异步结果、副作用与失败补救 | 明确请求的 events 契约、幂等与失败路径 |
+| `infrastructure_algorithm` | 行为变化、指标与兼容边界 | 明确请求的技术与性能验证 |
 
-`spec_subtypes` 为空或缺失时，下游消费者按 core-only 处理并发警告。没有匹配 subtype 却包含扩展层工作的计划是可疑的——计划评审应标记此不匹配。
+类型缺失时结合设计与范围确认判断，不能默认补 API、events 或 tests。适用但未请求的技术内容记录未展开原因；不适用写具体原因。
 
 ## 消费者协议
 

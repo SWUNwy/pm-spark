@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const { legacyPaths, currentItems, historicalEvidence } = require("./historical-compatibility.cjs");
 
 function now() { return new Date().toISOString(); }
 
@@ -124,6 +125,7 @@ function main() {
   const stateFile = path.resolve(requireArg(args, "state"));
   const inputFile = path.resolve(requireArg(args, "input"));
   const state = readJson(stateFile, "State file");
+  if (legacyPaths({ ...state, history: [] }).length || (legacyPaths(state.history).length && !state.historical_compatibility)) abort("Legacy source state requires run-state migrate, re-export and a new checksum");
   const manifest = readJson(inputFile, "Handoff input");
   validateManifest(manifest);
   const runDir = path.dirname(stateFile);
@@ -142,6 +144,7 @@ function main() {
   }
   const evidenceFile = path.resolve(runDir, state.files && state.files.evidence ? state.files.evidence : "evidence.jsonl");
   const evidenceEvents = readEvidence(evidenceFile);
+  if (legacyPaths(evidenceEvents).length && state.historical_compatibility?.evidence_sha256 !== sha256File(evidenceFile)) abort("Legacy evidence requires source state migration before re-export");
   if (Number.isInteger(state.evidence_count) && state.evidence_count !== evidenceEvents.length) abort("Evidence count does not match ledger", { state_count: state.evidence_count, ledger_count: evidenceEvents.length });
   const artifacts = manifest.spec_artifacts.map((entry) => resolveArtifact(entry, projectRoot));
   const specSubtypes = (Array.isArray(manifest.spec_subtypes) && manifest.spec_subtypes.length > 0)
@@ -154,6 +157,7 @@ function main() {
     evaluated_at: state.gates[id].evaluated_at
   }));
   const checkpointFile = path.resolve(runDir, state.files && state.files.checkpoint ? state.files.checkpoint : "checkpoint.md");
+  if (fs.existsSync(checkpointFile) && legacyPaths(fs.readFileSync(checkpointFile, "utf8")).length) abort("Legacy checkpoint requires source state migration before re-export");
   const resultFile = path.resolve(runDir, state.files && state.files.result ? state.files.result : "result.md");
   const feedbackFile = path.resolve(runDir, "execution-feedback.jsonl");
   if (!fs.existsSync(feedbackFile)) fs.writeFileSync(feedbackFile, "", "utf8");
@@ -181,16 +185,16 @@ function main() {
     context: {
       scope: state.scope || [],
       non_goals: state.non_goals || [],
-      assumptions: state.assumptions || [],
-      acceptance_evidence: state.acceptance_evidence || [],
+      assumptions: currentItems(state.assumptions),
+      acceptance_evidence: currentItems(state.acceptance_evidence),
       spec_subtypes: specSubtypes,
-      decisions: evidenceEvents.filter((event) => event.kind === "decision")
+      decisions: evidenceEvents.filter((event) => event.kind === "decision" && legacyPaths(event).length === 0)
     },
     evidence_ledger: {
       path: displayPath(evidenceFile, projectRoot),
       sha256: sha256File(evidenceFile),
       event_count: evidenceEvents.length,
-      events: evidenceEvents
+      events: historicalEvidence(evidenceEvents)
     },
     execution: {
       target_stage: manifest.target.stage,
@@ -201,7 +205,8 @@ function main() {
       constraints: manifest.execution_plan.constraints || []
     },
     authority: {
-      source_action_level: state.action_level,
+      host_policy: "The consuming host agent's current repository, testing, and safety policy governs all actions.",
+      approval: "Use the user's existing authorization and obtain any additional approval required by the host for the specific action. Spec readiness does not grant execution approval.",
       grants_implementation_authority: false,
       grants_external_action_authority: false,
       rule: "Apply the host agent's current approval, repository, testing, and safety policy before acting."

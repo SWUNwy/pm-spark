@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { spawnSync } = require("child_process");
+const { legacyPaths, currentItems, quarantine } = require("./historical-compatibility.cjs");
 
 const RUN_STATE = process.argv[1];
 
@@ -24,7 +25,6 @@ const EVIDENCE_KINDS = new Set([
 ]);
 const EVIDENCE_STATUSES = new Set(["supports", "contradicts", "unknown"]);
 const CONFIDENCE = new Set(["low", "medium", "high"]);
-const ACTION_LEVELS = new Set(["L0", "L1", "L2", "L3"]);
 
 const ORIGIN_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
 
@@ -294,24 +294,6 @@ function captureMetrics(ctx) {
   };
 }
 
-// ─── Action Level ─────────────────────────────────────────────────────────
-
-const ACTION_MATRIX = {
-  L0: { read_run_state: false, read_project: true, write_run_state: false, write_project: false, execute: false, network: false },
-  L1: { read_run_state: true, read_project: true, write_run_state: true, write_project: false, execute: false, network: false },
-  L2: { read_run_state: true, read_project: true, write_run_state: true, write_project: true, execute: false, network: false },
-  L3: { read_run_state: true, read_project: true, write_run_state: true, write_project: true, execute: true, network: true }
-};
-
-function checkActionLevel(state, requestedAction) {
-  const level = state.action_level || "L1";
-  const matrix = ACTION_MATRIX[level];
-  if (!matrix) return { allowed: false, reason: `Unknown action level: ${level}` };
-  if (matrix[requestedAction] === undefined) return { allowed: false, reason: `Unknown action: ${requestedAction}` };
-  if (matrix[requestedAction]) return { allowed: true };
-  return { allowed: false, reason: `Action level ${level} does not permit ${requestedAction}. Required: ${Object.entries(ACTION_MATRIX).find(([, m]) => m[requestedAction])?.[0] || "higher level"}` };
-}
-
 // ─── Load / Save ──────────────────────────────────────────────────────────
 
 function loadState(file, { warnOnInvalidSignature = true } = {}) {
@@ -501,7 +483,6 @@ function commandInit(args) {
     track,
     analysis_type: "none",
     depth,
-    action_level: "L1",
     status: "intake",
     scope: [],
     non_goals: [],
@@ -513,7 +494,6 @@ function commandInit(args) {
     human_commitment_required: false,
     stage_contract: null,
     constitution,
-    authority: { level: "L1", notes: "Run-state artifacts only" },
     max_repair_iterations: 2,
     repair_iterations: 0,
     gates: Object.fromEntries(BUILTIN_GATE_IDS.map((id) => [id, defaultGate(id)])),
@@ -567,6 +547,9 @@ function commandContract(args) {
   if (contract.analysis_type && !ANALYSIS_TYPES.has(contract.analysis_type)) abort("Invalid contract analysis_type", { analysis_type: contract.analysis_type });
   for (const key of ["decomposition_required", "section_review_required", "human_commitment_required"]) {
     if (contract[key] !== undefined && typeof contract[key] !== "boolean") abort(`${key} must be boolean`);
+  }
+  if (contract.authority && (Object.hasOwn(contract.authority, "level") || Object.hasOwn(contract.authority, "source_action_level"))) {
+    abort("Contract contains unsupported legacy authority field");
   }
   Object.assign(ctx.state, contract);
   // Recalculate repair budget if depth or decomposition changed,
@@ -887,7 +870,7 @@ function writeCheckpoint(ctx, { record = true } = {}) {
   const evidenceFile = path.join(ctx.dir, ctx.state.files.evidence);
   const events = fs.readFileSync(evidenceFile, "utf8").split(/\r?\n/).filter(Boolean).slice(-10).map((line) => {
     try { return JSON.parse(line); } catch { return { claim: "<invalid evidence line>", status: "unknown" }; }
-  });
+  }).filter((event) => legacyPaths(event).length === 0);
   const pendingGates = Object.values(ctx.state.gates).filter((g) => g.status !== "pass" && g.status !== "skip").map((g) => `${g.id}:${g.status}`);
   const markdown = [
     "# Analyze Checkpoint", "",
@@ -898,14 +881,19 @@ function writeCheckpoint(ctx, { record = true } = {}) {
     `- Status: ${ctx.state.status}`,
     `- Constitution: ${ctx.state.constitution.detected ? (ctx.state.constitution.applied ? "applied" : "pending") : "none"}`,
     `- Repair budget: ${ctx.state.repair_iterations}/${ctx.state.max_repair_iterations}`,
-    `- Action level: ${ctx.state.action_level}`,
     `- Pending gates: ${pendingGates.join(", ") || "none"}`,
     `- Next action: ${ctx.state.next_action || "none"}`,
     `- Stop reason: ${ctx.state.stop_reason || "none"}`, "",
+    "## Recovery verification", "",
+    `- State file: ${ctx.file}`,
+    "- Read the actual state, this checkpoint, evidence and existing artifacts before resuming; this checkpoint is an index, not completion evidence.",
+    "- Verify confirmed facts and unfinished items against the artifacts; mark missing or conflicting evidence pending or blocked.",
+    "- If the user already requested continuation, resume the verified unfinished item without asking whether to continue.",
+    "- Preserve confirmed facts and existing authorization; state and artifacts do not authorize implementation.", "",
     "## Recent evidence", "",
     ...(events.length ? events.map((e) => `- [${e.kind || "unknown"}/${e.status}] ${e.claim} — ${e.source || "unknown"}`) : ["- None"]), "",
     "## Assumptions", "",
-    ...(ctx.state.assumptions.length ? ctx.state.assumptions.map((item) => `- ${typeof item === "string" ? item : JSON.stringify(item)}`) : ["- None"]), ""
+    ...(currentItems(ctx.state.assumptions).length ? currentItems(ctx.state.assumptions).map((item) => `- ${typeof item === "string" ? item : JSON.stringify(item)}`) : ["- None"]), ""
   ].join("\n");
   fs.writeFileSync(path.join(ctx.dir, ctx.state.files.checkpoint), markdown, "utf8");
   if (record) {
@@ -936,23 +924,58 @@ function commandMigrate(args) {
       addedGates.push(id);
     }
   }
-  if (addedGates.length === 0) {
-    emit({ ok: true, command: "migrate", changed: false, added_gates: [], state: ctx.file });
+  const archive = [];
+  const history = ctx.state.history;
+  const previousArchive = ctx.state.historical_compatibility;
+  ctx.state = quarantine({ ...ctx.state, history: [] }, archive);
+  ctx.state.history = history;
+  if (ctx.state.authority && ["Run-state artifacts only", "Set by action command"].includes(ctx.state.authority.notes)) {
+    archive.push({ path: "authority.notes", value: ctx.state.authority.notes });
+    delete ctx.state.authority.notes;
+  }
+  const evidenceFile = path.join(ctx.dir, ctx.state.files.evidence);
+  const evidenceBytes = fs.readFileSync(evidenceFile);
+  const evidenceEvents = evidenceBytes.toString("utf8").split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line));
+  const legacyEvidence = evidenceEvents.filter(event => legacyPaths(event).length);
+  const newEvidence = legacyEvidence.length && previousArchive?.evidence_sha256 !== sha256File(evidenceFile);
+  const historicalEvents = history.filter(event => legacyPaths(event).length);
+  const checkpointFile = path.join(ctx.dir, ctx.state.files.checkpoint);
+  if (fs.existsSync(checkpointFile)) {
+    const checkpoint = fs.readFileSync(checkpointFile, "utf8");
+    if (legacyPaths(checkpoint).length) archive.push({ path: "checkpoint", value: checkpoint });
+  }
+  const removedFields = archive.map(entry => entry.path);
+  if (archive.length || newEvidence || (historicalEvents.length && !previousArchive)) {
+    ctx.state.historical_compatibility = {
+      ...previousArchive,
+      excluded_from_current_context: true,
+      records: [...(previousArchive?.records || []), ...archive],
+      history: historicalEvents,
+      evidence: legacyEvidence,
+      evidence_sha256: sha256File(evidenceFile)
+    };
+  }
+  if (addedGates.length === 0 && removedFields.length === 0 && !newEvidence && !(historicalEvents.length && !previousArchive)) {
+    emit({ ok: true, command: "migrate", changed: false, added_gates: [], removed_fields: [], state: ctx.file });
     return;
   }
+  const migration = removedFields.length ? "host-policy-compatibility" : "builtin-gates-compatibility";
   appendHistory(ctx.state, {
     type: "state_migrated",
-    migration: "builtin-gates-compatibility",
-    added_gates: addedGates
+    migration,
+    added_gates: addedGates,
+    removed_fields: removedFields
   });
   saveState(ctx);
+  writeCheckpoint(ctx, { record: false });
   updateIndex(ctx);
   appendAuditEvent(ctx, {
     type: "state_migration",
-    migration: "builtin-gates-compatibility",
-    added_gates: addedGates
+    migration,
+    added_gates: addedGates,
+    removed_fields: removedFields
   });
-  emit({ ok: true, command: "migrate", changed: true, added_gates: addedGates, state: ctx.file });
+  emit({ ok: true, command: "migrate", changed: true, added_gates: addedGates, removed_fields: removedFields, state: ctx.file });
 }
 
 function commandValidate(args) {
@@ -1084,54 +1107,6 @@ function commandMetrics(args) {
     ok: true,
     command: "metrics",
     metrics
-  });
-}
-
-// ─── New: Action ──────────────────────────────────────────────────────────
-
-function commandAction(args) {
-  const ctx = loadState(requireArg(args, "state"));
-
-  if (args.check) {
-    const requestedAction = String(args.check);
-    const result = checkActionLevel(ctx.state, requestedAction);
-    emit({
-      ok: result.allowed,
-      command: "action",
-      action: "check",
-      requested: requestedAction,
-      current_level: ctx.state.action_level,
-      ...result
-    });
-    return;
-  }
-
-  if (args["set-level"]) {
-    const newLevel = String(args["set-level"]).toUpperCase();
-    if (!ACTION_LEVELS.has(newLevel)) abort("Invalid action level", { level: newLevel, allowed: [...ACTION_LEVELS] });
-    ctx.state.action_level = newLevel;
-    ctx.state.authority = { level: newLevel, notes: `Set by action command` };
-    appendHistory(ctx.state, { type: "action_level_changed", from: ctx.state.action_level, to: newLevel });
-    saveState(ctx);
-    emit({
-      ok: true,
-      command: "action",
-      action: "set_level",
-      level: newLevel,
-      state: ctx.file
-    });
-    return;
-  }
-
-  // Default: show current action level and permissions
-  const level = ctx.state.action_level || "L1";
-  emit({
-    ok: true,
-    command: "action",
-    action: "status",
-    current_level: level,
-    permissions: ACTION_MATRIX[level] || {},
-    state: ctx.file
   });
 }
 
@@ -3783,7 +3758,7 @@ function commandPromptEvolve(args) {
   abort("Unknown prompt-evolve mode", { mode });
 }
 
-// ─── Patch (L1) ────────────────────────────────────────────────────────────
+// ─── Patch ────────────────────────────────────────────────────────────
 
 const PATCH_TYPES = ["prompt", "reference", "config", "template", "state"];
 const PATCH_LIFECYCLE = ["draft", "proposed", "applied", "verified", "expired"];
@@ -3964,7 +3939,7 @@ function commandPatch(args) {
   abort("Invalid patch mode", { mode, allowed: ["auto", "list", "transition"] });
 }
 
-// ─── Shadow (L2) ───────────────────────────────────────────────────────────
+// ─── Shadow ───────────────────────────────────────────────────────────
 
 function shadowDir(ctx) {
   const sDir = path.join(ctx.dir, "..", "shadow");
@@ -4112,7 +4087,7 @@ function commandShadow(args) {
   });
 }
 
-// ─── Longitudinal (L3) ─────────────────────────────────────────────────────
+// ─── Longitudinal ─────────────────────────────────────────────────────
 
 function computeTrend(values) {
   if (values.length < 2) return { direction: "insufficient_data", change_rate: 0, confidence: 0 };
@@ -5532,7 +5507,6 @@ Commands:
 
   index --state <file>|--root <dir> [--query] [--filter key=val] [--limit N] [--aggregate] [--similar <text>]
   metrics --state <file> [--capture] [--report] [--export] [--format json]
-  action --state <file> [--check <action>] [--set-level L0|L1|L2|L3]
   retry-policy --state <file> [--set-iterations N]
 
   budget --state <file> [--estimate-only] [--auto-degrade]
@@ -5597,7 +5571,6 @@ const commands = {
   status: commandStatus,
   index: commandIndex,
   metrics: commandMetrics,
-  action: commandAction,
   "retry-policy": commandRetryPolicy,
   budget: commandBudget,
   guardrail: commandGuardrail,
