@@ -5557,6 +5557,19 @@ Commands:
 
 const args = parseArgs(process.argv.slice(2));
 const command = args._[0];
+
+// Retired old spec-analyze/analyze engine commands. These are decoupled from
+// the pm-spark five-mode flow, so they are intercepted at dispatch to return a
+// clear "retired" notice with zero writes (no audit log, no file mutation).
+// Handler functions below remain as unreachable historical code.
+const RETIRED = new Set([
+  "autonomy",
+  "meta",
+  "cross-skill",
+  "insights",
+  "dashboard"
+]);
+
 const commands = {
   init: commandInit,
   contract: commandContract,
@@ -5596,16 +5609,21 @@ const commands = {
   "context-prune": commandContextPrune,
   "prompt-ab": commandPromptAb,
   "prompt-evolve": commandPromptEvolve,
-  autonomy: commandAutonomy,
-  meta: commandMeta,
-  "cross-skill": commandCrossSkill,
-  insights: commandInsights,
-  dashboard: commandDashboard,
+  autonomy: commandAutonomy, // retired
+  meta: commandMeta, // retired
+  "cross-skill": commandCrossSkill, // retired
+  insights: commandInsights, // retired
+  dashboard: commandDashboard, // retired
   "analysis-quality": commandAnalysisQuality,
   decision: commandDecision,
   guidance: commandGuidance
 };
 
+if (RETIRED.has(command)) {
+  // Retired old-engine command: clear notice, non-zero retired exit, zero writes.
+  process.stdout.write(`${command}: 该命令已退役（retired）：旧 spec-analyze/analyze 引擎命令，与 pm-spark 五模式流程无关，不读写任何状态\n`);
+  process.exit(2);
+}
 if (!command || command === "help" || args.help) usage();
 else if (!commands[command]) abort("Unknown command", { command });
 else {

@@ -1,3 +1,6 @@
+# history/retired — 计划执行
+
+本文档《计划执行》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 执行实施计划（analyze 内部能力）
 
 ## 概述

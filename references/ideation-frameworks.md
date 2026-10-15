@@ -1,3 +1,6 @@
+# history/retired — 构思框架
+
+本文档《构思框架》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 头脑风暴框架（Brainstorm Frameworks）
 
 每个框架条目包含：何时用、何时不用、核心问题、输出、示例、常见误用/风险。

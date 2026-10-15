@@ -1,3 +1,6 @@
+# history/retired — 可视化伴生
+
+本文档《可视化伴生》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # Visual Companion
 
 只有空间呈现实质改善决策时才用 Visual Companion。它是分析闭环上的可选视图，不是 Track、Gate 或批准渠道。

@@ -1,3 +1,6 @@
+# history/retired — 进阶能力说明
+
+本文档《进阶能力说明》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 进阶能力索引（Advanced Capabilities）
 
 > 登记范围：`scripts/run-state.cjs` 与 `scripts/workflow-state.cjs` 中已实现、但 SKILL.md 主流程未逐条讲解的命令。核心命令已在主流程覆盖，此处仅为汇总；其余子系统均属**实验性**——接口可能变化，不参与主流程 Gate 依赖。

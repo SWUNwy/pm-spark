@@ -1,3 +1,6 @@
+# history/retired — 评审就绪检查清单
+
+本文档《评审就绪检查清单》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 产品评审就绪清单
 
 默认 `node scripts/validate-prd.js <path>` 使用 `product-prd`。`--profile engineering-spec` 用于明确要求的独立工程规格；`--profile legacy` 仅保留旧研发 PRD 的 RC 规则。不得根据正文自动提升 profile。

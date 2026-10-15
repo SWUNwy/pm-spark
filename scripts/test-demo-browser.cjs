@@ -131,6 +131,14 @@ async function main() {
     if (server) await new Promise(resolve => server.close(resolve));
     if (report.status === 'failed') process.exitCode = 1;
     report.recorded_at = new Date().toISOString();
+    // 归一化浮点坐标（亚像素漂移导致重跑脏工作树）：仅取整有限数值，坐标取整后跨次运行稳定
+    const roundFloats = value => {
+      if (Array.isArray(value)) return value.map(roundFloats);
+      if (value && typeof value === 'object') { for (const k of Object.keys(value)) value[k] = roundFloats(value[k]); return value; }
+      if (typeof value === 'number' && Number.isFinite(value)) return Math.round(value);
+      return value;
+    };
+    roundFloats(report);
     fs.writeFileSync(path.join(ROOT, 'tests/annotations/browser-results.json'), JSON.stringify(report, null, 2) + '\n');
     console.log(JSON.stringify(report, null, 2));
   }

@@ -1,5 +1,22 @@
 # Changelog
 
+## 6.1.1 (2026-10-15)
+
+**瘦身与一致性清理。** 修复验收状态文档陈旧矛盾，退役旧 analyze 引擎残留，收敛权威来源。全部 15 个 PM 行为场景受控验收、17 个 `test-*.cjs`、`evaluate-tests.cjs`、`check-v6-contract.cjs --release` 发布门禁、`git diff --check` 仍通过（`release_ready: true`）。
+
+### Changed
+- **修正验收状态文档陈旧矛盾**：README 与 SKILL 的"行为尚未运行、浏览器受阻 / 尚未完整验收"措辞，与已完成的 15 场景受控验收结果冲突，已同步为"已完成受控验收、发布门禁通过"。
+- `check-v6-contract.cjs` 输出的阶段标签由 `v6.1-phase-6` 对齐为验收工件实际使用的 `v6.1-phase-1`。
+- `test-demo-browser.cjs` 写浏览器证据前对亚像素坐标取整，消除跨次运行的浮点漂移导致的脏工作树。
+- **退役旧引擎命令**：`autonomy`/`meta`/`cross-skill`/`insights`/`dashboard` 加入 RETIRED 拦截（零写入、明确提示），与"行动等级已移除"声明对齐；`test-automated.cjs` 相应 Phase 6a/6b 改为断言退役与零写入。
+
+### Added
+- 新增 `references/history-retired` 标注：62 个旧 spec-analyze/analyze 引擎参考文件（autonomy-levels、predictive-signals、patch-templates、plan-execution 等）标为 `history/retired`，不再进入当前引用链。
+- 5 个零引用旧引擎脚本（`archive-pm-replay`、`benchmark`、`verify-state-machine`、`evaluate-response`、`init.sh`）改为退役桩（零写入、非零退出）。
+
+### Fixed
+- 清理体积：移除 148MB 未跟踪、未被验收证据引用的废弃受控回放产物与 `archive-manifest.json`（保留 15 场景证据实际引用的目录）。
+
 ## 6.1.0 (2026-10-12)
 
 **已完成受控验收。** 15 个 PM 行为场景全部通过真实受控回放 + 逐项独立评审（`tests/pm-behavior/results.json`，overall `passed`），并通过对受控回放不等于人类 PM 用户研究的显式标注。全部自动测试（`test-automated.cjs` 105 项、`evaluate-tests.cjs` 等）、`check-v6-contract.cjs --release` 发布门禁、隐私脱敏与 `git diff --check` 通过。受控回放不等于真实用户研究。

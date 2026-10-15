@@ -6,7 +6,7 @@ pm-spark 是一个 AI 代理 skill，使用 `$pm-spark` 调用，识别 PM 当�
 
 当前版本：**v6.1.0**（完整变更及迁移见 [CHANGELOG.md](CHANGELOG.md)）。
 
-开发检查：`node scripts/check-v6-contract.cjs`；发布检查：`node scripts/check-v6-contract.cjs --release`。开发检查允许行为 `not_run` / `blocked`，其 `ok` 仅说明静态契约有效；只有全部真实对话通过、浏览器通过且证据完整可定位时，`release_ready` 才为 `true`。当前行为尚未运行、浏览器受阻，不能宣称发布完成。历史仓库 URL 仍为下方真实地址；安装后的 skill 目录名使用 `pm-spark`。
+开发检查：`node scripts/check-v6-contract.cjs`；发布检查：`node scripts/check-v6-contract.cjs --release`。开发检查允许行为 `not_run` / `blocked`，其 `ok` 仅说明静态契约有效；只有全部真实对话通过、浏览器通过且证据完整可定位时，`release_ready` 才为 `true`。当前 v6.1.0 已完成受控验收：15 个行为场景与浏览器均通过，证据完整可定位，`release_ready` 为 `true`。历史仓库 URL 仍为下方真实地址；安装后的 skill 目录名使用 `pm-spark`。
 
 PM 只需要理解五种工作模式、当前阶段和交付状态（草稿 / 待确认 / 已就绪 / 受阻）。行动等级和注释等级已移除；宿主权限留在执行机制中，交付就绪不自动授权实施。
 

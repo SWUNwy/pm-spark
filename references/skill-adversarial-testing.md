@@ -1,3 +1,6 @@
+# history/retired — 技能对抗测试
+
+本文档《技能对抗测试》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 用子代理测试 Skill
 
 **加载时机：** 创建或编辑 skill、部署之前，用于验证 skill 在压力下有效、能抵抗合理化。

@@ -53,6 +53,46 @@ function assertEq(actual, expected, label) {
   if (actual !== expected) throw new Error(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
 }
 
+// ─── Retired old-engine command helpers ────────────────────────────────────
+// Retired spec-analyze/analyze engine commands are intercepted at dispatch:
+// they return a clear "retired" notice, exit with the retired code (2), and
+// perform zero writes. Helpers snapshot a directory so tests can assert that a
+// retired invocation changes nothing on disk.
+
+function dirSnapshot(dir) {
+  const out = {};
+  if (!fs.existsSync(dir)) return out;
+  const walk = (d, base) => {
+    for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+      const p = path.join(d, e.name);
+      const rp = base ? `${base}/${e.name}` : e.name;
+      if (e.isDirectory()) walk(p, rp);
+      else out[rp] = fs.readFileSync(p, "base64");
+    }
+  };
+  walk(dir, "");
+  return out;
+}
+
+function assertSnapshotUnchanged(before, after, label) {
+  assertEq(Object.keys(after).sort().join(","), Object.keys(before).sort().join(","), `${label}: file set unchanged`);
+  for (const k of Object.keys(before)) {
+    assertEq(after[k], before[k], `${label}: ${k} unchanged`);
+  }
+}
+
+// Runs a retired command, asserting the retired exit code + message and zero writes.
+function assertRetiredCommand(cmd, args, label, root) {
+  const before = dirSnapshot(root);
+  const result = run(RUN_STATE, [cmd, ...args]);
+  const msg = result.stdout + result.stderr;
+  assertEq(result.status, 2, `${label}: retired exit code`);
+  assert(msg.includes("已退役"), `${label}: retired message present`);
+  assert(msg.includes(cmd), `${label}: retired message names command`);
+  assertSnapshotUnchanged(before, dirSnapshot(root), `${label}: zero writes`);
+  return result;
+}
+
 // ─── Test Definitions ─────────────────────────────────────────────────────
 
 // 1. Run state init
@@ -1916,79 +1956,56 @@ register("phase5c-062-prompt-score-cross-dimension", {
 
 register("phase6-063-autonomy-status", {
   group: "phase6a",
-  description: "Autonomy should return current level and risk matrix",
+  description: "Autonomy is retired: intercepted at dispatch with a retired notice and zero writes",
   run: () => {
     const runId = `test-a63-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test autonomy", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    const aResult = run(RUN_STATE, ["autonomy", "--state", initResult.parsed.state]);
-    assertEq(aResult.status, 0, "autonomy exit code");
-    assert(aResult.parsed.ok === true, "ok is true");
-    assert(aResult.parsed.level === "AL-1", "default level is AL-1");
-    assert(Array.isArray(aResult.parsed.risk_matrix), "risk_matrix is array");
+    assertRetiredCommand("autonomy", ["--state", initResult.parsed.state], "autonomy status", root);
     return { passed: true };
   }
 });
 
 register("phase6-064-autonomy-set-level", {
   group: "phase6a",
-  description: "Autonomy --set AL-2 should change level and persist",
+  description: "Autonomy --set is retired: no level change, zero writes",
   run: () => {
     const runId = `test-a64-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test autonomy set", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    // Set AL-2
-    const setResult = run(RUN_STATE, ["autonomy", "--state", initResult.parsed.state, "--set", "AL-2"]);
-    assertEq(setResult.status, 0, "set exit code");
-    assert(setResult.parsed.level === "AL-2", "level set to AL-2");
-    // Verify eligible actions include AL-2 actions
-    const eligibleResult = run(RUN_STATE, ["autonomy", "--state", initResult.parsed.state, "--eligible-actions"]);
-    assertEq(eligibleResult.status, 0, "eligible-actions exit code");
-    assert(eligibleResult.parsed.level === "AL-2", "level persisted");
-    assert(Array.isArray(eligibleResult.parsed.eligible_actions), "eligible_actions is array");
-    assert(eligibleResult.parsed.eligible_actions.includes("compact_evidence"), "AL-2 includes compact_evidence");
+    assertRetiredCommand("autonomy", ["--state", initResult.parsed.state, "--set", "AL-2"], "autonomy set", root);
     return { passed: true };
   }
 });
 
 register("phase6-065-meta-health", {
   group: "phase6a",
-  description: "Meta --health should return loop health with dimensions",
+  description: "Meta --health is retired: intercepted with a retired notice and zero writes",
   run: () => {
     const runId = `test-m65-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test meta health", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    const mResult = run(RUN_STATE, ["meta", "--state", initResult.parsed.state, "--health"]);
-    assertEq(mResult.status, 0, "meta exit code");
-    assert(mResult.parsed.ok === true, "ok is true");
-    assert(mResult.parsed.mode === "health", "mode is health");
-    assert(mResult.parsed.loop_health, "loop_health present");
-    assert(mResult.parsed.loop_health.overall_score !== undefined, "overall_score present");
-    assert(Array.isArray(mResult.parsed.loop_health.dimensions), "dimensions is array");
-    assert(mResult.parsed.loop_health.dimensions.length === 7, "7 dimensions");
+    assertRetiredCommand("meta", ["--state", initResult.parsed.state, "--health"], "meta health", root);
     return { passed: true };
   }
 });
 
 register("phase6-066-meta-diagnose", {
   group: "phase6a",
-  description: "Meta --diagnose should return critical findings",
+  description: "Meta --diagnose is retired: intercepted with a retired notice and zero writes",
   run: () => {
     const runId = `test-m66-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test meta diagnose", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    const dResult = run(RUN_STATE, ["meta", "--state", initResult.parsed.state, "--diagnose"]);
-    assertEq(dResult.status, 0, "diagnose exit code");
-    assert(dResult.parsed.mode === "diagnose", "mode is diagnose");
-    assert(Array.isArray(dResult.parsed.critical_findings), "critical_findings is array");
+    assertRetiredCommand("meta", ["--state", initResult.parsed.state, "--diagnose"], "meta diagnose", root);
     return { passed: true };
   }
 });
@@ -1997,85 +2014,56 @@ register("phase6-066-meta-diagnose", {
 
 register("phase6-067-cross-skill-push-pull", {
   group: "phase6b",
-  description: "Cross-skill should support push and pull pattern sharing",
+  description: "Cross-skill is retired: push/pull pattern sharing no longer active, zero writes",
   run: () => {
     const runId = `test-cs67-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test cross-skill", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    // Push a pattern
-    const pushResult = run(RUN_STATE, ["cross-skill", "--state", initResult.parsed.state, "--push", "--pattern", "scope_creep_test", "--evidence", "Test evidence for scope creep"]);
-    assertEq(pushResult.status, 0, "push exit code");
-    assert(pushResult.parsed.action === "push", "action is push");
-    assert(pushResult.parsed.stored === true, "pattern stored");
-    // Pull patterns
-    const pullResult = run(RUN_STATE, ["cross-skill", "--state", initResult.parsed.state, "--pull"]);
-    assertEq(pullResult.status, 0, "pull exit code");
-    assert(pullResult.parsed.action === "pull", "action is pull");
-    assert(Array.isArray(pullResult.parsed.patterns), "patterns is array");
+    assertRetiredCommand("cross-skill", ["--state", initResult.parsed.state, "--push", "--pattern", "scope_creep_test", "--evidence", "Test evidence for scope creep"], "cross-skill push", root);
     return { passed: true };
   }
 });
 
 register("phase6-068-cross-skill-recommend", {
   group: "phase6b",
-  description: "Cross-skill should recommend patch to target skill",
+  description: "Cross-skill --recommend is retired: no patch recommendation, zero writes",
   run: () => {
     const runId = `test-cs68-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test cross-skill recommend", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    const recResult = run(RUN_STATE, ["cross-skill", "--state", initResult.parsed.state, "--recommend", "--patch-id", "P-test", "--target-skill", "brainstorming"]);
-    assertEq(recResult.status, 0, "recommend exit code");
-    assert(recResult.parsed.action === "recommend", "action is recommend");
-    assert(recResult.parsed.patch_id === "P-test", "patch_id matches");
-    assert(recResult.parsed.target_skill === "brainstorming", "target_skill matches");
+    assertRetiredCommand("cross-skill", ["--state", initResult.parsed.state, "--recommend", "--patch-id", "P-test", "--target-skill", "brainstorming"], "cross-skill recommend", root);
     return { passed: true };
   }
 });
 
 register("phase6-069-insights-run", {
   group: "phase6b",
-  description: "Insights should return run insights with natural language text",
+  description: "Insights is retired: intercepted at dispatch with a retired notice and zero writes",
   run: () => {
     const runId = `test-i69-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test insights", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    const iResult = run(RUN_STATE, ["insights", "--state", initResult.parsed.state]);
-    assertEq(iResult.status, 0, "insights exit code");
-    assert(iResult.parsed.mode === "run", "mode is run");
-    assert(iResult.parsed.insights, "insights text present");
-    assert(typeof iResult.parsed.insights === "string", "insights is string");
-    assert(iResult.parsed.insights.includes(runId), "insights contains run_id");
+    assertRetiredCommand("insights", ["--state", initResult.parsed.state], "insights run", root);
     return { passed: true };
   }
 });
 
 register("phase6-070-dashboard", {
   group: "phase6b",
-  description: "Dashboard should return text dashboard with all key indicators",
+  description: "Dashboard is retired: no text dashboard rendered, zero writes",
   run: () => {
     const runId = `test-d70-${Date.now()}`;
     const root = path.join(TMP_ROOT, runId);
     fs.mkdirSync(root, { recursive: true });
     const initResult = run(RUN_STATE, ["init", "--root", root, "--goal", "test dashboard", "--run-id", runId]);
     assertEq(initResult.status, 0, "init exit code");
-    // Add a gate failure to test risk detection
-    run(RUN_STATE, ["gate", "--state", initResult.parsed.state, "--id", "G1", "--status", "fail", "--reason", "test"]);
-    const dResult = run(RUN_STATE, ["dashboard", "--state", initResult.parsed.state]);
-    assertEq(dResult.status, 0, "dashboard exit code");
-    assert(dResult.parsed.dashboard, "dashboard text present");
-    assert(typeof dResult.parsed.dashboard === "string", "dashboard is string");
-    // Check key indicators
-    assert(dResult.parsed.data, "data object present");
-    assert(dResult.parsed.data.status, "status present");
-    assert(dResult.parsed.data.health_pct !== undefined, "health_pct present");
-    assert(dResult.parsed.data.health_status, "health_status present");
-    assert(dResult.parsed.data.token_pct !== undefined, "token_pct present");
+    assertRetiredCommand("dashboard", ["--state", initResult.parsed.state], "dashboard", root);
     return { passed: true };
   }
 });

@@ -1,3 +1,6 @@
+# history/retired — 根因框架
+
+本文档《根因框架》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 根因框架（Root Cause Framework）
 
 分析 run 状态失败的结构化诊断框架。`run-state.cjs diagnose` 使用，修复阶段引用。

@@ -1,3 +1,6 @@
+# history/retired — 框架索引
+
+本文档《框架索引》为旧 spec-analyze/analyze 引擎遗留，已退役，不是 pm-spark 五模式现行权威，不在当前引用链。当前权威以 SKILL.md 与 references 中现行契约文件为准。正文保留作为历史参考，不参与五模式流程。
 # 框架索引（Frameworks Index）
 
 选框架时先读本文件。只在需要时加载详细框架文件。
