@@ -1,5 +1,5 @@
 {
-  "version": "6.1.0",
+  "version": "6.1.2",
   "description": "Regression, harness, and PM behavior acceptance tests for pm-spark v6.1.",
   "behavior_acceptance": {
     "stage": "v6.1-phase-1",

@@ -1,5 +1,21 @@
 # Changelog
 
+## 6.1.2 (2026-10-15)
+
+**全面退役旧引擎命令 + 场景目录收敛。** 退役全部旧 spec-analyze/analyze 引擎命令为单一 `RETIRED_COMMANDS` 来源 + 泛化退役测试；场景 id 目录收敛为 `scenarios.json` 单一权威来源并接入门禁。全部 15 个 PM 行为场景受控验收、17 个 `test-*.cjs`、`evaluate-tests.cjs`、`check-v6-contract.cjs --release` 发布门禁、`git diff --check` 仍通过（`release_ready: true`）。
+
+### Changed
+- **退役全部旧引擎命令**：`RETIRED_COMMANDS`（32 个）作为单一来源，dispatch 入口统一拦截（零写入、明确提示）；覆盖 predict/longitudinal/causal/prompt-ab/prompt-evolve/adapt-prompt/prompt-score/patch/shadow/runtime-adapt/cross-session-context/context-prune/budget/guardrail/remember/forget/recall/compact/diagnose/context-score/assemble-context/context-trace/verify-compliance/metrics/retry-policy/index/analysis-quality 及 autonomy/meta/cross-skill/insights/dashboard。保留 14 个现行命令（init/contract/constitution/transition/gate/evidence/check/checkpoint/validate/migrate/status/store-result/decision/guidance）。
+- `test-automated.cjs` 删除 54 个旧命令具体行为用例，替换为 1 个泛化退役测试（遍历 `RETIRED_COMMANDS`，断言退役提示 + 非零退出 + 零写入）。
+- **场景 id 目录收敛**：新增 `scripts/sync-scenario-catalog.cjs`（`--check` 校验 / `--generate` 生成），以 `scenarios.json` 为唯一权威，`results.json`/`results.template.json`/`tests/index.json` 的场景 id 与之强制一致；`evaluate-tests.cjs` 接入该一致性门禁。
+- 版本号统一升至 **6.1.2**（SKILL.md / check-v6-contract / tests/index.json / README / CHANGELOG）。
+
+### Added
+- `scripts/sync-scenario-catalog.cjs`：场景目录单一权威生成与一致性校验。
+
+### Fixed
+- 修复 `results.template.json` 与 `scenarios.json` 场景顺序不一致（`pm-010`/`pm-011` 重排对齐）。
+
 ## 6.1.1 (2026-10-15)
 
 **瘦身与一致性清理。** 修复验收状态文档陈旧矛盾，退役旧 analyze 引擎残留，收敛权威来源。全部 15 个 PM 行为场景受控验收、17 个 `test-*.cjs`、`evaluate-tests.cjs`、`check-v6-contract.cjs --release` 发布门禁、`git diff --check` 仍通过（`release_ready: true`）。

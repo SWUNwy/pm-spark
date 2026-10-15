@@ -4,9 +4,9 @@
 
 pm-spark 是一个 AI 代理 skill，使用 `$pm-spark` 调用，识别 PM 当前的工作处境，路由到对应的模式执行。五种工作模式：理解问题 / 挑战需求 / 设计方案 / 规格化与交付 / 做决策。
 
-当前版本：**v6.1.0**（完整变更及迁移见 [CHANGELOG.md](CHANGELOG.md)）。
+当前版本：**v6.1.2**（完整变更及迁移见 [CHANGELOG.md](CHANGELOG.md)）。
 
-开发检查：`node scripts/check-v6-contract.cjs`；发布检查：`node scripts/check-v6-contract.cjs --release`。开发检查允许行为 `not_run` / `blocked`，其 `ok` 仅说明静态契约有效；只有全部真实对话通过、浏览器通过且证据完整可定位时，`release_ready` 才为 `true`。当前 v6.1.0 已完成受控验收：15 个行为场景与浏览器均通过，证据完整可定位，`release_ready` 为 `true`。历史仓库 URL 仍为下方真实地址；安装后的 skill 目录名使用 `pm-spark`。
+开发检查：`node scripts/check-v6-contract.cjs`；发布检查：`node scripts/check-v6-contract.cjs --release`。开发检查允许行为 `not_run` / `blocked`，其 `ok` 仅说明静态契约有效；只有全部真实对话通过、浏览器通过且证据完整可定位时，`release_ready` 才为 `true`。当前 v6.1.2 已完成受控验收：15 个行为场景与浏览器均通过，证据完整可定位，`release_ready` 为 `true`。历史仓库 URL 仍为下方真实地址；安装后的 skill 目录名使用 `pm-spark`。
 
 PM 只需要理解五种工作模式、当前阶段和交付状态（草稿 / 待确认 / 已就绪 / 受阻）。行动等级和注释等级已移除；宿主权限留在执行机制中，交付就绪不自动授权实施。
 
@@ -150,6 +150,8 @@ pm-spark/
 
 ## 版本
 
+- **v6.1.2**：退役全部旧 spec-analyze/analyze 引擎命令（RETIRED_COMMANDS 单一来源 + 泛化退役测试）；场景 id 目录收敛为单一权威来源（sync-scenario-catalog 生成器 + 一致性校验入门禁）。
+- **v6.1.1**：修正验收状态文档陈旧矛盾；退役 5 个旧引擎命令（autonomy/meta/cross-skill/insights/dashboard）；62 个旧 references 标 history/retired；5 个零引用旧脚本改退役桩；浏览器证据坐标取整；清理 148MB 废弃回放产物。
 - **v6.1.0**：入口统一为 PM Spark；补齐标准深度、模式衔接、变更与恢复场景；开发与发布检查分离；15 个 PM 行为场景通过受控回放与独立评审；澄清设计方案（发散）与做决策（收敛）边界。
 - **v6.0.0**：移除行动等级与注释等级；够用即停、每轮一个关键问题；交互深度与宿主权限分离；新增 PM 行为验收。
 - **v5.0.0**：架构重构——复杂度三路径改为 PM 处境五模式；新增挑战需求（模式二）和做决策（模式五）；意图识别路由替代关键词匹配

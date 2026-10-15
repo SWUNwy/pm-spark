@@ -98,6 +98,12 @@ function main() {
   catch { companionResult = { ok: false, raw: companionTest.stdout || companionTest.stderr }; }
   if (companionTest.status !== 0 || !companionResult.ok) issues.push(issue("error", "Visual Companion test suite failed"));
 
+  const catalogTest = spawnSync(process.execPath, [path.join(skillDir, "scripts", "sync-scenario-catalog.cjs"), "--check"], { encoding: "utf8" });
+  let catalogResult;
+  try { catalogResult = JSON.parse(catalogTest.stdout || catalogTest.stderr); }
+  catch { catalogResult = { ok: false, raw: catalogTest.stdout || catalogTest.stderr }; }
+  if (catalogTest.status !== 0 || !catalogResult.ok) issues.push(issue("error", "PM behavior scenario id catalog drift (scenarios.json vs results.json / results.template.json / tests/index.json)"));
+
   const errorCount = issues.filter((item) => item.level === "error").length;
   const result = {
     ok: errorCount === 0,

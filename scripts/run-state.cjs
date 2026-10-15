@@ -5555,14 +5555,40 @@ Commands:
 
 // ─── Main ─────────────────────────────────────────────────────────────────
 
-const args = parseArgs(process.argv.slice(2));
-const command = args._[0];
-
 // Retired old spec-analyze/analyze engine commands. These are decoupled from
 // the pm-spark five-mode flow, so they are intercepted at dispatch to return a
 // clear "retired" notice with zero writes (no audit log, no file mutation).
 // Handler functions below remain as unreachable historical code.
-const RETIRED = new Set([
+// Single source of truth for the retired-command set; exported so tests can
+// assert every retired command without duplicating the list.
+const RETIRED_COMMANDS = new Set([
+  "predict",
+  "longitudinal",
+  "causal",
+  "prompt-ab",
+  "prompt-evolve",
+  "adapt-prompt",
+  "prompt-score",
+  "patch",
+  "shadow",
+  "runtime-adapt",
+  "cross-session-context",
+  "context-prune",
+  "budget",
+  "guardrail",
+  "remember",
+  "forget",
+  "recall",
+  "compact",
+  "diagnose",
+  "context-score",
+  "assemble-context",
+  "context-trace",
+  "verify-compliance",
+  "metrics",
+  "retry-policy",
+  "index",
+  "analysis-quality",
   "autonomy",
   "meta",
   "cross-skill",
@@ -5619,7 +5645,14 @@ const commands = {
   guidance: commandGuidance
 };
 
-if (RETIRED.has(command)) {
+// Dispatch runs only when executed directly. When this module is required by
+// tests (to read RETIRED_COMMANDS), no CLI side effects occur.
+if (require.main === module) {
+
+const args = parseArgs(process.argv.slice(2));
+const command = args._[0];
+
+if (RETIRED_COMMANDS.has(command)) {
   // Retired old-engine command: clear notice, non-zero retired exit, zero writes.
   process.stdout.write(`${command}: 该命令已退役（retired）：旧 spec-analyze/analyze 引擎命令，与 pm-spark 五模式流程无关，不读写任何状态\n`);
   process.exit(2);
@@ -5636,3 +5669,7 @@ else {
   } catch (_) { /* audit best-effort */ }
   commands[command](args);
 }
+
+} // end dispatch guard (require.main === module)
+
+module.exports = { RETIRED_COMMANDS };

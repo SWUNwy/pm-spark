@@ -8,7 +8,7 @@ const { checkDecisionLogContract } = require("./decision-log-contract.cjs");
 const { spawnSync } = require("child_process");
 const { validateBehaviorEvidence } = require("./pm-behavior-evidence.cjs");
 const ROOT = path.resolve(__dirname, "..");
-const EXPECTED_VERSION = "6.1.0";
+const EXPECTED_VERSION = "6.1.2";
 const VALID_STATUSES = new Set(["passed", "failed", "not_run", "blocked"]);
 const REQUIRED_FILES = ["SKILL.md", "README.md", "agents/openai.yaml", "references/pm-behavior-acceptance.md", "tests/index.json", "tests/pm-behavior/scenarios.json", "tests/pm-behavior/results.template.json", "tests/pm-behavior/results.json", "scripts/evaluate-tests.cjs"];
 const LEGACY_USER_MODEL = [/行动等级\s*[:：]?\s*(?:低|中|高|L[123])/, /注释等级\s*[:：]?\s*(?:低|中|高|L[123])/, /权限等级/, /选择(?:一个)?(?:轨道|门禁|角色|权限)/, /用户(?:需要|必须)选择.*(?:等级|权限|角色)/];
@@ -99,7 +99,7 @@ function main() {
   }
   const skill = read("SKILL.md", issues);
   const adversarial = read("references/adversarial-review.md", issues);
-  if (!/^name:\s*pm-spark\s*$/m.test(skill) || !/^version:\s*6\.1\.0\s*$/m.test(skill)) issues.push(fail("Invalid SKILL identity or version"));
+  if (!/^name:\s*pm-spark\s*$/m.test(skill) || !/^version:\s*6\.1\.2\s*$/m.test(skill)) issues.push(fail("Invalid SKILL identity or version"));
   const adversarialRequirements = ["不新增 PM 工作模式、阶段、交付等级或权限选择", "不要求六维度全部有答案", "每轮最多问一个", "不要求用户当轮逐项回答", "不播报门禁编号、角色名、机器状态或严重性枚举", "模式一、二仅在对话交付", "独立 `review-log.md` 仅在用户明确要求时生成", "不因轻量而跳过或取消阻断", "从未完成的关键项继续", "审查通过不授予实施或外部动作权限", "不得虚构对话、证据或通过状态"];
   if (adversarialRequirements.some(text => !adversarial.includes(text)) || /S3（输出准备）|8F（输出生成）|Lightweight 路径下|解决或豁免后才能产出|与三文档同目录/.test(adversarial)) issues.push(fail("Adversarial review is incompatible with the v6.1 PM protocol"));
   const agent = read("agents/openai.yaml", issues);
